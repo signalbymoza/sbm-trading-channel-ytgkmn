@@ -17,7 +17,7 @@ export default function EducationScreen() {
       id: 'analysis_training',
       titleEn: 'Analysis Training from Scratch',
       titleAr: 'تعليم التحليل من الصفر',
-      descriptionEn: 'Training will be conducted by analyst Nour',
+      descriptionEn: 'Training will be conducted by analyst Noor',
       descriptionAr: 'التعليم سيكون من خلال المحللة نور',
       icon: 'bar-chart',
       color: '#1E3A8A',
@@ -35,7 +35,7 @@ export default function EducationScreen() {
           ar: 'متقنة لمدرسة التحليل الفني الكلاسيكي + pure price action + إستراتيجية ICT' 
         },
       ],
-      featuresTitleEn: 'Training will be conducted by analyst Nour:',
+      featuresTitleEn: 'Training will be conducted by analyst Noor:',
       featuresTitleAr: 'التعليم سيكون من خلال المحللة نور:',
       priceAED: 'د.إ 5,509.00',
       priceUSD: '$1,500',
@@ -66,19 +66,17 @@ export default function EducationScreen() {
       id: 'instructions_service',
       titleEn: 'Instructions Service',
       titleAr: 'خدمة التعليمات',
-      descriptionEn: 'Personalized guidance and support for your trading journey',
-      descriptionAr: 'إرشاد ودعم شخصي لرحلة التداول الخاصة بك',
+      descriptionEn: 'Instructions and tips for SBM channel subscribers',
+      descriptionAr: 'تعليمات ونصائح لمشتركي قناة SBM',
       icon: 'help',
       color: '#10B981',
       priceAED: 'د.إ 299.00',
       priceUSD: '$80',
-      duration: 'Ongoing',
-      durationAr: 'مستمر',
+      duration: '1 month',
+      durationAr: 'شهر واحد',
       features: [
-        { en: 'One-on-one mentoring', ar: 'إرشاد فردي' },
-        { en: 'Trade review and feedback', ar: 'مراجعة الصفقات والملاحظات' },
-        { en: 'Custom trading plan', ar: 'خطة تداول مخصصة' },
-        { en: 'Direct messaging support', ar: 'دعم الرسائل المباشرة' },
+        { en: 'Instructions and tips only', ar: 'تعليمات ونصائح فقط' },
+        { en: 'Cumulative profit schedule', ar: 'جدول الربح التراكمي' },
       ],
       featuresTitleEn: 'The service includes:',
       featuresTitleAr: 'الخدمة تشمل:',
@@ -101,6 +99,8 @@ export default function EducationScreen() {
       router.push('/analysis-terms');
     } else if (selectedProgram === 'trading_training') {
       router.push('/trading-terms');
+    } else if (selectedProgram === 'instructions_service') {
+      router.push('/instructions-terms');
     } else {
       router.push(`/registration?channel=education&program=${selectedProgram}`);
     }

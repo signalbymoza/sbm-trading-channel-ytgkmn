@@ -12,16 +12,36 @@ export default function RegistrationScreen() {
   const params = useLocalSearchParams();
   const channelType = params.channel as string;
   const duration = params.duration as string;
+  const program = params.program as string;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
+  const [selectedTrainer, setSelectedTrainer] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [idDocument, setIdDocument] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log('RegistrationScreen: Channel:', channelType, 'Duration:', duration);
+  console.log('RegistrationScreen: Channel:', channelType, 'Duration:', duration, 'Program:', program);
+
+  const getTrainerOptions = () => {
+    if (program === 'analysis_training') {
+      return [
+        { id: 'noor', nameEn: 'Trainer Noor', nameAr: 'المدربة نور' }
+      ];
+    } else if (program === 'trading_training' || program === 'instructions_service') {
+      return [
+        { id: 'moza', nameEn: 'Trainer Moza Al-Balushi', nameAr: 'المدربة موزة البلوشي' },
+        { id: 'omar', nameEn: 'Trainer Omar Al-Mazrouei', nameAr: 'المدرب عمر المزروعي' },
+        { id: 'wafaa', nameEn: 'Trainer Wafaa Al-Ahbabi', nameAr: 'المدربة وفاء الاحبابي' }
+      ];
+    }
+    return [];
+  };
+
+  const trainerOptions = getTrainerOptions();
+  const showTrainerSelection = trainerOptions.length > 0;
 
   const pickDocument = async () => {
     console.log('User tapped upload ID document button');
@@ -50,7 +70,6 @@ export default function RegistrationScreen() {
     console.log('Uploading document to backend...');
 
     try {
-      // Upload document using the API utility
       const data = await uploadFile<{ url: string; filename: string }>(
         '/api/upload/id-document',
         uri,
@@ -86,6 +105,11 @@ export default function RegistrationScreen() {
       return;
     }
 
+    if (showTrainerSelection && !selectedTrainer) {
+      Alert.alert('Required Field', 'Please select a trainer');
+      return;
+    }
+
     if (!idDocument) {
       Alert.alert('Required Field', 'Please upload your ID or passport');
       return;
@@ -97,10 +121,9 @@ export default function RegistrationScreen() {
     }
 
     setIsSubmitting(true);
-    console.log('Submitting registration:', { name, email, telegramUsername, channelType, duration });
+    console.log('Submitting registration:', { name, email, telegramUsername, channelType, duration, program, selectedTrainer });
 
     try {
-      // Create subscription using the API utility
       interface SubscriptionResponse {
         id: string;
         name: string;
@@ -125,6 +148,8 @@ export default function RegistrationScreen() {
           telegram_username: telegramUsername.trim(),
           channel_type: channelType,
           subscription_duration: duration,
+          program: program,
+          trainer: selectedTrainer,
           id_document_url: idDocument,
           terms_accepted: termsAccepted,
         }),
@@ -152,6 +177,11 @@ export default function RegistrationScreen() {
 
   const documentUploaded = idDocument !== null;
 
+  const selectTrainerLabelEn = 'Select Trainer';
+  const selectTrainerLabelAr = 'اختر المدرب';
+  const chooseTrainerEn = 'Choose your trainer';
+  const chooseTrainerAr = 'اختر مدربك';
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -166,9 +196,7 @@ export default function RegistrationScreen() {
           </Text>
         </View>
 
-        {/* Form Fields */}
         <View style={styles.formSection}>
-          {/* Name */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Full Name</Text>
             <TextInput
@@ -181,7 +209,6 @@ export default function RegistrationScreen() {
             />
           </View>
 
-          {/* Email */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
             <TextInput
@@ -195,7 +222,6 @@ export default function RegistrationScreen() {
             />
           </View>
 
-          {/* Telegram Username */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Telegram Username</Text>
             <TextInput
@@ -208,7 +234,46 @@ export default function RegistrationScreen() {
             />
           </View>
 
-          {/* ID Document Upload */}
+          {showTrainerSelection && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>{selectTrainerLabelEn}</Text>
+              <Text style={styles.labelAr}>{selectTrainerLabelAr}</Text>
+              <View style={styles.trainerSelectionContainer}>
+                {trainerOptions.map((trainer) => {
+                  const isSelected = selectedTrainer === trainer.id;
+                  return (
+                    <TouchableOpacity
+                      key={trainer.id}
+                      style={[
+                        styles.trainerOption,
+                        isSelected && styles.trainerOptionSelected,
+                      ]}
+                      onPress={() => {
+                        console.log('User selected trainer:', trainer.id);
+                        setSelectedTrainer(trainer.id);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.trainerRadio, isSelected && styles.trainerRadioSelected]}>
+                        {isSelected && (
+                          <View style={styles.trainerRadioInner} />
+                        )}
+                      </View>
+                      <View style={styles.trainerTextContainer}>
+                        <Text style={[styles.trainerName, isSelected && styles.trainerNameSelected]}>
+                          {trainer.nameEn}
+                        </Text>
+                        <Text style={[styles.trainerNameAr, isSelected && styles.trainerNameArSelected]}>
+                          {trainer.nameAr}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>ID or Passport</Text>
             <TouchableOpacity
@@ -238,7 +303,6 @@ export default function RegistrationScreen() {
             </Text>
           </View>
 
-          {/* Terms and Conditions */}
           <TouchableOpacity
             style={styles.checkboxContainer}
             onPress={() => {
@@ -263,21 +327,37 @@ export default function RegistrationScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Summary */}
         <View style={styles.summarySection}>
           <Text style={styles.summaryTitle}>Subscription Summary</Text>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Channel:</Text>
-            <Text style={styles.summaryValue}>{channelType}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Duration:</Text>
-            <Text style={styles.summaryValue}>{duration}</Text>
-          </View>
+          {channelType && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Channel:</Text>
+              <Text style={styles.summaryValue}>{channelType}</Text>
+            </View>
+          )}
+          {duration && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Duration:</Text>
+              <Text style={styles.summaryValue}>{duration}</Text>
+            </View>
+          )}
+          {program && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Program:</Text>
+              <Text style={styles.summaryValue}>{program.replace(/_/g, ' ')}</Text>
+            </View>
+          )}
+          {selectedTrainer && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Trainer:</Text>
+              <Text style={styles.summaryValue}>
+                {trainerOptions.find(t => t.id === selectedTrainer)?.nameEn || selectedTrainer}
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
-      {/* Submit Button */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
@@ -343,6 +423,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: colors.text,
+    marginBottom: 2,
+  },
+  labelAr: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   input: {
@@ -352,6 +438,60 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
+    color: colors.text,
+  },
+  trainerSelectionContainer: {
+    gap: 12,
+  },
+  trainerOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: 12,
+    padding: 16,
+  },
+  trainerOptionSelected: {
+    borderColor: colors.highlight,
+    backgroundColor: colors.accent,
+  },
+  trainerRadio: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  trainerRadioSelected: {
+    borderColor: colors.highlight,
+  },
+  trainerRadioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: colors.highlight,
+  },
+  trainerTextContainer: {
+    flex: 1,
+  },
+  trainerName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  trainerNameSelected: {
+    color: colors.text,
+  },
+  trainerNameAr: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  trainerNameArSelected: {
     color: colors.text,
   },
   uploadButton: {
