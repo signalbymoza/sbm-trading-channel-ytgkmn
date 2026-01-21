@@ -39,15 +39,59 @@ export default function EducationScreen() {
       descriptionAr: 'دورة تداول كاملة من الأساسيات إلى الاستراتيجيات المتقدمة',
       icon: 'show-chart',
       color: '#3B82F6',
+      priceAED: 'د.إ 606.00',
+      priceUSD: '$165',
+      duration: '1 month',
+      durationAr: 'شهر واحد',
       features: [
-        { en: 'Trading platform mastery', ar: 'إتقان منصة التداول' },
-        { en: 'Order types and execution', ar: 'أنواع الأوامر والتنفيذ' },
-        { en: 'Position sizing strategies', ar: 'استراتيجيات حجم المركز' },
-        { en: 'Live trading sessions', ar: 'جلسات تداول مباشرة' },
+        { en: 'Teaching the basics', ar: '١ – تعليم الاساسيات' },
+        { en: 'Private follow-up from the trainer', ar: '٢ – متابعة خاصه من المدرب' },
+        { en: 'Cumulative profit schedule', ar: '٣ – جدول الربح التراكمي' },
       ],
-      price: '$399',
-      duration: '10 weeks',
-      durationAr: '10 أسابيع',
+      registrationMechanism: {
+        titleEn: 'Registration Mechanism:',
+        titleAr: 'آلية التسجيل:',
+        points: [
+          {
+            en: 'Please write your Telegram account correctly to confirm your subscription and ensure the trainer follows up with you.',
+            ar: 'الرجاء كتابة حسابكم الخاص في تطبيق التيلقرام بشكل صحيح لتأكيد اشتراككم وضمان متابعة المدرب معكم.'
+          },
+          {
+            en: 'The trainer contact link will be sent in a PDF document via email immediately after payment.',
+            ar: 'سيتم إرسال رابط التواصل مع المدرب في مستند PDF عبر البريد الإلكتروني بعد الدفع مباشرةً.'
+          },
+          {
+            en: 'The file can be accessed at any time by logging into the website (My Account Dashboard > Downloads).',
+            ar: 'يمكن الوصول إلى الملف في أي وقت من خلال تسجيل الدخول إلى الموقع الإلكتروني (لوحة حسابي > التنزيلات).'
+          },
+          {
+            en: 'If you are unable to receive the PDF file, you can contact us via the support channel (here).',
+            ar: 'في حال عدم تمكنكم من استلام ملف الـ PDF، يمكنكم التواصل معنا عبر قناة الدعم (هنا).'
+          }
+        ]
+      },
+      importantNotes: {
+        titleEn: 'Important Notes:',
+        titleAr: 'ملاحظات مهمة:',
+        points: [
+          {
+            en: 'No refunds after payment.',
+            ar: 'لا يوجد استرداد للمبلغ بعد الدفع.'
+          },
+          {
+            en: 'We do not provide analysis training service.',
+            ar: 'لا نوفر خدمة تعليم التحليل'
+          },
+          {
+            en: 'The training and follow-up period is one month only. To renew, you can re-subscribe to the service for an additional month.',
+            ar: 'مدة التدريب والمتابعة هي شهر واحد فقط. للتجديد، يمكنك إعادة الاشتراك في الخدمة لشهر إضافي.'
+          },
+          {
+            en: 'Training is conducted via Telegram, where you will be added to the private courses channel.',
+            ar: 'التدريب يتم عبر التلقرام، حيث سيتم إدخالك في القناة الخاصة بالكورسات.'
+          }
+        ]
+      }
     },
     {
       id: 'instructions_service',
@@ -82,6 +126,8 @@ export default function EducationScreen() {
     console.log('User enrolling in program:', selectedProgram);
     router.push(`/registration?channel=education&program=${selectedProgram}`);
   };
+
+  const selectedProgramData = educationPrograms.find(p => p.id === selectedProgram);
 
   return (
     <View style={styles.container}>
@@ -139,6 +185,8 @@ export default function EducationScreen() {
         <View style={styles.programsSection}>
           {educationPrograms.map((program, index) => {
             const isSelected = selectedProgram === program.id;
+            const priceDisplay = program.priceAED || program.price;
+            
             return (
               <TouchableOpacity
                 key={index}
@@ -181,13 +229,6 @@ export default function EducationScreen() {
                     {program.titleAr}
                   </Text>
 
-                  <Text style={[styles.programDescription, isSelected && styles.programDescriptionSelected]}>
-                    {program.descriptionEn}
-                  </Text>
-                  <Text style={[styles.programDescriptionAr, isSelected && styles.programDescriptionArSelected]}>
-                    {program.descriptionAr}
-                  </Text>
-
                   <View style={styles.programInfo}>
                     <View style={styles.infoItem}>
                       <IconSymbol 
@@ -213,17 +254,17 @@ export default function EducationScreen() {
                         color={isSelected ? colors.text : colors.highlight} 
                       />
                       <Text style={[styles.priceText, isSelected && styles.priceTextSelected]}>
-                        {program.price}
+                        {priceDisplay}
                       </Text>
                     </View>
                   </View>
 
                   <View style={styles.featuresSection}>
                     <Text style={[styles.featuresTitle, isSelected && styles.featuresTitleSelected]}>
-                      What you&apos;ll learn:
+                      The service includes:
                     </Text>
                     <Text style={[styles.featuresTitleAr, isSelected && styles.featuresTitleArSelected]}>
-                      ما ستتعلمه:
+                      الخدمة تشمل:
                     </Text>
                     {program.features.map((feature, featureIndex) => (
                       <View key={featureIndex} style={styles.featureItem}>
@@ -244,6 +285,58 @@ export default function EducationScreen() {
                       </View>
                     ))}
                   </View>
+
+                  {program.registrationMechanism && (
+                    <View style={styles.detailsSection}>
+                      <Text style={[styles.detailsTitle, isSelected && styles.detailsTitleSelected]}>
+                        {program.registrationMechanism.titleEn}
+                      </Text>
+                      <Text style={[styles.detailsTitleAr, isSelected && styles.detailsTitleArSelected]}>
+                        {program.registrationMechanism.titleAr}
+                      </Text>
+                      {program.registrationMechanism.points.map((point, pointIndex) => (
+                        <View key={pointIndex} style={styles.detailItem}>
+                          <Text style={[styles.bulletPoint, isSelected && styles.bulletPointSelected]}>
+                            •
+                          </Text>
+                          <View style={styles.detailTextContainer}>
+                            <Text style={[styles.detailText, isSelected && styles.detailTextSelected]}>
+                              {point.en}
+                            </Text>
+                            <Text style={[styles.detailTextAr, isSelected && styles.detailTextArSelected]}>
+                              {point.ar}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {program.importantNotes && (
+                    <View style={styles.detailsSection}>
+                      <Text style={[styles.detailsTitle, isSelected && styles.detailsTitleSelected]}>
+                        {program.importantNotes.titleEn}
+                      </Text>
+                      <Text style={[styles.detailsTitleAr, isSelected && styles.detailsTitleArSelected]}>
+                        {program.importantNotes.titleAr}
+                      </Text>
+                      {program.importantNotes.points.map((point, pointIndex) => (
+                        <View key={pointIndex} style={styles.detailItem}>
+                          <Text style={[styles.bulletPoint, isSelected && styles.bulletPointSelected]}>
+                            •
+                          </Text>
+                          <View style={styles.detailTextContainer}>
+                            <Text style={[styles.detailText, isSelected && styles.detailTextSelected]}>
+                              {point.en}
+                            </Text>
+                            <Text style={[styles.detailTextAr, isSelected && styles.detailTextArSelected]}>
+                              {point.ar}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             );
@@ -455,26 +548,6 @@ const styles = StyleSheet.create({
   programTitleArSelected: {
     color: colors.text,
   },
-  programDescription: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: 4,
-  },
-  programDescriptionSelected: {
-    color: colors.text,
-    opacity: 0.9,
-  },
-  programDescriptionAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  programDescriptionArSelected: {
-    color: colors.text,
-    opacity: 0.85,
-  },
   programInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -558,6 +631,65 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   featureTextArSelected: {
+    color: colors.text,
+    opacity: 0.85,
+  },
+  detailsSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  detailsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  detailsTitleSelected: {
+    color: colors.text,
+  },
+  detailsTitleAr: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  detailsTitleArSelected: {
+    color: colors.text,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  bulletPoint: {
+    fontSize: 16,
+    color: colors.highlight,
+    marginRight: 8,
+    marginTop: 2,
+  },
+  bulletPointSelected: {
+    color: colors.text,
+  },
+  detailTextContainer: {
+    flex: 1,
+  },
+  detailText: {
+    fontSize: 13,
+    color: colors.text,
+    lineHeight: 20,
+    marginBottom: 3,
+  },
+  detailTextSelected: {
+    color: colors.text,
+  },
+  detailTextAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  detailTextArSelected: {
     color: colors.text,
     opacity: 0.85,
   },
