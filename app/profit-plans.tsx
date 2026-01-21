@@ -10,72 +10,12 @@ export default function ProfitPlansScreen() {
 
   console.log('ProfitPlansScreen: Rendering profit plans page');
 
-  const profitPlans = [
-    {
-      titleEn: 'Conservative Plan',
-      titleAr: 'الخطة المحافظة',
-      targetReturn: '5-8%',
-      riskLevel: 'Low',
-      riskLevelAr: 'منخفض',
-      timeframe: 'Monthly',
-      timeframeAr: 'شهري',
-      descriptionEn: 'Ideal for risk-averse traders seeking steady, consistent returns with minimal drawdown.',
-      descriptionAr: 'مثالي للمتداولين الذين يتجنبون المخاطر ويسعون للحصول على عوائد ثابتة ومتسقة مع الحد الأدنى من الانخفاض.',
-      features: [
-        { en: 'Low-risk trading strategies', ar: 'استراتيجيات تداول منخفضة المخاطر' },
-        { en: 'Maximum 2% risk per trade', ar: 'حد أقصى 2% مخاطرة لكل صفقة' },
-        { en: 'Focus on major currency pairs', ar: 'التركيز على أزواج العملات الرئيسية' },
-        { en: 'Conservative position sizing', ar: 'حجم مركز محافظ' },
-      ],
-    },
-    {
-      titleEn: 'Balanced Plan',
-      titleAr: 'الخطة المتوازنة',
-      targetReturn: '10-15%',
-      riskLevel: 'Medium',
-      riskLevelAr: 'متوسط',
-      timeframe: 'Monthly',
-      timeframeAr: 'شهري',
-      descriptionEn: 'Perfect balance between risk and reward for traders seeking moderate growth.',
-      descriptionAr: 'توازن مثالي بين المخاطر والعوائد للمتداولين الذين يسعون للنمو المعتدل.',
-      features: [
-        { en: 'Balanced risk-reward ratio', ar: 'نسبة متوازنة بين المخاطر والعوائد' },
-        { en: 'Maximum 3% risk per trade', ar: 'حد أقصى 3% مخاطرة لكل صفقة' },
-        { en: 'Mix of major and minor pairs', ar: 'مزيج من الأزواج الرئيسية والثانوية' },
-        { en: 'Diversified trading approach', ar: 'نهج تداول متنوع' },
-      ],
-    },
-    {
-      titleEn: 'Aggressive Plan',
-      titleAr: 'الخطة العدوانية',
-      targetReturn: '20-30%',
-      riskLevel: 'High',
-      riskLevelAr: 'عالي',
-      timeframe: 'Monthly',
-      timeframeAr: 'شهري',
-      descriptionEn: 'For experienced traders comfortable with higher risk for maximum profit potential.',
-      descriptionAr: 'للمتداولين ذوي الخبرة المرتاحين للمخاطر العالية لتحقيق أقصى إمكانات الربح.',
-      features: [
-        { en: 'High-reward opportunities', ar: 'فرص عوائد عالية' },
-        { en: 'Maximum 5% risk per trade', ar: 'حد أقصى 5% مخاطرة لكل صفقة' },
-        { en: 'All currency pairs and gold', ar: 'جميع أزواج العملات والذهب' },
-        { en: 'Active trading strategy', ar: 'استراتيجية تداول نشطة' },
-      ],
-    },
-  ];
-
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'Low':
-        return colors.success;
-      case 'Medium':
-        return '#FFA500';
-      case 'High':
-        return '#FF6B6B';
-      default:
-        return colors.textSecondary;
-    }
-  };
+  const titleEn = 'Accumulated Profit Plans';
+  const titleAr = 'خطط الربح التراكمي';
+  const planAmount = '250 دولار';
+  const currentBalance = 'د.إ 0.00';
+  const planDuration = 'خطة 250 دولار لمدة سنة';
+  const riskPercentage = 'نسبة المخاطرة 25%';
 
   return (
     <View style={styles.container}>
@@ -83,7 +23,10 @@ export default function ProfitPlansScreen() {
       <View style={styles.topNav}>
         <TouchableOpacity 
           style={styles.navButton}
-          onPress={() => router.push('/subscription?channel=gold')}
+          onPress={() => {
+            console.log('User tapped Subscriptions button');
+            router.push('/subscription?channel=gold');
+          }}
           activeOpacity={0.7}
         >
           <Text style={styles.navButtonText}>Subscriptions</Text>
@@ -94,11 +37,14 @@ export default function ProfitPlansScreen() {
           activeOpacity={0.7}
         >
           <Text style={styles.navButtonText}>Profit Plans</Text>
-          <Text style={styles.navButtonTextAr}>خطط الربح التراكمي</Text>
+          <Text style={styles.navButtonTextAr}>خطط الربح</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navButton}
-          onPress={() => router.push('/education')}
+          onPress={() => {
+            console.log('User tapped Education button');
+            router.push('/education');
+          }}
           activeOpacity={0.7}
         >
           <Text style={styles.navButtonText}>Education</Text>
@@ -113,83 +59,56 @@ export default function ProfitPlansScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Accumulated Profit Plans</Text>
-          <Text style={styles.titleAr}>خطط الربح التراكمي</Text>
-          <Text style={styles.subtitle}>
-            Choose a profit plan that matches your risk tolerance and investment goals. All plans include comprehensive risk management and expert guidance.
-          </Text>
-          <Text style={styles.subtitleAr}>
-            اختر خطة ربح تتناسب مع تحملك للمخاطر وأهدافك الاستثمارية. تتضمن جميع الخطط إدارة شاملة للمخاطر وإرشادات خبيرة.
-          </Text>
+          <Text style={styles.title}>{titleEn}</Text>
+          <Text style={styles.titleAr}>{titleAr}</Text>
         </View>
 
-        {/* Profit Plans */}
-        <View style={styles.plansSection}>
-          {profitPlans.map((plan, index) => {
-            const riskColor = getRiskColor(plan.riskLevel);
-            return (
-              <View key={index} style={styles.planCard}>
-                <View style={styles.planHeader}>
-                  <View style={styles.planTitleContainer}>
-                    <Text style={styles.planTitle}>{plan.titleEn}</Text>
-                    <Text style={styles.planTitleAr}>{plan.titleAr}</Text>
-                  </View>
-                  <View style={[styles.riskBadge, { backgroundColor: riskColor }]}>
-                    <Text style={styles.riskBadgeText}>{plan.riskLevel}</Text>
-                    <Text style={styles.riskBadgeTextAr}>{plan.riskLevelAr}</Text>
-                  </View>
-                </View>
+        {/* Plan Amount */}
+        <View style={styles.amountSection}>
+          <Text style={styles.amountLabel}>{planAmount}</Text>
+        </View>
 
-                <View style={styles.planStats}>
-                  <View style={styles.statItem}>
-                    <IconSymbol 
-                      ios_icon_name="chart.line.uptrend.xyaxis" 
-                      android_material_icon_name="show-chart" 
-                      size={24} 
-                      color={colors.highlight} 
-                    />
-                    <Text style={styles.statLabel}>Target Return</Text>
-                    <Text style={styles.statLabelAr}>العائد المستهدف</Text>
-                    <Text style={styles.statValue}>{plan.targetReturn}</Text>
-                  </View>
-                  <View style={styles.statItem}>
-                    <IconSymbol 
-                      ios_icon_name="clock.fill" 
-                      android_material_icon_name="access-time" 
-                      size={24} 
-                      color={colors.highlight} 
-                    />
-                    <Text style={styles.statLabel}>Timeframe</Text>
-                    <Text style={styles.statLabelAr}>الإطار الزمني</Text>
-                    <Text style={styles.statValue}>{plan.timeframe}</Text>
-                    <Text style={styles.statValueAr}>{plan.timeframeAr}</Text>
-                  </View>
-                </View>
+        {/* Current Balance */}
+        <View style={styles.balanceSection}>
+          <Text style={styles.balanceText}>{currentBalance}</Text>
+        </View>
 
-                <Text style={styles.planDescription}>{plan.descriptionEn}</Text>
-                <Text style={styles.planDescriptionAr}>{plan.descriptionAr}</Text>
+        {/* Plan Card */}
+        <View style={styles.planCard}>
+          <View style={styles.planHeader}>
+            <IconSymbol 
+              ios_icon_name="chart.line.uptrend.xyaxis" 
+              android_material_icon_name="show-chart" 
+              size={32} 
+              color={colors.highlight} 
+            />
+          </View>
 
-                <View style={styles.featuresSection}>
-                  <Text style={styles.featuresTitle}>Key Features:</Text>
-                  <Text style={styles.featuresTitleAr}>الميزات الرئيسية:</Text>
-                  {plan.features.map((feature, featureIndex) => (
-                    <View key={featureIndex} style={styles.featureItem}>
-                      <IconSymbol 
-                        ios_icon_name="checkmark.circle.fill" 
-                        android_material_icon_name="check-circle" 
-                        size={20} 
-                        color={colors.success} 
-                      />
-                      <View style={styles.featureTextContainer}>
-                        <Text style={styles.featureText}>{feature.en}</Text>
-                        <Text style={styles.featureTextAr}>{feature.ar}</Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            );
-          })}
+          <View style={styles.planContent}>
+            <Text style={styles.planDuration}>{planDuration}</Text>
+            <Text style={styles.riskPercentage}>{riskPercentage}</Text>
+          </View>
+
+          <View style={styles.planDetails}>
+            <View style={styles.detailRow}>
+              <IconSymbol 
+                ios_icon_name="calendar" 
+                android_material_icon_name="calendar-today" 
+                size={20} 
+                color={colors.textSecondary} 
+              />
+              <Text style={styles.detailText}>مدة سنة واحدة</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <IconSymbol 
+                ios_icon_name="exclamationmark.triangle" 
+                android_material_icon_name="warning" 
+                size={20} 
+                color="#FFA500" 
+              />
+              <Text style={styles.detailText}>مخاطرة متوسطة - 25%</Text>
+            </View>
+          </View>
         </View>
 
         {/* Performance Disclaimer */}
@@ -264,152 +183,87 @@ const styles = StyleSheet.create({
   header: {
     padding: 24,
     paddingTop: 24,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 4,
+    textAlign: 'center',
   },
   titleAr: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 12,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: 8,
-  },
-  subtitleAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 22,
-  },
-  plansSection: {
+  amountSection: {
     paddingHorizontal: 24,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  amountLabel: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.highlight,
+    textAlign: 'center',
+  },
+  balanceSection: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  balanceText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.text,
+    textAlign: 'center',
   },
   planCard: {
     backgroundColor: colors.card,
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    padding: 24,
+    marginHorizontal: 24,
+    marginBottom: 24,
     borderWidth: 1,
     borderColor: colors.border,
   },
   planHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  planTitleContainer: {
-    flex: 1,
+  planContent: {
+    marginBottom: 24,
   },
-  planTitle: {
+  planDuration: {
     fontSize: 22,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 2,
-  },
-  planTitleAr: {
-    fontSize: 19,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  riskBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  riskBadgeText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
     textAlign: 'center',
-  },
-  riskBadgeTextAr: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  planStats: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statLabel: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 8,
-    marginBottom: 2,
-  },
-  statLabelAr: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.highlight,
-    marginBottom: 2,
-  },
-  statValueAr: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.highlight,
-  },
-  planDescription: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: 8,
-  },
-  planDescriptionAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  featuresSection: {
-    marginTop: 8,
-  },
-  featuresTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  featuresTitleAr: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.text,
     marginBottom: 12,
   },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  featureTextContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  featureText: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  featureTextAr: {
-    fontSize: 13,
+  riskPercentage: {
+    fontSize: 18,
+    fontWeight: '600',
     color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  planDetails: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 20,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  detailText: {
+    fontSize: 16,
+    color: colors.text,
+    marginLeft: 12,
   },
   disclaimerSection: {
     marginHorizontal: 24,
