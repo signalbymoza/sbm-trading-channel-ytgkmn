@@ -23,7 +23,7 @@ import { BACKEND_URL } from "@/utils/api";
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  initialRouteName: "(tabs)", // Ensure any route can link back to `/`
+  initialRouteName: "intro", // Start with intro screen
 };
 
 export default function RootLayout() {
@@ -94,6 +94,8 @@ export default function RootLayout() {
           <WidgetProvider>
             <GestureHandlerRootView>
             <Stack>
+              {/* Intro screen - shown first */}
+              <Stack.Screen name="intro" options={{ headerShown: false }} />
               {/* Main app with tabs */}
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="subscription" options={{ headerShown: true, title: "Select Subscription" }} />
@@ -102,6 +104,11 @@ export default function RootLayout() {
               <Stack.Screen name="profit-plans" options={{ headerShown: true, title: "Profit Plans" }} />
               <Stack.Screen name="analysis-terms" options={{ headerShown: true, title: "Terms & Conditions" }} />
               <Stack.Screen name="trading-terms" options={{ headerShown: true, title: "Terms & Conditions" }} />
+              <Stack.Screen name="instructions-terms" options={{ headerShown: true, title: "Terms & Conditions" }} />
+              <Stack.Screen name="forex-guide-terms" options={{ headerShown: true, title: "Terms & Conditions" }} />
+              <Stack.Screen name="education-intro" options={{ headerShown: true, title: "Education Programs" }} />
+              <Stack.Screen name="education" options={{ headerShown: true, title: "Education Programs" }} />
+              <Stack.Screen name="forex-guide-registration" options={{ headerShown: true, title: "Forex Guide Registration" }} />
             </Stack>
             <SystemBars style={"auto"} />
             </GestureHandlerRootView>
