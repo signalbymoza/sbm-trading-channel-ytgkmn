@@ -1,50 +1,65 @@
 
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, Platform, TouchableOpacity } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
+import { useRouter } from "expo-router";
 
 export default function ProfitPlansScreen() {
+  const router = useRouter();
+
   console.log('ProfitPlansScreen: Rendering profit plans page');
 
   const profitPlans = [
     {
-      title: 'Conservative Plan',
+      titleEn: 'Conservative Plan',
+      titleAr: 'الخطة المحافظة',
       targetReturn: '5-8%',
       riskLevel: 'Low',
+      riskLevelAr: 'منخفض',
       timeframe: 'Monthly',
-      description: 'Ideal for risk-averse traders seeking steady, consistent returns with minimal drawdown.',
+      timeframeAr: 'شهري',
+      descriptionEn: 'Ideal for risk-averse traders seeking steady, consistent returns with minimal drawdown.',
+      descriptionAr: 'مثالي للمتداولين الذين يتجنبون المخاطر ويسعون للحصول على عوائد ثابتة ومتسقة مع الحد الأدنى من الانخفاض.',
       features: [
-        'Low-risk trading strategies',
-        'Maximum 2% risk per trade',
-        'Focus on major currency pairs',
-        'Conservative position sizing',
+        { en: 'Low-risk trading strategies', ar: 'استراتيجيات تداول منخفضة المخاطر' },
+        { en: 'Maximum 2% risk per trade', ar: 'حد أقصى 2% مخاطرة لكل صفقة' },
+        { en: 'Focus on major currency pairs', ar: 'التركيز على أزواج العملات الرئيسية' },
+        { en: 'Conservative position sizing', ar: 'حجم مركز محافظ' },
       ],
     },
     {
-      title: 'Balanced Plan',
+      titleEn: 'Balanced Plan',
+      titleAr: 'الخطة المتوازنة',
       targetReturn: '10-15%',
       riskLevel: 'Medium',
+      riskLevelAr: 'متوسط',
       timeframe: 'Monthly',
-      description: 'Perfect balance between risk and reward for traders seeking moderate growth.',
+      timeframeAr: 'شهري',
+      descriptionEn: 'Perfect balance between risk and reward for traders seeking moderate growth.',
+      descriptionAr: 'توازن مثالي بين المخاطر والعوائد للمتداولين الذين يسعون للنمو المعتدل.',
       features: [
-        'Balanced risk-reward ratio',
-        'Maximum 3% risk per trade',
-        'Mix of major and minor pairs',
-        'Diversified trading approach',
+        { en: 'Balanced risk-reward ratio', ar: 'نسبة متوازنة بين المخاطر والعوائد' },
+        { en: 'Maximum 3% risk per trade', ar: 'حد أقصى 3% مخاطرة لكل صفقة' },
+        { en: 'Mix of major and minor pairs', ar: 'مزيج من الأزواج الرئيسية والثانوية' },
+        { en: 'Diversified trading approach', ar: 'نهج تداول متنوع' },
       ],
     },
     {
-      title: 'Aggressive Plan',
+      titleEn: 'Aggressive Plan',
+      titleAr: 'الخطة العدوانية',
       targetReturn: '20-30%',
       riskLevel: 'High',
+      riskLevelAr: 'عالي',
       timeframe: 'Monthly',
-      description: 'For experienced traders comfortable with higher risk for maximum profit potential.',
+      timeframeAr: 'شهري',
+      descriptionEn: 'For experienced traders comfortable with higher risk for maximum profit potential.',
+      descriptionAr: 'للمتداولين ذوي الخبرة المرتاحين للمخاطر العالية لتحقيق أقصى إمكانات الربح.',
       features: [
-        'High-reward opportunities',
-        'Maximum 5% risk per trade',
-        'All currency pairs and gold',
-        'Active trading strategy',
+        { en: 'High-reward opportunities', ar: 'فرص عوائد عالية' },
+        { en: 'Maximum 5% risk per trade', ar: 'حد أقصى 5% مخاطرة لكل صفقة' },
+        { en: 'All currency pairs and gold', ar: 'جميع أزواج العملات والذهب' },
+        { en: 'Active trading strategy', ar: 'استراتيجية تداول نشطة' },
       ],
     },
   ];
@@ -64,6 +79,33 @@ export default function ProfitPlansScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Top Navigation */}
+      <View style={styles.topNav}>
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.push('/subscription?channel=gold')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.navButtonText}>Subscriptions</Text>
+          <Text style={styles.navButtonTextAr}>الاشتراكات</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.navButton, styles.navButtonActive]}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.navButtonText}>Profit Plans</Text>
+          <Text style={styles.navButtonTextAr}>خطط الربح</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.push('/education')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.navButtonText}>Education</Text>
+          <Text style={styles.navButtonTextAr}>التعليم</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -72,8 +114,12 @@ export default function ProfitPlansScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Accumulated Profit Plans</Text>
+          <Text style={styles.titleAr}>خطط الربح المتراكم</Text>
           <Text style={styles.subtitle}>
             Choose a profit plan that matches your risk tolerance and investment goals. All plans include comprehensive risk management and expert guidance.
+          </Text>
+          <Text style={styles.subtitleAr}>
+            اختر خطة ربح تتناسب مع تحملك للمخاطر وأهدافك الاستثمارية. تتضمن جميع الخطط إدارة شاملة للمخاطر وإرشادات خبيرة.
           </Text>
         </View>
 
@@ -84,9 +130,13 @@ export default function ProfitPlansScreen() {
             return (
               <View key={index} style={styles.planCard}>
                 <View style={styles.planHeader}>
-                  <Text style={styles.planTitle}>{plan.title}</Text>
+                  <View style={styles.planTitleContainer}>
+                    <Text style={styles.planTitle}>{plan.titleEn}</Text>
+                    <Text style={styles.planTitleAr}>{plan.titleAr}</Text>
+                  </View>
                   <View style={[styles.riskBadge, { backgroundColor: riskColor }]}>
-                    <Text style={styles.riskBadgeText}>{plan.riskLevel} Risk</Text>
+                    <Text style={styles.riskBadgeText}>{plan.riskLevel}</Text>
+                    <Text style={styles.riskBadgeTextAr}>{plan.riskLevelAr}</Text>
                   </View>
                 </View>
 
@@ -96,9 +146,10 @@ export default function ProfitPlansScreen() {
                       ios_icon_name="chart.line.uptrend.xyaxis" 
                       android_material_icon_name="show-chart" 
                       size={24} 
-                      color={colors.primary} 
+                      color={colors.highlight} 
                     />
                     <Text style={styles.statLabel}>Target Return</Text>
+                    <Text style={styles.statLabelAr}>العائد المستهدف</Text>
                     <Text style={styles.statValue}>{plan.targetReturn}</Text>
                   </View>
                   <View style={styles.statItem}>
@@ -106,17 +157,21 @@ export default function ProfitPlansScreen() {
                       ios_icon_name="clock.fill" 
                       android_material_icon_name="access-time" 
                       size={24} 
-                      color={colors.primary} 
+                      color={colors.highlight} 
                     />
                     <Text style={styles.statLabel}>Timeframe</Text>
+                    <Text style={styles.statLabelAr}>الإطار الزمني</Text>
                     <Text style={styles.statValue}>{plan.timeframe}</Text>
+                    <Text style={styles.statValueAr}>{plan.timeframeAr}</Text>
                   </View>
                 </View>
 
-                <Text style={styles.planDescription}>{plan.description}</Text>
+                <Text style={styles.planDescription}>{plan.descriptionEn}</Text>
+                <Text style={styles.planDescriptionAr}>{plan.descriptionAr}</Text>
 
                 <View style={styles.featuresSection}>
                   <Text style={styles.featuresTitle}>Key Features:</Text>
+                  <Text style={styles.featuresTitleAr}>الميزات الرئيسية:</Text>
                   {plan.features.map((feature, featureIndex) => (
                     <View key={featureIndex} style={styles.featureItem}>
                       <IconSymbol 
@@ -125,7 +180,10 @@ export default function ProfitPlansScreen() {
                         size={20} 
                         color={colors.success} 
                       />
-                      <Text style={styles.featureText}>{feature}</Text>
+                      <View style={styles.featureTextContainer}>
+                        <Text style={styles.featureText}>{feature.en}</Text>
+                        <Text style={styles.featureTextAr}>{feature.ar}</Text>
+                      </View>
                     </View>
                   ))}
                 </View>
@@ -143,52 +201,17 @@ export default function ProfitPlansScreen() {
               size={24} 
               color="#FFA500" 
             />
-            <Text style={styles.disclaimerTitle}>Important Notice</Text>
+            <View style={styles.disclaimerTitleContainer}>
+              <Text style={styles.disclaimerTitle}>Important Notice</Text>
+              <Text style={styles.disclaimerTitleAr}>إشعار مهم</Text>
+            </View>
           </View>
           <Text style={styles.disclaimerText}>
-            Past performance is not indicative of future results. All trading involves risk, and you should never invest more than you can afford to lose. The profit targets shown are estimates based on historical performance and market conditions.
+            Past performance is not indicative of future results. All trading involves risk, and you should never invest more than you can afford to lose.
           </Text>
-          <Text style={styles.disclaimerText}>
-            We recommend starting with the Conservative Plan if you are new to trading or have a lower risk tolerance. You can always upgrade to a more aggressive plan as you gain experience and confidence.
+          <Text style={styles.disclaimerTextAr}>
+            الأداء السابق لا يدل على النتائج المستقبلية. جميع عمليات التداول تنطوي على مخاطر، ويجب ألا تستثمر أكثر مما يمكنك تحمل خسارته.
           </Text>
-        </View>
-
-        {/* Additional Info */}
-        <View style={styles.infoSection}>
-          <Text style={styles.infoTitle}>How It Works</Text>
-          <View style={styles.infoItem}>
-            <View style={styles.infoNumber}>
-              <Text style={styles.infoNumberText}>1</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoItemTitle}>Choose Your Plan</Text>
-              <Text style={styles.infoItemText}>
-                Select a profit plan that aligns with your risk tolerance and goals
-              </Text>
-            </View>
-          </View>
-          <View style={styles.infoItem}>
-            <View style={styles.infoNumber}>
-              <Text style={styles.infoNumberText}>2</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoItemTitle}>Receive Signals</Text>
-              <Text style={styles.infoItemText}>
-                Get daily trading signals tailored to your chosen plan
-              </Text>
-            </View>
-          </View>
-          <View style={styles.infoItem}>
-            <View style={styles.infoNumber}>
-              <Text style={styles.infoNumberText}>3</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoItemTitle}>Execute & Track</Text>
-              <Text style={styles.infoItemText}>
-                Follow the signals and track your accumulated profits over time
-              </Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
     </View>
@@ -200,6 +223,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  topNav: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingTop: Platform.OS === 'android' ? 60 : 12,
+    backgroundColor: colors.card,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  navButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginLeft: 8,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+  },
+  navButtonActive: {
+    backgroundColor: colors.highlight,
+  },
+  navButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  navButtonTextAr: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 2,
+  },
   scrollView: {
     flex: 1,
   },
@@ -208,16 +263,28 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 24,
-    paddingTop: Platform.OS === 'android' ? 24 : 16,
+    paddingTop: 24,
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  titleAr: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: 8,
+  },
+  subtitleAr: {
+    fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 22,
   },
@@ -235,24 +302,39 @@ const styles = StyleSheet.create({
   planHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 16,
+  },
+  planTitleContainer: {
+    flex: 1,
   },
   planTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: colors.text,
-    flex: 1,
+    marginBottom: 2,
+  },
+  planTitleAr: {
+    fontSize: 19,
+    fontWeight: 'bold',
+    color: colors.text,
   },
   riskBadge: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 12,
   },
   riskBadgeText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  riskBadgeTextAr: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   planStats: {
     flexDirection: 'row',
@@ -266,15 +348,32 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 8,
+    marginBottom: 2,
+  },
+  statLabelAr: {
+    fontSize: 12,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   statValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.highlight,
+    marginBottom: 2,
+  },
+  statValueAr: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: colors.highlight,
   },
   planDescription: {
     fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: 8,
+  },
+  planDescriptionAr: {
+    fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 22,
     marginBottom: 16,
@@ -286,18 +385,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    marginBottom: 4,
+  },
+  featuresTitleAr: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
     marginBottom: 12,
   },
   featureItem: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
+  },
+  featureTextContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   featureText: {
     fontSize: 14,
     color: colors.text,
-    marginLeft: 12,
-    flex: 1,
+    marginBottom: 2,
+  },
+  featureTextAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
   },
   disclaimerSection: {
     marginHorizontal: 24,
@@ -313,56 +425,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  disclaimerTitleContainer: {
+    marginLeft: 12,
+  },
   disclaimerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.text,
-    marginLeft: 12,
+    marginBottom: 2,
+  },
+  disclaimerTitleAr: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
   },
   disclaimerText: {
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  infoSection: {
-    padding: 24,
-  },
-  infoTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 20,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  infoNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  infoNumberText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A2E',
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoItemTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  infoItemText: {
-    fontSize: 14,
+  disclaimerTextAr: {
+    fontSize: 13,
     color: colors.textSecondary,
     lineHeight: 20,
   },

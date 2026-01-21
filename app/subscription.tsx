@@ -16,18 +16,21 @@ export default function SubscriptionScreen() {
 
   const channelInfo = {
     gold: {
-      name: 'Gold Channel',
-      color: '#D4AF37',
+      nameEn: 'Gold Channel',
+      nameAr: 'قناة الذهب',
+      color: '#1E3A8A',
       icon: 'star',
     },
     forex: {
-      name: 'Forex Channel',
-      color: '#2A3F5F',
+      nameEn: 'Forex Channel',
+      nameAr: 'قناة الفوركس',
+      color: '#3B82F6',
       icon: 'show-chart',
     },
     analysis: {
-      name: 'Analysis Channel',
-      color: '#4CAF50',
+      nameEn: 'Analysis Channel',
+      nameAr: 'قناة التحليل',
+      color: '#10B981',
       icon: 'bar-chart',
     },
   };
@@ -37,26 +40,37 @@ export default function SubscriptionScreen() {
   const subscriptionOptions = [
     {
       id: 'monthly',
-      title: 'Monthly',
+      titleEn: 'Monthly',
+      titleAr: 'شهري',
       duration: '1 Month',
+      durationAr: 'شهر واحد',
       price: '$99',
-      description: 'Perfect for trying out our service',
+      descriptionEn: 'Perfect for trying out our service',
+      descriptionAr: 'مثالي لتجربة خدمتنا',
     },
     {
       id: 'three_months',
-      title: 'Three Months',
+      titleEn: 'Three Months',
+      titleAr: 'ثلاثة أشهر',
       duration: '3 Months',
+      durationAr: '3 أشهر',
       price: '$249',
-      description: 'Best value - Save 15%',
-      badge: 'POPULAR',
+      descriptionEn: 'Best value - Save 15%',
+      descriptionAr: 'أفضل قيمة - وفر 15%',
+      badgeEn: 'POPULAR',
+      badgeAr: 'الأكثر شعبية',
     },
     {
       id: 'annual',
-      title: 'Annual',
+      titleEn: 'Annual',
+      titleAr: 'سنوي',
       duration: '12 Months',
+      durationAr: '12 شهر',
       price: '$899',
-      description: 'Maximum savings - Save 25%',
-      badge: 'BEST VALUE',
+      descriptionEn: 'Maximum savings - Save 25%',
+      descriptionAr: 'أقصى توفير - وفر 25%',
+      badgeEn: 'BEST VALUE',
+      badgeAr: 'أفضل قيمة',
     },
   ];
 
@@ -86,8 +100,10 @@ export default function SubscriptionScreen() {
             size={48} 
             color="#FFFFFF" 
           />
-          <Text style={styles.channelName}>{currentChannel.name}</Text>
+          <Text style={styles.channelName}>{currentChannel.nameEn}</Text>
+          <Text style={styles.channelNameAr}>{currentChannel.nameAr}</Text>
           <Text style={styles.channelSubtitle}>Choose your subscription plan</Text>
+          <Text style={styles.channelSubtitleAr}>اختر خطة الاشتراك الخاصة بك</Text>
         </View>
 
         {/* Subscription Options */}
@@ -107,18 +123,25 @@ export default function SubscriptionScreen() {
                 }}
                 activeOpacity={0.7}
               >
-                {option.badge && (
+                {option.badgeEn && (
                   <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{option.badge}</Text>
+                    <Text style={styles.badgeText}>{option.badgeEn}</Text>
+                    <Text style={styles.badgeTextAr}>{option.badgeAr}</Text>
                   </View>
                 )}
                 <View style={styles.optionHeader}>
                   <View style={styles.optionTitleContainer}>
                     <Text style={[styles.optionTitle, selected && styles.optionTitleSelected]}>
-                      {option.title}
+                      {option.titleEn}
+                    </Text>
+                    <Text style={[styles.optionTitleAr, selected && styles.optionTitleArSelected]}>
+                      {option.titleAr}
                     </Text>
                     <Text style={[styles.optionDuration, selected && styles.optionDurationSelected]}>
                       {option.duration}
+                    </Text>
+                    <Text style={[styles.optionDurationAr, selected && styles.optionDurationArSelected]}>
+                      {option.durationAr}
                     </Text>
                   </View>
                   <Text style={[styles.optionPrice, selected && styles.optionPriceSelected]}>
@@ -126,7 +149,10 @@ export default function SubscriptionScreen() {
                   </Text>
                 </View>
                 <Text style={[styles.optionDescription, selected && styles.optionDescriptionSelected]}>
-                  {option.description}
+                  {option.descriptionEn}
+                </Text>
+                <Text style={[styles.optionDescriptionAr, selected && styles.optionDescriptionArSelected]}>
+                  {option.descriptionAr}
                 </Text>
                 <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
                   {selected && <View style={styles.radioButtonInner} />}
@@ -139,6 +165,7 @@ export default function SubscriptionScreen() {
         {/* Features Section */}
         <View style={styles.featuresSection}>
           <Text style={styles.featuresTitle}>What&apos;s Included:</Text>
+          <Text style={styles.featuresTitleAr}>ما هو مشمول:</Text>
           <View style={styles.featureItem}>
             <IconSymbol 
               ios_icon_name="checkmark.circle.fill" 
@@ -146,7 +173,10 @@ export default function SubscriptionScreen() {
               size={24} 
               color={colors.success} 
             />
-            <Text style={styles.featureText}>Daily trading signals</Text>
+            <View style={styles.featureTextContainer}>
+              <Text style={styles.featureText}>Daily trading signals</Text>
+              <Text style={styles.featureTextAr}>إشارات تداول يومية</Text>
+            </View>
           </View>
           <View style={styles.featureItem}>
             <IconSymbol 
@@ -155,7 +185,10 @@ export default function SubscriptionScreen() {
               size={24} 
               color={colors.success} 
             />
-            <Text style={styles.featureText}>Expert market analysis</Text>
+            <View style={styles.featureTextContainer}>
+              <Text style={styles.featureText}>Expert market analysis</Text>
+              <Text style={styles.featureTextAr}>تحليل السوق الخبير</Text>
+            </View>
           </View>
           <View style={styles.featureItem}>
             <IconSymbol 
@@ -164,7 +197,10 @@ export default function SubscriptionScreen() {
               size={24} 
               color={colors.success} 
             />
-            <Text style={styles.featureText}>24/7 Telegram support</Text>
+            <View style={styles.featureTextContainer}>
+              <Text style={styles.featureText}>24/7 Telegram support</Text>
+              <Text style={styles.featureTextAr}>دعم تيليجرام على مدار الساعة</Text>
+            </View>
           </View>
           <View style={styles.featureItem}>
             <IconSymbol 
@@ -173,7 +209,10 @@ export default function SubscriptionScreen() {
               size={24} 
               color={colors.success} 
             />
-            <Text style={styles.featureText}>Risk management guidance</Text>
+            <View style={styles.featureTextContainer}>
+              <Text style={styles.featureText}>Risk management guidance</Text>
+              <Text style={styles.featureTextAr}>إرشادات إدارة المخاطر</Text>
+            </View>
           </View>
           <View style={styles.featureItem}>
             <IconSymbol 
@@ -182,7 +221,10 @@ export default function SubscriptionScreen() {
               size={24} 
               color={colors.success} 
             />
-            <Text style={styles.featureText}>Weekly performance reports</Text>
+            <View style={styles.featureTextContainer}>
+              <Text style={styles.featureText}>Weekly performance reports</Text>
+              <Text style={styles.featureTextAr}>تقارير الأداء الأسبوعية</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -199,11 +241,12 @@ export default function SubscriptionScreen() {
           activeOpacity={0.8}
         >
           <Text style={styles.continueButtonText}>Continue to Registration</Text>
+          <Text style={styles.continueButtonTextAr}>متابعة إلى التسجيل</Text>
           <IconSymbol 
             ios_icon_name="arrow.right" 
             android_material_icon_name="arrow-forward" 
             size={20} 
-            color="#1A1A2E" 
+            color={colors.text} 
           />
         </TouchableOpacity>
       </View>
@@ -225,19 +268,31 @@ const styles = StyleSheet.create({
   channelHeader: {
     padding: 32,
     alignItems: 'center',
-    marginTop: Platform.OS === 'android' ? 0 : 0,
+    marginTop: Platform.OS === 'android' ? 48 : 0,
   },
   channelName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginTop: 12,
+    marginBottom: 2,
+  },
+  channelNameAr: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 8,
   },
   channelSubtitle: {
     fontSize: 15,
     color: '#FFFFFF',
-    marginTop: 4,
+    marginBottom: 2,
     opacity: 0.9,
+  },
+  channelSubtitleAr: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    opacity: 0.85,
   },
   optionsSection: {
     paddingHorizontal: 24,
@@ -253,7 +308,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   optionCardSelected: {
-    borderColor: colors.primary,
+    borderColor: colors.highlight,
     backgroundColor: colors.accent,
   },
   badge: {
@@ -262,13 +317,20 @@ const styles = StyleSheet.create({
     right: 16,
     backgroundColor: colors.highlight,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 6,
     borderRadius: 12,
   },
   badgeText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#1A1A2E',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  badgeTextAr: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: colors.text,
+    textAlign: 'center',
   },
   optionHeader: {
     flexDirection: 'row',
@@ -283,16 +345,33 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   optionTitleSelected: {
-    color: colors.primary,
+    color: colors.highlight,
+  },
+  optionTitleAr: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  optionTitleArSelected: {
+    color: colors.highlight,
   },
   optionDuration: {
     fontSize: 14,
     color: colors.textSecondary,
+    marginBottom: 2,
   },
   optionDurationSelected: {
+    color: colors.text,
+  },
+  optionDurationAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  optionDurationArSelected: {
     color: colors.text,
   },
   optionPrice: {
@@ -301,14 +380,22 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   optionPriceSelected: {
-    color: colors.primary,
+    color: colors.highlight,
   },
   optionDescription: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 12,
+    marginBottom: 4,
   },
   optionDescriptionSelected: {
+    color: colors.text,
+  },
+  optionDescriptionAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  optionDescriptionArSelected: {
     color: colors.text,
   },
   radioButton: {
@@ -324,13 +411,13 @@ const styles = StyleSheet.create({
     right: 20,
   },
   radioButtonSelected: {
-    borderColor: colors.primary,
+    borderColor: colors.highlight,
   },
   radioButtonInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.highlight,
   },
   featuresSection: {
     paddingHorizontal: 24,
@@ -340,17 +427,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.text,
+    marginBottom: 4,
+  },
+  featuresTitleAr: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
     marginBottom: 16,
   },
   featureItem: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 12,
+  },
+  featureTextContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   featureText: {
     fontSize: 15,
     color: colors.text,
-    marginLeft: 12,
+    marginBottom: 2,
+  },
+  featureTextAr: {
+    fontSize: 14,
+    color: colors.textSecondary,
   },
   buttonContainer: {
     position: 'absolute',
@@ -363,7 +464,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   continueButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.highlight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -377,7 +478,13 @@ const styles = StyleSheet.create({
   continueButtonText: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#1A1A2E',
+    color: colors.text,
+    marginRight: 4,
+  },
+  continueButtonTextAr: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: colors.text,
     marginRight: 8,
   },
 });

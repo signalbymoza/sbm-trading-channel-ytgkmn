@@ -1,17 +1,18 @@
+
 import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 
 export const colors = {
-  primary: '#D4AF37',      // Gold - represents premium trading
-  secondary: '#1A1A2E',    // Deep Navy - professional and trustworthy
-  accent: '#16213E',       // Dark Blue - sophisticated
-  background: '#0F0F1E',   // Very Dark Blue - modern and sleek
-  backgroundAlt: '#1A1A2E', // Navy background for cards
+  primary: '#1E3A8A',      // Dark Blue - primary brand color
+  secondary: '#0F172A',    // Very Dark Blue - professional and trustworthy
+  accent: '#1E40AF',       // Medium Blue - sophisticated
+  background: '#0F172A',   // Very Dark Blue - modern and sleek
+  backgroundAlt: '#1E293B', // Slate background for cards
   text: '#FFFFFF',         // White text for contrast
-  textSecondary: '#B8B8B8', // Light gray for secondary text
-  card: '#16213E',         // Dark blue for cards
-  highlight: '#FFD700',    // Bright gold for highlights
-  success: '#4CAF50',      // Green for success states
-  border: '#2A2A3E',       // Subtle border color
+  textSecondary: '#CBD5E1', // Light gray for secondary text
+  card: '#1E293B',         // Dark slate for cards
+  highlight: '#3B82F6',    // Bright blue for highlights
+  success: '#10B981',      // Green for success states
+  border: '#334155',       // Subtle border color
 };
 
 export const buttonStyles = StyleSheet.create({
@@ -75,7 +76,7 @@ export const commonStyles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.backgroundAlt,
-    borderColor: colors.grey,
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
