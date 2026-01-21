@@ -5,6 +5,7 @@ import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { IconSymbol } from "@/components/IconSymbol";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -14,6 +15,7 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   console.log('HomeScreen: Rendering SBM Trading Channels home screen');
 
@@ -44,10 +46,12 @@ export default function HomeScreen() {
 
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
+  const topNavPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
   return (
     <View style={styles.container}>
       {/* Top Navigation */}
-      <View style={styles.topNav}>
+      <View style={[styles.topNav, { paddingTop: topNavPaddingTop }]}>
         <TouchableOpacity 
           style={styles.navButton}
           onPress={() => router.push('/subscription?channel=gold')}
@@ -346,13 +350,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: Platform.OS === 'android' ? 48 : 0,
   },
   topNav: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 12,
     backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
