@@ -403,7 +403,7 @@ export default function HomeScreen() {
                   size={32} 
                   color={colors.highlight} 
                 />
-                <Text style={styles.paymentName}>Tappy</Text>
+                <Text style={styles.paymentName}>tabby</Text>
               </View>
               <Text style={styles.paymentDescription}>
                 Fast and secure digital payments. Instant processing with full buyer protection.
