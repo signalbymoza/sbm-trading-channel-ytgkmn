@@ -2,163 +2,68 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { colors } from "@/styles/commonStyles";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function SubscriptionScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const initialChannel = params.channel as string;
+  const [selectedChannel, setSelectedChannel] = useState<string>('');
 
-  const [channelType, setChannelType] = useState<string>(initialChannel || 'gold');
-  const [selectedDuration, setSelectedDuration] = useState<string>('');
-
-  console.log('SubscriptionScreen: Channel type:', channelType);
-
-  const channelInfo = {
-    gold: {
-      nameEn: 'Gold Channel',
-      nameAr: 'قناة الذهب',
-      color: '#1E3A8A',
-      icon: 'star',
-      iosIcon: 'star.fill',
-    },
-    forex: {
-      nameEn: 'Forex Channel',
-      nameAr: 'قناة الفوركس',
-      color: '#3B82F6',
-      icon: 'show-chart',
-      iosIcon: 'chart.line.uptrend.xyaxis',
-    },
-    analysis: {
-      nameEn: 'Analysis Channel',
-      nameAr: 'قناة التحليل',
-      color: '#10B981',
-      icon: 'bar-chart',
-      iosIcon: 'chart.bar.fill',
-    },
-  };
-
-  const currentChannel = channelInfo[channelType as keyof typeof channelInfo] || channelInfo.gold;
-
-  const getSubscriptionOptions = () => {
-    if (channelType === 'gold') {
-      return [
-        {
-          id: 'monthly',
-          titleEn: 'Monthly',
-          titleAr: 'شهري',
-          duration: '1 Month',
-          durationAr: 'شهر واحد',
-          price: '$115',
-          descriptionEn: 'Perfect for trying out our service',
-          descriptionAr: 'مثالي لتجربة خدمتنا',
-        },
-        {
-          id: 'three_months',
-          titleEn: 'Three Months',
-          titleAr: 'ثلاثة أشهر',
-          duration: '3 Months',
-          durationAr: '3 أشهر',
-          price: '$300',
-          descriptionEn: 'Best value - Save money',
-          descriptionAr: 'أفضل قيمة - وفر المال',
-          badgeEn: 'POPULAR',
-          badgeAr: 'الأكثر شعبية',
-        },
-        {
-          id: 'annual',
-          titleEn: 'Annual',
-          titleAr: 'سنوي',
-          duration: '12 Months',
-          durationAr: '12 شهر',
-          price: '$1100',
-          descriptionEn: 'Maximum savings',
-          descriptionAr: 'أقصى توفير',
-          badgeEn: 'BEST VALUE',
-          badgeAr: 'أفضل قيمة',
-        },
-      ];
-    } else if (channelType === 'forex') {
-      return [
-        {
-          id: 'monthly',
-          titleEn: 'Monthly',
-          titleAr: 'شهري',
-          duration: '1 Month',
-          durationAr: 'شهر واحد',
-          price: '$75',
-          descriptionEn: 'Perfect for trying out our service',
-          descriptionAr: 'مثالي لتجربة خدمتنا',
-        },
-        {
-          id: 'three_months',
-          titleEn: 'Three Months',
-          titleAr: 'ثلاثة أشهر',
-          duration: '3 Months',
-          durationAr: '3 أشهر',
-          price: '$200',
-          descriptionEn: 'Best value - Save money',
-          descriptionAr: 'أفضل قيمة - وفر المال',
-          badgeEn: 'POPULAR',
-          badgeAr: 'الأكثر شعبية',
-        },
-        {
-          id: 'annual',
-          titleEn: 'Annual',
-          titleAr: 'سنوي',
-          duration: '12 Months',
-          durationAr: '12 شهر',
-          price: '$750',
-          descriptionEn: 'Maximum savings',
-          descriptionAr: 'أقصى توفير',
-          badgeEn: 'BEST VALUE',
-          badgeAr: 'أفضل قيمة',
-        },
-      ];
-    } else if (channelType === 'analysis') {
-      return [
-        {
-          id: 'monthly',
-          titleEn: 'Monthly',
-          titleAr: 'شهري',
-          duration: '1 Month',
-          durationAr: 'شهر واحد',
-          price: '$55',
-          descriptionEn: 'Monthly subscription only',
-          descriptionAr: 'اشتراك شهري فقط',
-        },
-      ];
-    }
-    return [];
-  };
-
-  const subscriptionOptions = getSubscriptionOptions();
+  console.log('SubscriptionScreen: Selected channel:', selectedChannel);
 
   const handleChannelSelect = (channel: string) => {
     console.log('User selected channel:', channel);
-    setChannelType(channel);
-    setSelectedDuration('');
+    setSelectedChannel(channel);
   };
 
   const handleContinue = () => {
-    if (!selectedDuration) {
-      console.log('No subscription duration selected');
+    if (!selectedChannel) {
+      console.log('No channel selected');
       return;
     }
-    console.log('User selected duration:', selectedDuration, 'for channel:', channelType);
-    
-    if (channelType === 'gold') {
-      router.push(`/gold-terms?duration=${selectedDuration}`);
-    } else if (channelType === 'forex') {
-      router.push(`/forex-terms?duration=${selectedDuration}`);
-    } else if (channelType === 'analysis') {
-      router.push(`/analysis-channel-terms?duration=${selectedDuration}`);
-    }
+    console.log('Navigating to duration selection for channel:', selectedChannel);
+    router.push(`/duration-selection?channel=${selectedChannel}`);
   };
 
-  const isSelected = (id: string) => selectedDuration === id;
+  const isSelected = (channel: string) => selectedChannel === channel;
+
+  const selectChannelEn = 'Select Your Channel';
+  const selectChannelAr = 'اختر قناتك';
+  const goldChannelEn = 'Gold Channel';
+  const goldChannelAr = 'قناة الذهب';
+  const goldDescEn = 'Premium gold trading signals and analysis';
+  const goldDescAr = 'إشارات وتحليلات تداول الذهب المتميزة';
+  const forexChannelEn = 'Forex Channel';
+  const forexChannelAr = 'قناة الفوركس';
+  const forexDescEn = 'Professional forex trading insights';
+  const forexDescAr = 'رؤى تداول الفوركس الاحترافية';
+  const analysisChannelEn = 'Analysis Channel';
+  const analysisChannelAr = 'قناة التحليل';
+  const analysisDescEn = 'In-depth market analysis and research';
+  const analysisDescAr = 'تحليل وبحث متعمق للسوق';
+  const selectedEn = 'Selected';
+  const selectedAr = 'محدد';
+  const continueEn = 'Continue';
+  const continueAr = 'متابعة';
+  const dailySignalsEn = 'Daily signals';
+  const dailySignalsAr = 'إشارات يومية';
+  const expertAnalysisEn = 'Expert analysis';
+  const expertAnalysisAr = 'تحليل خبير';
+  const supportEn = '24/7 support';
+  const supportAr = 'دعم على مدار الساعة';
+  const currencyPairsEn = 'Currency pairs';
+  const currencyPairsAr = 'أزواج العملات';
+  const marketUpdatesEn = 'Market updates';
+  const marketUpdatesAr = 'تحديثات السوق';
+  const riskManagementEn = 'Risk management';
+  const riskManagementAr = 'إدارة المخاطر';
+  const technicalAnalysisEn = 'Technical analysis';
+  const technicalAnalysisAr = 'التحليل الفني';
+  const marketTrendsEn = 'Market trends';
+  const marketTrendsAr = 'اتجاهات السوق';
+  const weeklyReportsEn = 'Weekly reports';
+  const weeklyReportsAr = 'تقارير أسبوعية';
 
   return (
     <View style={styles.container}>
@@ -167,12 +72,10 @@ export default function SubscriptionScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Choose Your Channel Section */}
         <View style={styles.channelsSection}>
-          <Text style={styles.sectionTitle}>Select Your Channel</Text>
-          <Text style={styles.sectionTitleAr}>اختر قناتك</Text>
+          <Text style={styles.sectionTitle}>{selectChannelEn}</Text>
+          <Text style={styles.sectionTitleAr}>{selectChannelAr}</Text>
 
-          {/* Gold Channel */}
           <TouchableOpacity 
             style={styles.channelCard}
             onPress={() => handleChannelSelect('gold')}
@@ -184,7 +87,7 @@ export default function SubscriptionScreen() {
               end={{ x: 1, y: 1 }}
               style={[
                 styles.channelGradient,
-                channelType === 'gold' && styles.channelGradientSelected,
+                isSelected('gold') && styles.channelGradientSelected,
               ]}
             >
               <View style={styles.channelIconContainer}>
@@ -195,20 +98,31 @@ export default function SubscriptionScreen() {
                   color="#FFFFFF" 
                 />
               </View>
-              <Text style={styles.channelTitle}>Gold Channel</Text>
-              <Text style={styles.channelTitleAr}>قناة الذهب</Text>
-              <Text style={styles.channelDescription}>
-                Premium gold trading signals and analysis
-              </Text>
-              <Text style={styles.channelDescriptionAr}>
-                إشارات وتحليلات تداول الذهب المتميزة
-              </Text>
+              <Text style={styles.channelTitle}>{goldChannelEn}</Text>
+              <Text style={styles.channelTitleAr}>{goldChannelAr}</Text>
+              <Text style={styles.channelDescription}>{goldDescEn}</Text>
+              <Text style={styles.channelDescriptionAr}>{goldDescAr}</Text>
               <View style={styles.channelFeatures}>
-                <Text style={styles.featureText}>• Daily signals | إشارات يومية</Text>
-                <Text style={styles.featureText}>• Expert analysis | تحليل خبير</Text>
-                <Text style={styles.featureText}>• 24/7 support | دعم على مدار الساعة</Text>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{dailySignalsEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{dailySignalsAr}</Text>
+                </View>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{expertAnalysisEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{expertAnalysisAr}</Text>
+                </View>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{supportEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{supportAr}</Text>
+                </View>
               </View>
-              {channelType === 'gold' && (
+              {isSelected('gold') && (
                 <View style={styles.selectedBadge}>
                   <IconSymbol 
                     ios_icon_name="checkmark.circle.fill" 
@@ -216,14 +130,13 @@ export default function SubscriptionScreen() {
                     size={24} 
                     color={colors.success} 
                   />
-                  <Text style={styles.selectedBadgeText}>Selected</Text>
-                  <Text style={styles.selectedBadgeTextAr}>محدد</Text>
+                  <Text style={styles.selectedBadgeText}>{selectedEn}</Text>
+                  <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Forex Channel */}
           <TouchableOpacity 
             style={styles.channelCard}
             onPress={() => handleChannelSelect('forex')}
@@ -235,7 +148,7 @@ export default function SubscriptionScreen() {
               end={{ x: 1, y: 1 }}
               style={[
                 styles.channelGradient,
-                channelType === 'forex' && styles.channelGradientSelected,
+                isSelected('forex') && styles.channelGradientSelected,
               ]}
             >
               <View style={styles.channelIconContainer}>
@@ -246,20 +159,31 @@ export default function SubscriptionScreen() {
                   color="#FFFFFF" 
                 />
               </View>
-              <Text style={styles.channelTitle}>Forex Channel</Text>
-              <Text style={styles.channelTitleAr}>قناة الفوركس</Text>
-              <Text style={styles.channelDescription}>
-                Professional forex trading insights
-              </Text>
-              <Text style={styles.channelDescriptionAr}>
-                رؤى تداول الفوركس الاحترافية
-              </Text>
+              <Text style={styles.channelTitle}>{forexChannelEn}</Text>
+              <Text style={styles.channelTitleAr}>{forexChannelAr}</Text>
+              <Text style={styles.channelDescription}>{forexDescEn}</Text>
+              <Text style={styles.channelDescriptionAr}>{forexDescAr}</Text>
               <View style={styles.channelFeatures}>
-                <Text style={styles.featureText}>• Currency pairs | أزواج العملات</Text>
-                <Text style={styles.featureText}>• Market updates | تحديثات السوق</Text>
-                <Text style={styles.featureText}>• Risk management | إدارة المخاطر</Text>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{currencyPairsEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{currencyPairsAr}</Text>
+                </View>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{marketUpdatesEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{marketUpdatesAr}</Text>
+                </View>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{riskManagementEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{riskManagementAr}</Text>
+                </View>
               </View>
-              {channelType === 'forex' && (
+              {isSelected('forex') && (
                 <View style={styles.selectedBadge}>
                   <IconSymbol 
                     ios_icon_name="checkmark.circle.fill" 
@@ -267,14 +191,13 @@ export default function SubscriptionScreen() {
                     size={24} 
                     color={colors.success} 
                   />
-                  <Text style={styles.selectedBadgeText}>Selected</Text>
-                  <Text style={styles.selectedBadgeTextAr}>محدد</Text>
+                  <Text style={styles.selectedBadgeText}>{selectedEn}</Text>
+                  <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Analysis Channel */}
           <TouchableOpacity 
             style={styles.channelCard}
             onPress={() => handleChannelSelect('analysis')}
@@ -286,7 +209,7 @@ export default function SubscriptionScreen() {
               end={{ x: 1, y: 1 }}
               style={[
                 styles.channelGradient,
-                channelType === 'analysis' && styles.channelGradientSelected,
+                isSelected('analysis') && styles.channelGradientSelected,
               ]}
             >
               <View style={styles.channelIconContainer}>
@@ -297,20 +220,31 @@ export default function SubscriptionScreen() {
                   color="#FFFFFF" 
                 />
               </View>
-              <Text style={styles.channelTitle}>Analysis Channel</Text>
-              <Text style={styles.channelTitleAr}>قناة التحليل</Text>
-              <Text style={styles.channelDescription}>
-                In-depth market analysis and research
-              </Text>
-              <Text style={styles.channelDescriptionAr}>
-                تحليل وبحث متعمق للسوق
-              </Text>
+              <Text style={styles.channelTitle}>{analysisChannelEn}</Text>
+              <Text style={styles.channelTitleAr}>{analysisChannelAr}</Text>
+              <Text style={styles.channelDescription}>{analysisDescEn}</Text>
+              <Text style={styles.channelDescriptionAr}>{analysisDescAr}</Text>
               <View style={styles.channelFeatures}>
-                <Text style={styles.featureText}>• Technical analysis | التحليل الفني</Text>
-                <Text style={styles.featureText}>• Market trends | اتجاهات السوق</Text>
-                <Text style={styles.featureText}>• Weekly reports | تقارير أسبوعية</Text>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{technicalAnalysisEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{technicalAnalysisAr}</Text>
+                </View>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{marketTrendsEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{marketTrendsAr}</Text>
+                </View>
+                <View style={styles.featureRow}>
+                  <Text style={styles.featureText}>•</Text>
+                  <Text style={styles.featureText}>{weeklyReportsEn}</Text>
+                  <Text style={styles.featureText}>|</Text>
+                  <Text style={styles.featureText}>{weeklyReportsAr}</Text>
+                </View>
               </View>
-              {channelType === 'analysis' && (
+              {isSelected('analysis') && (
                 <View style={styles.selectedBadge}>
                   <IconSymbol 
                     ios_icon_name="checkmark.circle.fill" 
@@ -318,164 +252,27 @@ export default function SubscriptionScreen() {
                     size={24} 
                     color={colors.success} 
                   />
-                  <Text style={styles.selectedBadgeText}>Selected</Text>
-                  <Text style={styles.selectedBadgeTextAr}>محدد</Text>
+                  <Text style={styles.selectedBadgeText}>{selectedEn}</Text>
+                  <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
-        {/* Channel Header */}
-        <View style={[styles.channelHeader, { backgroundColor: currentChannel.color }]}>
-          <IconSymbol 
-            ios_icon_name={currentChannel.iosIcon} 
-            android_material_icon_name={currentChannel.icon} 
-            size={48} 
-            color="#FFFFFF" 
-          />
-          <Text style={styles.channelName}>{currentChannel.nameEn}</Text>
-          <Text style={styles.channelNameAr}>{currentChannel.nameAr}</Text>
-          <Text style={styles.channelSubtitle}>Choose your subscription plan</Text>
-          <Text style={styles.channelSubtitleAr}>اختر خطة الاشتراك الخاصة بك</Text>
-        </View>
-
-        {/* Subscription Options */}
-        <View style={styles.optionsSection}>
-          {subscriptionOptions.map((option, index) => {
-            const selected = isSelected(option.id);
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.optionCard,
-                  selected && styles.optionCardSelected,
-                ]}
-                onPress={() => {
-                  console.log('User tapped subscription option:', option.id);
-                  setSelectedDuration(option.id);
-                }}
-                activeOpacity={0.7}
-              >
-                {option.badgeEn && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{option.badgeEn}</Text>
-                    <Text style={styles.badgeTextAr}>{option.badgeAr}</Text>
-                  </View>
-                )}
-                <View style={styles.optionHeader}>
-                  <View style={styles.optionTitleContainer}>
-                    <Text style={[styles.optionTitle, selected && styles.optionTitleSelected]}>
-                      {option.titleEn}
-                    </Text>
-                    <Text style={[styles.optionTitleAr, selected && styles.optionTitleArSelected]}>
-                      {option.titleAr}
-                    </Text>
-                    <Text style={[styles.optionDuration, selected && styles.optionDurationSelected]}>
-                      {option.duration}
-                    </Text>
-                    <Text style={[styles.optionDurationAr, selected && styles.optionDurationArSelected]}>
-                      {option.durationAr}
-                    </Text>
-                  </View>
-                  <Text style={[styles.optionPrice, selected && styles.optionPriceSelected]}>
-                    {option.price}
-                  </Text>
-                </View>
-                <Text style={[styles.optionDescription, selected && styles.optionDescriptionSelected]}>
-                  {option.descriptionEn}
-                </Text>
-                <Text style={[styles.optionDescriptionAr, selected && styles.optionDescriptionArSelected]}>
-                  {option.descriptionAr}
-                </Text>
-                <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
-                  {selected && <View style={styles.radioButtonInner} />}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Features Section */}
-        <View style={styles.featuresSection}>
-          <Text style={styles.featuresTitle}>What&apos;s Included:</Text>
-          <Text style={styles.featuresTitleAr}>ما هو مشمول:</Text>
-          <View style={styles.featureItem}>
-            <IconSymbol 
-              ios_icon_name="checkmark.circle.fill" 
-              android_material_icon_name="check-circle" 
-              size={24} 
-              color={colors.success} 
-            />
-            <View style={styles.featureTextContainer}>
-              <Text style={styles.featureTextMain}>Daily trading signals</Text>
-              <Text style={styles.featureTextAr}>إشارات تداول يومية</Text>
-            </View>
-          </View>
-          <View style={styles.featureItem}>
-            <IconSymbol 
-              ios_icon_name="checkmark.circle.fill" 
-              android_material_icon_name="check-circle" 
-              size={24} 
-              color={colors.success} 
-            />
-            <View style={styles.featureTextContainer}>
-              <Text style={styles.featureTextMain}>Expert market analysis</Text>
-              <Text style={styles.featureTextAr}>تحليل السوق الخبير</Text>
-            </View>
-          </View>
-          <View style={styles.featureItem}>
-            <IconSymbol 
-              ios_icon_name="checkmark.circle.fill" 
-              android_material_icon_name="check-circle" 
-              size={24} 
-              color={colors.success} 
-            />
-            <View style={styles.featureTextContainer}>
-              <Text style={styles.featureTextMain}>24/7 Telegram support</Text>
-              <Text style={styles.featureTextAr}>دعم تيليجرام على مدار الساعة</Text>
-            </View>
-          </View>
-          <View style={styles.featureItem}>
-            <IconSymbol 
-              ios_icon_name="checkmark.circle.fill" 
-              android_material_icon_name="check-circle" 
-              size={24} 
-              color={colors.success} 
-            />
-            <View style={styles.featureTextContainer}>
-              <Text style={styles.featureTextMain}>Risk management guidance</Text>
-              <Text style={styles.featureTextAr}>إرشادات إدارة المخاطر</Text>
-            </View>
-          </View>
-          <View style={styles.featureItem}>
-            <IconSymbol 
-              ios_icon_name="checkmark.circle.fill" 
-              android_material_icon_name="check-circle" 
-              size={24} 
-              color={colors.success} 
-            />
-            <View style={styles.featureTextContainer}>
-              <Text style={styles.featureTextMain}>Weekly performance reports</Text>
-              <Text style={styles.featureTextAr}>تقارير الأداء الأسبوعية</Text>
-            </View>
-          </View>
-        </View>
       </ScrollView>
 
-      {/* Continue Button */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
             styles.continueButton,
-            !selectedDuration && styles.continueButtonDisabled,
+            !selectedChannel && styles.continueButtonDisabled,
           ]}
           onPress={handleContinue}
-          disabled={!selectedDuration}
+          disabled={!selectedChannel}
           activeOpacity={0.8}
         >
-          <Text style={styles.continueButtonText}>Continue to Registration</Text>
-          <Text style={styles.continueButtonTextAr}>متابعة إلى التسجيل</Text>
+          <Text style={styles.continueButtonText}>{continueEn}</Text>
+          <Text style={styles.continueButtonTextAr}>{continueAr}</Text>
           <IconSymbol 
             ios_icon_name="arrow.right" 
             android_material_icon_name="arrow-forward" 
@@ -505,21 +302,21 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 4,
     textAlign: 'center',
   },
   sectionTitleAr: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 16,
+    marginBottom: 24,
     textAlign: 'center',
   },
   channelCard: {
-    marginBottom: 16,
+    marginBottom: 20,
     borderRadius: 16,
     overflow: 'hidden',
     elevation: 4,
@@ -567,10 +364,15 @@ const styles = StyleSheet.create({
   channelFeatures: {
     marginTop: 8,
   },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   featureText: {
     fontSize: 14,
     color: colors.text,
-    marginBottom: 4,
+    marginRight: 4,
     opacity: 0.9,
   },
   selectedBadge: {
@@ -595,193 +397,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
     color: colors.success,
-  },
-  channelHeader: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  channelName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginTop: 12,
-    marginBottom: 2,
-  },
-  channelNameAr: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  channelSubtitle: {
-    fontSize: 15,
-    color: '#FFFFFF',
-    marginBottom: 2,
-    opacity: 0.9,
-  },
-  channelSubtitleAr: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.85,
-  },
-  optionsSection: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-  },
-  optionCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: colors.border,
-    position: 'relative',
-  },
-  optionCardSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
-  },
-  badge: {
-    position: 'absolute',
-    top: -8,
-    right: 16,
-    backgroundColor: colors.highlight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  badgeTextAr: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  optionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  optionTitleContainer: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  optionTitleSelected: {
-    color: colors.highlight,
-  },
-  optionTitleAr: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  optionTitleArSelected: {
-    color: colors.highlight,
-  },
-  optionDuration: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  optionDurationSelected: {
-    color: colors.text,
-  },
-  optionDurationAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  optionDurationArSelected: {
-    color: colors.text,
-  },
-  optionPrice: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  optionPriceSelected: {
-    color: colors.highlight,
-  },
-  optionDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
-  optionDescriptionSelected: {
-    color: colors.text,
-  },
-  optionDescriptionAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 12,
-  },
-  optionDescriptionArSelected: {
-    color: colors.text,
-  },
-  radioButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-  },
-  radioButtonSelected: {
-    borderColor: colors.highlight,
-  },
-  radioButtonInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: colors.highlight,
-  },
-  featuresSection: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-  },
-  featuresTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  featuresTitleAr: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 16,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  featureTextContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  featureTextMain: {
-    fontSize: 15,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  featureTextAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
   },
   buttonContainer: {
     position: 'absolute',

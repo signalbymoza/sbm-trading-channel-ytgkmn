@@ -10,8 +10,9 @@ export default function GoldTermsScreen() {
   const params = useLocalSearchParams();
   const duration = params.duration as string;
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  console.log('GoldTermsScreen: Duration:', duration);
+  console.log('GoldTermsScreen: Duration:', duration, 'Agreed:', agreedToTerms);
 
   const currencies = [
     { code: 'USD', symbol: '$', rate: 1 },
@@ -33,6 +34,10 @@ export default function GoldTermsScreen() {
   const priceDisplay = `${currentCurrency.symbol}${convertedPrice}`;
 
   const handleContinue = () => {
+    if (!agreedToTerms) {
+      console.log('User has not agreed to terms');
+      return;
+    }
     console.log('User accepted Gold channel terms, navigating to registration');
     router.push(`/registration?channel=gold&duration=${duration}&price=${priceDisplay}`);
   };
@@ -51,6 +56,10 @@ export default function GoldTermsScreen() {
   
   const policyHeaderEn = 'Channel Joining Policy:';
   const policyHeaderAr = 'سياسة الانضمام للقنوات:';
+  const agreeEn = 'I agree to the terms and conditions';
+  const agreeAr = 'أوافق على الشروط والأحكام';
+  const continueEn = 'Continue to Registration';
+  const continueAr = 'متابعة إلى التسجيل';
 
   return (
     <View style={styles.container}>
@@ -170,16 +179,46 @@ export default function GoldTermsScreen() {
             <Text style={styles.policyText}>فريق SBM غير مسؤول عن أي صفقات تتم عبر قنوات أخرى.</Text>
           </View>
         </View>
+
+        <View style={styles.agreementSection}>
+          <TouchableOpacity
+            style={styles.checkboxContainer}
+            onPress={() => {
+              console.log('User toggled agreement checkbox:', !agreedToTerms);
+              setAgreedToTerms(!agreedToTerms);
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              {agreedToTerms && (
+                <IconSymbol 
+                  ios_icon_name="checkmark" 
+                  android_material_icon_name="check" 
+                  size={18} 
+                  color="#1A1A2E" 
+                />
+              )}
+            </View>
+            <View style={styles.agreementTextContainer}>
+              <Text style={styles.agreementText}>{agreeEn}</Text>
+              <Text style={styles.agreementTextAr}>{agreeAr}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.continueButton}
+          style={[
+            styles.continueButton,
+            !agreedToTerms && styles.continueButtonDisabled,
+          ]}
           onPress={handleContinue}
+          disabled={!agreedToTerms}
           activeOpacity={0.8}
         >
-          <Text style={styles.continueButtonText}>Continue to Registration</Text>
-          <Text style={styles.continueButtonTextAr}>متابعة إلى التسجيل</Text>
+          <Text style={styles.continueButtonText}>{continueEn}</Text>
+          <Text style={styles.continueButtonTextAr}>{continueAr}</Text>
           <IconSymbol 
             ios_icon_name="arrow.right" 
             android_material_icon_name="arrow-forward" 
@@ -372,6 +411,47 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'right',
   },
+  agreementSection: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: 16,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    marginTop: 2,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  agreementTextContainer: {
+    flex: 1,
+  },
+  agreementText: {
+    fontSize: 15,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  agreementTextAr: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'right',
+  },
   buttonContainer: {
     position: 'absolute',
     bottom: 0,
@@ -389,6 +469,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 18,
     borderRadius: 12,
+  },
+  continueButtonDisabled: {
+    backgroundColor: colors.border,
+    opacity: 0.5,
   },
   continueButtonText: {
     fontSize: 17,
