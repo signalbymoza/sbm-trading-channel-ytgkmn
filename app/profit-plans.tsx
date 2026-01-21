@@ -10,10 +10,15 @@ export default function ProfitPlansScreen() {
 
   console.log('ProfitPlansScreen: Rendering profit plans page');
 
+  const handlePlanPress = () => {
+    console.log('User tapped on profit plan card - navigating to registration');
+    router.push('/registration?program=profit_plan');
+  };
+
   const titleEn = 'Accumulated Profit Plans';
   const titleAr = 'خطط الربح التراكمي';
   const planAmount = '250 دولار';
-  const currentBalance = 'د.إ 0.00';
+  const priceText = '٠$';
   const planDuration = 'خطة 250 دولار لمدة سنة';
   const riskPercentage = 'نسبة المخاطرة 25%';
 
@@ -68,13 +73,12 @@ export default function ProfitPlansScreen() {
           <Text style={styles.amountLabel}>{planAmount}</Text>
         </View>
 
-        {/* Current Balance */}
-        <View style={styles.balanceSection}>
-          <Text style={styles.balanceText}>{currentBalance}</Text>
-        </View>
-
-        {/* Plan Card */}
-        <View style={styles.planCard}>
+        {/* Plan Card - Now Clickable */}
+        <TouchableOpacity 
+          style={styles.planCard}
+          onPress={handlePlanPress}
+          activeOpacity={0.8}
+        >
           <View style={styles.planHeader}>
             <IconSymbol 
               ios_icon_name="chart.line.uptrend.xyaxis" 
@@ -109,7 +113,23 @@ export default function ProfitPlansScreen() {
               <Text style={styles.detailText}>مخاطرة متوسطة - 25%</Text>
             </View>
           </View>
-        </View>
+
+          {/* Price inside the card */}
+          <View style={styles.priceSection}>
+            <Text style={styles.priceText}>{priceText}</Text>
+          </View>
+
+          {/* Tap to register indicator */}
+          <View style={styles.tapIndicator}>
+            <Text style={styles.tapIndicatorText}>اضغط للتسجيل</Text>
+            <IconSymbol 
+              ios_icon_name="arrow.right" 
+              android_material_icon_name="arrow-forward" 
+              size={18} 
+              color={colors.highlight} 
+            />
+          </View>
+        </TouchableOpacity>
 
         {/* Performance Disclaimer */}
         <View style={styles.disclaimerSection}>
@@ -201,7 +221,7 @@ const styles = StyleSheet.create({
   },
   amountSection: {
     paddingHorizontal: 24,
-    marginBottom: 16,
+    marginBottom: 32,
     alignItems: 'center',
   },
   amountLabel: {
@@ -210,24 +230,13 @@ const styles = StyleSheet.create({
     color: colors.highlight,
     textAlign: 'center',
   },
-  balanceSection: {
-    paddingHorizontal: 24,
-    marginBottom: 32,
-    alignItems: 'center',
-  },
-  balanceText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
   planCard: {
     backgroundColor: colors.card,
     borderRadius: 16,
     padding: 24,
     marginHorizontal: 24,
     marginBottom: 24,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colors.border,
   },
   planHeader: {
@@ -254,6 +263,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingTop: 20,
+    marginBottom: 20,
   },
   detailRow: {
     flexDirection: 'row',
@@ -264,6 +274,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
     marginLeft: 12,
+  },
+  priceSection: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    marginBottom: 12,
+  },
+  priceText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: colors.highlight,
+  },
+  tapIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 8,
+  },
+  tapIndicatorText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.highlight,
+    marginRight: 8,
   },
   disclaimerSection: {
     marginHorizontal: 24,
