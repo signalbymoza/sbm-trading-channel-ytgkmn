@@ -40,7 +40,6 @@ export default function EducationScreen() {
       duration: '2 months',
       durationAr: 'شهرين',
       }
-    },
     {
       id: 'trading_training',
       titleEn: 'Trading Training from Scratch',
