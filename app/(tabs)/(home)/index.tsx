@@ -22,11 +22,6 @@ export default function HomeScreen() {
     router.push(`/subscription?channel=${channelType}`);
   };
 
-  const handleAboutPress = () => {
-    console.log('User tapped About button');
-    router.push('/about');
-  };
-
   const handleProfitPlansPress = () => {
     console.log('User tapped Profit Plans button');
     router.push('/profit-plans');
@@ -386,58 +381,75 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Quick Links */}
-        <View style={styles.quickLinksSection}>
-          <TouchableOpacity 
-            style={styles.quickLinkButton}
-            onPress={handleAboutPress}
-            activeOpacity={0.7}
-          >
+        {/* Payment Methods Section */}
+        <View style={styles.paymentSection}>
+          <Text style={styles.paymentSectionTitle}>Payment Methods</Text>
+          <Text style={styles.paymentSectionTitleAr}>طرق الدفع</Text>
+          <Text style={styles.paymentSectionDescription}>
+            We accept the following payment methods for your convenience
+          </Text>
+          <Text style={styles.paymentSectionDescriptionAr}>
+            نقبل طرق الدفع التالية لراحتك
+          </Text>
+
+          <View style={styles.paymentCard}>
+            <View style={styles.paymentHeader}>
+              <IconSymbol 
+                ios_icon_name="creditcard.fill" 
+                android_material_icon_name="credit-card" 
+                size={32} 
+                color={colors.highlight} 
+              />
+              <Text style={styles.paymentName}>Tappy</Text>
+            </View>
+            <Text style={styles.paymentDescription}>
+              Fast and secure digital payments. Instant processing with full buyer protection.
+            </Text>
+            <Text style={styles.paymentDescriptionAr}>
+              مدفوعات رقمية سريعة وآمنة. معالجة فورية مع حماية كاملة للمشتري.
+            </Text>
+          </View>
+
+          <View style={styles.paymentCard}>
+            <View style={styles.paymentHeader}>
+              <IconSymbol 
+                ios_icon_name="creditcard.fill" 
+                android_material_icon_name="credit-card" 
+                size={32} 
+                color={colors.highlight} 
+              />
+              <Text style={styles.paymentName}>Tamara</Text>
+            </View>
+            <Text style={styles.paymentDescription}>
+              Buy now, pay later option. Split your payment into flexible installments with no interest.
+            </Text>
+            <Text style={styles.paymentDescriptionAr}>
+              اشتري الآن وادفع لاحقاً. قسّم دفعتك إلى أقساط مرنة بدون فوائد.
+            </Text>
+          </View>
+
+          <View style={styles.paymentNote}>
             <IconSymbol 
               ios_icon_name="info.circle" 
               android_material_icon_name="info" 
-              size={24} 
-              color={colors.highlight} 
+              size={20} 
+              color={colors.textSecondary} 
             />
-            <View style={styles.quickLinkTextContainer}>
-              <Text style={styles.quickLinkText}>About & Payment Methods</Text>
-              <Text style={styles.quickLinkTextAr}>حول وطرق الدفع</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.quickLinkButton}
-            onPress={handleProfitPlansPress}
-            activeOpacity={0.7}
-          >
+            <Text style={styles.paymentNoteText}>
+              All payments are processed securely. Your financial information is protected with industry-standard encryption.
+            </Text>
+          </View>
+          <View style={styles.paymentNote}>
             <IconSymbol 
-              ios_icon_name="chart.pie.fill" 
-              android_material_icon_name="donut-large" 
-              size={24} 
-              color={colors.highlight} 
+              ios_icon_name="info.circle" 
+              android_material_icon_name="info" 
+              size={20} 
+              color={colors.textSecondary} 
             />
-            <View style={styles.quickLinkTextContainer}>
-              <Text style={styles.quickLinkText}>Accumulated Profit Plans</Text>
-              <Text style={styles.quickLinkTextAr}>خطط الربح المتراكم</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.quickLinkButton}
-            onPress={handleEducationPress}
-            activeOpacity={0.7}
-          >
-            <IconSymbol 
-              ios_icon_name="book.fill" 
-              android_material_icon_name="menu-book" 
-              size={24} 
-              color={colors.highlight} 
-            />
-            <View style={styles.quickLinkTextContainer}>
-              <Text style={styles.quickLinkText}>Education Programs</Text>
-              <Text style={styles.quickLinkTextAr}>برامج التعليم</Text>
-            </View>
-          </TouchableOpacity>
+            <Text style={styles.paymentNoteTextAr}>
+              جميع المدفوعات تتم بشكل آمن. معلوماتك المالية محمية بتشفير معياري صناعي.
+            </Text>
+          </View>
         </View>
 
         <View style={styles.footer}>
@@ -709,33 +721,89 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     opacity: 0.9,
   },
-  quickLinksSection: {
+  paymentSection: {
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 32,
+    paddingBottom: 16,
   },
-  quickLinkButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: 12,
+  paymentSectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  paymentSectionTitleAr: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.text,
     marginBottom: 12,
+    textAlign: 'center',
+  },
+  paymentSectionDescription: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  paymentSectionDescriptionAr: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  paymentCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  quickLinkTextContainer: {
-    flex: 1,
+  paymentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  paymentName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
     marginLeft: 12,
   },
-  quickLinkText: {
-    fontSize: 16,
-    color: colors.text,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  quickLinkTextAr: {
+  paymentDescription: {
     fontSize: 14,
     color: colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  paymentDescriptionAr: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    textAlign: 'right',
+  },
+  paymentNote: {
+    flexDirection: 'row',
+    backgroundColor: colors.accent,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  paymentNoteText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginLeft: 12,
+    flex: 1,
+    lineHeight: 18,
+  },
+  paymentNoteTextAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginLeft: 12,
+    flex: 1,
+    lineHeight: 18,
+    textAlign: 'right',
   },
   footer: {
     paddingHorizontal: 24,
