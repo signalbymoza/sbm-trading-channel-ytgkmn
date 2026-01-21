@@ -47,6 +47,11 @@ export default function HomeScreen() {
     router.push('/subscription?channel=gold');
   };
 
+  const handleDiscoverChannelsPress = () => {
+    console.log('User tapped Discover Our Channels button');
+    router.push('/subscription?channel=gold');
+  };
+
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
   return (
@@ -222,16 +227,14 @@ export default function HomeScreen() {
                 />
                 <Text style={styles.featureItemText}>توصيات واخبار</Text>
               </View>
-              <View style={styles.featureItem}>
-                <IconSymbol 
-                  ios_icon_name="checkmark.circle.fill" 
-                  android_material_icon_name="check-circle" 
-                  size={20} 
-                  color={colors.highlight} 
-                />
-                <Text style={styles.featureItemText}>قنوات التلقرام</Text>
-              </View>
             </View>
+            <TouchableOpacity 
+              style={styles.serviceButton}
+              onPress={handleDiscoverChannelsPress}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.serviceButtonText}>اكتشف قنواتنا</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
 
           {/* Cumulative Profit Plans Service */}
