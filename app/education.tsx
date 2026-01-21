@@ -35,6 +35,8 @@ export default function EducationScreen() {
           ar: 'متقنة لمدرسة التحليل الفني الكلاسيكي + pure price action + إستراتيجية ICT' 
         },
       ],
+      featuresTitleEn: 'Training will be conducted by analyst Nour:',
+      featuresTitleAr: 'التعليم سيكون من خلال المحللة نور:',
       priceAED: 'د.إ 5,509.00',
       priceUSD: '$1,500',
       duration: '2 months',
@@ -57,6 +59,8 @@ export default function EducationScreen() {
         { en: 'Private follow-up from the trainer', ar: '٢ – متابعة خاصه من المدرب' },
         { en: 'Cumulative profit schedule', ar: '٣ – جدول الربح التراكمي' },
       ],
+      featuresTitleEn: 'The service includes:',
+      featuresTitleAr: 'الخدمة تشمل:',
     },
     {
       id: 'instructions_service',
@@ -76,6 +80,8 @@ export default function EducationScreen() {
         { en: 'Custom trading plan', ar: 'خطة تداول مخصصة' },
         { en: 'Direct messaging support', ar: 'دعم الرسائل المباشرة' },
       ],
+      featuresTitleEn: 'The service includes:',
+      featuresTitleAr: 'الخدمة تشمل:',
     },
   ];
 
@@ -91,7 +97,6 @@ export default function EducationScreen() {
     }
     console.log('User enrolling in program:', selectedProgram);
     
-    // For analysis training, go to terms page first
     if (selectedProgram === 'analysis_training') {
       router.push('/analysis-terms');
     } else {
@@ -103,7 +108,6 @@ export default function EducationScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Navigation */}
       <View style={styles.topNav}>
         <TouchableOpacity 
           style={styles.navButton}
@@ -135,7 +139,6 @@ export default function EducationScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={styles.header}>
           <IconSymbol 
             ios_icon_name="book.fill" 
@@ -153,7 +156,6 @@ export default function EducationScreen() {
           </Text>
         </View>
 
-        {/* Programs Section */}
         <View style={styles.programsSection}>
           {educationPrograms.map((program, index) => {
             const isSelected = selectedProgram === program.id;
@@ -201,7 +203,6 @@ export default function EducationScreen() {
                     {program.titleAr}
                   </Text>
 
-                  {/* Description */}
                   <View style={styles.descriptionContainer}>
                     <Text style={[styles.descriptionText, isSelected && styles.descriptionTextSelected]}>
                       {program.descriptionEn}
@@ -241,7 +242,6 @@ export default function EducationScreen() {
                     </View>
                   </View>
 
-                  {/* Installment Info for Analysis Training */}
                   {program.installmentInfo && (
                     <View style={styles.installmentContainer}>
                       <Text style={[styles.installmentText, isSelected && styles.installmentTextSelected]}>
@@ -260,10 +260,10 @@ export default function EducationScreen() {
 
                   <View style={styles.featuresSection}>
                     <Text style={[styles.featuresTitle, isSelected && styles.featuresTitleSelected]}>
-                      The service includes:
+                      {program.featuresTitleEn}
                     </Text>
                     <Text style={[styles.featuresTitleAr, isSelected && styles.featuresTitleArSelected]}>
-                      الخدمة تشمل:
+                      {program.featuresTitleAr}
                     </Text>
                     {program.features.map((feature, featureIndex) => (
                       <View key={featureIndex} style={styles.featureItem}>
@@ -290,7 +290,6 @@ export default function EducationScreen() {
           })}
         </View>
 
-        {/* Benefits Section */}
         <View style={styles.benefitsSection}>
           <Text style={styles.benefitsTitle}>Why Choose Our Education Programs?</Text>
           <Text style={styles.benefitsTitleAr}>لماذا تختار برامجنا التعليمية؟</Text>
@@ -349,7 +348,6 @@ export default function EducationScreen() {
         </View>
       </ScrollView>
 
-      {/* Enroll Button */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
