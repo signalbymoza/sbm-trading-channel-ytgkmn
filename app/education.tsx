@@ -81,6 +81,26 @@ export default function EducationScreen() {
       featuresTitleEn: 'The service includes:',
       featuresTitleAr: 'الخدمة تشمل:',
     },
+    {
+      id: 'forex_guide',
+      titleEn: 'Forex Guide for Beginners',
+      titleAr: 'دليل الفوركس للمبتدئين',
+      descriptionEn: 'Comprehensive guide covering Forex basics',
+      descriptionAr: 'دليل شامل يغطي أساسيات الفوركس',
+      icon: 'menu-book',
+      color: '#8B5CF6',
+      priceAED: 'د.إ 300.00',
+      priceUSD: '$82',
+      duration: 'N/A',
+      durationAr: 'غير محدد',
+      features: [
+        { en: 'Forex basics only', ar: 'أساسيات الفوركس فقط' },
+        { en: 'No analysis or recommendations included', ar: 'لا يتضمن تحليلات أو توصيات' },
+        { en: 'No trainer included', ar: 'لا يشمل المدرب' },
+      ],
+      featuresTitleEn: 'The guide includes:',
+      featuresTitleAr: 'الدليل يشمل:',
+    },
   ];
 
   const handleProgramSelect = (programId: string) => {
@@ -101,6 +121,8 @@ export default function EducationScreen() {
       router.push('/trading-terms');
     } else if (selectedProgram === 'instructions_service') {
       router.push('/instructions-terms');
+    } else if (selectedProgram === 'forex_guide') {
+      router.push('/forex-guide-terms');
     } else {
       router.push(`/registration?channel=education&program=${selectedProgram}`);
     }
