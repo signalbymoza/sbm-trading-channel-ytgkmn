@@ -1,10 +1,16 @@
 
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { IconSymbol } from "@/components/IconSymbol";
+
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -30,6 +36,8 @@ export default function HomeScreen() {
     console.log('User tapped Education button');
     router.push('/education-intro');
   };
+
+  const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
   return (
     <View style={styles.container}>
@@ -88,14 +96,11 @@ export default function HomeScreen() {
         {/* About Moza Al-Balushi Section */}
         <View style={styles.aboutMozaSection}>
           <View style={styles.aboutMozaCard}>
-            <View style={styles.aboutMozaIconContainer}>
-              <IconSymbol 
-                ios_icon_name="person.circle.fill" 
-                android_material_icon_name="account-circle" 
-                size={48} 
-                color={colors.highlight} 
-              />
-            </View>
+            <Image 
+              source={resolveImageSource(mozaImage)} 
+              style={styles.mozaImage}
+              resizeMode="cover"
+            />
             <Text style={styles.aboutMozaTitle}>من هي موزة البلوشي؟</Text>
             <Text style={styles.aboutMozaText}>
               موزة البلوشي هي متداولة، محللة و مُدربه معتمده دُوليًا. هدفها هو نشر العلم والثقافة وإثبات أن التداول قادر على تغيير حياتكم للأفضل، ومساعدة العالم وتوجيههم للطريق الصحيح. رؤيتها تتمثل في تحسين نظرة المجتمع عن المجال وتثقيفهم وتوجيههم لتعدد مصادر الدخل.
@@ -386,8 +391,13 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
   },
-  aboutMozaIconContainer: {
-    marginBottom: 16,
+  mozaImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 20,
+    borderWidth: 3,
+    borderColor: colors.highlight,
   },
   aboutMozaTitle: {
     fontSize: 20,
