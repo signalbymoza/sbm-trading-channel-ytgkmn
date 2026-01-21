@@ -42,42 +42,99 @@ export default function SubscriptionScreen() {
 
   const currentChannel = channelInfo[channelType as keyof typeof channelInfo] || channelInfo.gold;
 
-  const subscriptionOptions = [
-    {
-      id: 'monthly',
-      titleEn: 'Monthly',
-      titleAr: 'شهري',
-      duration: '1 Month',
-      durationAr: 'شهر واحد',
-      price: '$99',
-      descriptionEn: 'Perfect for trying out our service',
-      descriptionAr: 'مثالي لتجربة خدمتنا',
-    },
-    {
-      id: 'three_months',
-      titleEn: 'Three Months',
-      titleAr: 'ثلاثة أشهر',
-      duration: '3 Months',
-      durationAr: '3 أشهر',
-      price: '$249',
-      descriptionEn: 'Best value - Save 15%',
-      descriptionAr: 'أفضل قيمة - وفر 15%',
-      badgeEn: 'POPULAR',
-      badgeAr: 'الأكثر شعبية',
-    },
-    {
-      id: 'annual',
-      titleEn: 'Annual',
-      titleAr: 'سنوي',
-      duration: '12 Months',
-      durationAr: '12 شهر',
-      price: '$899',
-      descriptionEn: 'Maximum savings - Save 25%',
-      descriptionAr: 'أقصى توفير - وفر 25%',
-      badgeEn: 'BEST VALUE',
-      badgeAr: 'أفضل قيمة',
-    },
-  ];
+  const getSubscriptionOptions = () => {
+    if (channelType === 'gold') {
+      return [
+        {
+          id: 'monthly',
+          titleEn: 'Monthly',
+          titleAr: 'شهري',
+          duration: '1 Month',
+          durationAr: 'شهر واحد',
+          price: '$115',
+          descriptionEn: 'Perfect for trying out our service',
+          descriptionAr: 'مثالي لتجربة خدمتنا',
+        },
+        {
+          id: 'three_months',
+          titleEn: 'Three Months',
+          titleAr: 'ثلاثة أشهر',
+          duration: '3 Months',
+          durationAr: '3 أشهر',
+          price: '$300',
+          descriptionEn: 'Best value - Save money',
+          descriptionAr: 'أفضل قيمة - وفر المال',
+          badgeEn: 'POPULAR',
+          badgeAr: 'الأكثر شعبية',
+        },
+        {
+          id: 'annual',
+          titleEn: 'Annual',
+          titleAr: 'سنوي',
+          duration: '12 Months',
+          durationAr: '12 شهر',
+          price: '$1100',
+          descriptionEn: 'Maximum savings',
+          descriptionAr: 'أقصى توفير',
+          badgeEn: 'BEST VALUE',
+          badgeAr: 'أفضل قيمة',
+        },
+      ];
+    } else if (channelType === 'forex') {
+      return [
+        {
+          id: 'monthly',
+          titleEn: 'Monthly',
+          titleAr: 'شهري',
+          duration: '1 Month',
+          durationAr: 'شهر واحد',
+          price: '$75',
+          descriptionEn: 'Perfect for trying out our service',
+          descriptionAr: 'مثالي لتجربة خدمتنا',
+        },
+        {
+          id: 'three_months',
+          titleEn: 'Three Months',
+          titleAr: 'ثلاثة أشهر',
+          duration: '3 Months',
+          durationAr: '3 أشهر',
+          price: '$200',
+          descriptionEn: 'Best value - Save money',
+          descriptionAr: 'أفضل قيمة - وفر المال',
+          badgeEn: 'POPULAR',
+          badgeAr: 'الأكثر شعبية',
+        },
+        {
+          id: 'annual',
+          titleEn: 'Annual',
+          titleAr: 'سنوي',
+          duration: '12 Months',
+          durationAr: '12 شهر',
+          price: '$750',
+          descriptionEn: 'Maximum savings',
+          descriptionAr: 'أقصى توفير',
+          badgeEn: 'BEST VALUE',
+          badgeAr: 'أفضل قيمة',
+        },
+      ];
+    } else if (channelType === 'analysis') {
+      return [
+        {
+          id: 'monthly',
+          titleEn: 'Monthly',
+          titleAr: 'شهري',
+          duration: '1 Month',
+          durationAr: 'شهر واحد',
+          price: '$55',
+          descriptionEn: 'Monthly subscription only',
+          descriptionAr: 'اشتراك شهري فقط',
+        },
+      ];
+    }
+    return [];
+  };
+
+  const subscriptionOptions = getSubscriptionOptions();
 
   const handleChannelSelect = (channel: string) => {
     console.log('User selected channel:', channel);
@@ -91,7 +148,14 @@ export default function SubscriptionScreen() {
       return;
     }
     console.log('User selected duration:', selectedDuration, 'for channel:', channelType);
-    router.push(`/registration?channel=${channelType}&duration=${selectedDuration}`);
+    
+    if (channelType === 'gold') {
+      router.push(`/gold-terms?duration=${selectedDuration}`);
+    } else if (channelType === 'forex') {
+      router.push(`/forex-terms?duration=${selectedDuration}`);
+    } else if (channelType === 'analysis') {
+      router.push(`/analysis-channel-terms?duration=${selectedDuration}`);
+    }
   };
 
   const isSelected = (id: string) => selectedDuration === id;
