@@ -85,6 +85,24 @@ export default function HomeScreen() {
           </Text>
         </View>
 
+        {/* About Moza Al-Balushi Section */}
+        <View style={styles.aboutMozaSection}>
+          <View style={styles.aboutMozaCard}>
+            <View style={styles.aboutMozaIconContainer}>
+              <IconSymbol 
+                ios_icon_name="person.circle.fill" 
+                android_material_icon_name="account-circle" 
+                size={48} 
+                color={colors.highlight} 
+              />
+            </View>
+            <Text style={styles.aboutMozaTitle}>من هي موزة البلوشي؟</Text>
+            <Text style={styles.aboutMozaText}>
+              موزة البلوشي هي متداولة، محللة و مُدربه معتمده دُوليًا. هدفها هو نشر العلم والثقافة وإثبات أن التداول قادر على تغيير حياتكم للأفضل، ومساعدة العالم وتوجيههم للطريق الصحيح. رؤيتها تتمثل في تحسين نظرة المجتمع عن المجال وتثقيفهم وتوجيههم لتعدد مصادر الدخل.
+            </Text>
+          </View>
+        </View>
+
         {/* Channels Section */}
         <View style={styles.channelsSection}>
           <Text style={styles.sectionTitle}>Select Your Channel</Text>
@@ -355,6 +373,34 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
+  },
+  aboutMozaSection: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  },
+  aboutMozaCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  aboutMozaIconContainer: {
+    marginBottom: 16,
+  },
+  aboutMozaTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  aboutMozaText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 24,
   },
   channelsSection: {
     paddingHorizontal: 24,
