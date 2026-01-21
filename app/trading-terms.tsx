@@ -29,26 +29,17 @@ export default function TradingTermsScreen() {
   const mechanismPoint1En = 'Please write your Telegram account correctly to confirm your subscription and ensure follow-up from the trainer.';
   const mechanismPoint1Ar = 'الرجاء كتابة حسابكم الخاص في تطبيق التيلقرام بشكل صحيح لتأكيد اشتراككم وضمان متابعة المدرب معكم.';
 
-  const mechanismPoint2En = 'The trainer contact link will be sent in a PDF document via email immediately after payment.';
-  const mechanismPoint2Ar = 'سيتم إرسال رابط التواصل مع المدرب في مستند PDF عبر البريد الإلكتروني بعد الدفع مباشرةً.';
-
-  const mechanismPoint3En = 'The file can be accessed at any time by logging into the website (My Account Dashboard > Downloads).';
-  const mechanismPoint3Ar = 'يمكن الوصول إلى الملف في أي وقت من خلال تسجيل الدخول إلى الموقع الإلكتروني (لوحة حسابي > التنزيلات).';
-
-  const mechanismPoint4En = 'If you are unable to receive the PDF file, you can contact us via the support channel (here).';
-  const mechanismPoint4Ar = 'في حال عدم تمكنكم من استلام ملف الـ PDF، يمكنكم التواصل معنا عبر قناة الدعم (هنا).';
+  const mechanismPoint2En = 'If you are unable to receive the PDF file, you can contact us via the support channel (here).';
+  const mechanismPoint2Ar = 'في حال عدم تمكنكم من استلام ملف الـ PDF، يمكنكم التواصل معنا عبر قناة الدعم (هنا).';
 
   const note1En = 'No refunds after payment.';
   const note1Ar = 'لا يوجد استرداد للمبلغ بعد الدفع.';
 
-  const note2En = 'We do not provide analysis teaching service.';
-  const note2Ar = 'لا نوفر خدمة تعليم التحليل';
+  const note2En = 'Training and follow-up period is one month only. To renew, you can re-subscribe to the service for an additional month.';
+  const note2Ar = 'مدة التدريب والمتابعة هي شهر واحد فقط. للتجديد، يمكنك إعادة الاشتراك في الخدمة لشهر إضافي.';
 
-  const note3En = 'Training and follow-up period is one month only. To renew, you can re-subscribe to the service for an additional month.';
-  const note3Ar = 'مدة التدريب والمتابعة هي شهر واحد فقط. للتجديد، يمكنك إعادة الاشتراك في الخدمة لشهر إضافي.';
-
-  const note4En = 'Training is conducted via Telegram, where you will be added to the courses channel.';
-  const note4Ar = 'التدريب يتم عبر التلقرام، حيث سيتم إدخالك في القناة الخاصة بالكورسات.';
+  const note3En = 'Training is conducted via Telegram, where you will be added to the courses channel.';
+  const note3Ar = 'التدريب يتم عبر التلقرام، حيث سيتم إدخالك في القناة الخاصة بالكورسات.';
 
   const acceptTermsEn = 'I have read and accept the terms and conditions';
   const acceptTermsAr = 'لقد قرأت وأوافق على الشروط والأحكام';
@@ -109,26 +100,6 @@ export default function TradingTermsScreen() {
               <Text style={styles.pointTextAr}>{mechanismPoint2Ar}</Text>
             </View>
           </View>
-
-          <View style={styles.pointCard}>
-            <View style={styles.pointNumber}>
-              <Text style={styles.pointNumberText}>3</Text>
-            </View>
-            <View style={styles.pointContent}>
-              <Text style={styles.pointText}>{mechanismPoint3En}</Text>
-              <Text style={styles.pointTextAr}>{mechanismPoint3Ar}</Text>
-            </View>
-          </View>
-
-          <View style={styles.pointCard}>
-            <View style={styles.pointNumber}>
-              <Text style={styles.pointNumberText}>4</Text>
-            </View>
-            <View style={styles.pointContent}>
-              <Text style={styles.pointText}>{mechanismPoint4En}</Text>
-              <Text style={styles.pointTextAr}>{mechanismPoint4Ar}</Text>
-            </View>
-          </View>
         </View>
 
         <View style={styles.section}>
@@ -181,19 +152,6 @@ export default function TradingTermsScreen() {
             <View style={styles.noteContent}>
               <Text style={styles.noteText}>{note3En}</Text>
               <Text style={styles.noteTextAr}>{note3Ar}</Text>
-            </View>
-          </View>
-
-          <View style={styles.noteCard}>
-            <IconSymbol 
-              ios_icon_name="circle.fill" 
-              android_material_icon_name="circle" 
-              size={8} 
-              color={colors.warning} 
-            />
-            <View style={styles.noteContent}>
-              <Text style={styles.noteText}>{note4En}</Text>
-              <Text style={styles.noteTextAr}>{note4Ar}</Text>
             </View>
           </View>
         </View>
