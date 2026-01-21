@@ -356,19 +356,6 @@ export default function EducationScreen() {
               <Text style={styles.benefitTextAr}>مواد دراسية وموارد شاملة</Text>
             </View>
           </View>
-
-          <View style={styles.benefitItem}>
-            <IconSymbol 
-              ios_icon_name="checkmark.seal.fill" 
-              android_material_icon_name="verified" 
-              size={24} 
-              color={colors.highlight} 
-            />
-            <View style={styles.benefitContent}>
-              <Text style={styles.benefitText}>Certificate of completion</Text>
-              <Text style={styles.benefitTextAr}>شهادة إتمام</Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
 
