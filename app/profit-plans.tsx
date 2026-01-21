@@ -94,7 +94,7 @@ export default function ProfitPlansScreen() {
           activeOpacity={0.7}
         >
           <Text style={styles.navButtonText}>Profit Plans</Text>
-          <Text style={styles.navButtonTextAr}>خطط الربح المتراكمة</Text>
+          <Text style={styles.navButtonTextAr}>خطط الربح التراكمي</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navButton}
@@ -114,7 +114,7 @@ export default function ProfitPlansScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Accumulated Profit Plans</Text>
-          <Text style={styles.titleAr}>خطط الربح المتراكمة</Text>
+          <Text style={styles.titleAr}>خطط الربح التراكمي</Text>
           <Text style={styles.subtitle}>
             Choose a profit plan that matches your risk tolerance and investment goals. All plans include comprehensive risk management and expert guidance.
           </Text>
