@@ -37,6 +37,16 @@ export default function HomeScreen() {
     router.push('/education-intro');
   };
 
+  const handleEducationBasicsPress = () => {
+    console.log('User tapped Education Basics service card');
+    router.push('/education-intro');
+  };
+
+  const handleRecommendationChannelsPress = () => {
+    console.log('User tapped Recommendation Channels service card');
+    router.push('/subscription?channel=gold');
+  };
+
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
   return (
@@ -113,7 +123,11 @@ export default function HomeScreen() {
           <Text style={styles.servicesSectionTitle}>تعرف على خدماتنا</Text>
           
           {/* Teaching Basics Service */}
-          <View style={styles.serviceCard}>
+          <TouchableOpacity 
+            style={styles.serviceCard}
+            onPress={handleEducationBasicsPress}
+            activeOpacity={0.8}
+          >
             <View style={styles.serviceIconContainer}>
               <IconSymbol 
                 ios_icon_name="book.fill" 
@@ -164,17 +178,19 @@ export default function HomeScreen() {
                 <Text style={styles.featureItemText}>جداول الربح التراكمي مناسب لـ راس المال</Text>
               </View>
             </View>
-            <TouchableOpacity 
-              style={styles.serviceButton}
-              onPress={() => router.push('/subscription?channel=gold')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.serviceButtonText}>اكتشف باقاتنا</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.serviceButtonContainer}>
+              <View style={styles.serviceButton}>
+                <Text style={styles.serviceButtonText}>اكتشف باقاتنا</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
 
           {/* Recommendations Channels Service */}
-          <View style={styles.serviceCard}>
+          <TouchableOpacity 
+            style={styles.serviceCard}
+            onPress={handleRecommendationChannelsPress}
+            activeOpacity={0.8}
+          >
             <View style={styles.serviceIconContainer}>
               <IconSymbol 
                 ios_icon_name="chart.line.uptrend.xyaxis" 
@@ -216,7 +232,7 @@ export default function HomeScreen() {
                 <Text style={styles.featureItemText}>قنوات التلقرام</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* Cumulative Profit Plans Service */}
           <View style={styles.serviceCard}>
@@ -609,13 +625,15 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
+  serviceButtonContainer: {
+    marginTop: 8,
+  },
   serviceButton: {
     backgroundColor: colors.highlight,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 8,
   },
   serviceButtonText: {
     fontSize: 16,
