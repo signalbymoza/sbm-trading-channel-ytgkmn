@@ -39,9 +39,6 @@ export default function EducationScreen() {
       priceUSD: '$1,500',
       duration: '2 months',
       durationAr: 'شهرين',
-      installmentInfo: {
-        en: 'Or split your invoice into 4 payments of 1,377.25 with no late fees, Sharia-compliant',
-        ar: 'أو قسم فاتورتك على 4 دفعات بقيمة 1,377.25 بدون رسوم تأخير، متوافقة مع الشريعة الإسلامية'
       }
     },
     {
