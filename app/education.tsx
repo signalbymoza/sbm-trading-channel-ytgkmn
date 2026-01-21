@@ -39,7 +39,7 @@ export default function EducationScreen() {
       priceUSD: '$1,500',
       duration: '2 months',
       durationAr: 'شهرين',
-      }
+    },
     {
       id: 'trading_training',
       titleEn: 'Trading Training from Scratch',
@@ -66,15 +66,16 @@ export default function EducationScreen() {
       descriptionAr: 'إرشاد ودعم شخصي لرحلة التداول الخاصة بك',
       icon: 'help',
       color: '#10B981',
+      priceAED: 'د.إ 299.00',
+      priceUSD: '$80',
+      duration: 'Ongoing',
+      durationAr: 'مستمر',
       features: [
         { en: 'One-on-one mentoring', ar: 'إرشاد فردي' },
         { en: 'Trade review and feedback', ar: 'مراجعة الصفقات والملاحظات' },
         { en: 'Custom trading plan', ar: 'خطة تداول مخصصة' },
         { en: 'Direct messaging support', ar: 'دعم الرسائل المباشرة' },
       ],
-      price: '$199/month',
-      duration: 'Ongoing',
-      durationAr: 'مستمر',
     },
   ];
 
