@@ -70,8 +70,8 @@ export default function EducationScreen() {
       descriptionAr: 'تعليمات ونصائح لمشتركي قناة SBM',
       icon: 'help',
       color: '#10B981',
-      priceAED: 'د.إ 299.00',
-      priceUSD: '$80',
+      priceAED: 'د.إ 276.00',
+      priceUSD: '$75',
       duration: '1 month',
       durationAr: 'شهر واحد',
       features: [
