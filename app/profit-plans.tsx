@@ -17,10 +17,10 @@ export default function ProfitPlansScreen() {
 
   const titleEn = 'Accumulated Profit Plans';
   const titleAr = 'خطط الربح التراكمي';
-  const planAmount = '250 دولار';
-  const priceText = '٠$';
+  const priceText = '0$';
   const planDuration = 'خطة 250 دولار لمدة سنة';
   const riskPercentage = 'نسبة المخاطرة 25%';
+  const tapToDownloadText = 'اضغط للتنزيل';
 
   return (
     <View style={styles.container}>
@@ -66,11 +66,6 @@ export default function ProfitPlansScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>{titleEn}</Text>
           <Text style={styles.titleAr}>{titleAr}</Text>
-        </View>
-
-        {/* Plan Amount */}
-        <View style={styles.amountSection}>
-          <Text style={styles.amountLabel}>{planAmount}</Text>
         </View>
 
         {/* Plan Card - Now Clickable */}
@@ -119,9 +114,9 @@ export default function ProfitPlansScreen() {
             <Text style={styles.priceText}>{priceText}</Text>
           </View>
 
-          {/* Tap to register indicator */}
+          {/* Tap to download indicator */}
           <View style={styles.tapIndicator}>
-            <Text style={styles.tapIndicatorText}>اضغط للتسجيل</Text>
+            <Text style={styles.tapIndicatorText}>{tapToDownloadText}</Text>
             <IconSymbol 
               ios_icon_name="arrow.right" 
               android_material_icon_name="arrow-forward" 
@@ -216,18 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  amountSection: {
-    paddingHorizontal: 24,
     marginBottom: 32,
-    alignItems: 'center',
-  },
-  amountLabel: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.highlight,
     textAlign: 'center',
   },
   planCard: {
