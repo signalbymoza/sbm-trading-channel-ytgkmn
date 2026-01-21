@@ -17,19 +17,32 @@ export default function EducationScreen() {
       id: 'analysis_training',
       titleEn: 'Analysis Training from Scratch',
       titleAr: 'تعليم التحليل من الصفر',
-      descriptionEn: 'Comprehensive technical and fundamental analysis training for beginners',
-      descriptionAr: 'تدريب شامل على التحليل الفني والأساسي للمبتدئين',
+      descriptionEn: 'Training will be conducted by analyst Nour',
+      descriptionAr: 'التعليم سيكون من خلال المحللة نور',
       icon: 'bar-chart',
       color: '#1E3A8A',
       features: [
-        { en: 'Chart patterns and indicators', ar: 'أنماط الرسوم البيانية والمؤشرات' },
-        { en: 'Support and resistance levels', ar: 'مستويات الدعم والمقاومة' },
-        { en: 'Trend analysis techniques', ar: 'تقنيات تحليل الاتجاهات' },
-        { en: 'Risk management basics', ar: 'أساسيات إدارة المخاطر' },
+        { 
+          en: 'Analyst and trader in markets (Forex, stocks, cryptocurrencies)', 
+          ar: 'محللة ومتداولة في أسواق (الفوركس والأسهم والعملات الرقمية)' 
+        },
+        { 
+          en: 'Over 5 years of experience in the field', 
+          ar: 'خبرة تتعدى 5 سنوات في المجال' 
+        },
+        { 
+          en: 'Proficient in classical technical analysis + pure price action + ICT strategy', 
+          ar: 'متقنة لمدرسة التحليل الفني الكلاسيكي + pure price action + إستراتيجية ICT' 
+        },
       ],
-      price: '$299',
-      duration: '8 weeks',
-      durationAr: '8 أسابيع',
+      priceAED: 'د.إ 5,509.00',
+      priceUSD: '$1,500',
+      duration: '2 months',
+      durationAr: 'شهرين',
+      installmentInfo: {
+        en: 'Or split your invoice into 4 payments of 1,377.25 with no late fees, Sharia-compliant',
+        ar: 'أو قسم فاتورتك على 4 دفعات بقيمة 1,377.25 بدون رسوم تأخير، متوافقة مع الشريعة الإسلامية'
+      }
     },
     {
       id: 'trading_training',
@@ -80,7 +93,13 @@ export default function EducationScreen() {
       return;
     }
     console.log('User enrolling in program:', selectedProgram);
-    router.push(`/registration?channel=education&program=${selectedProgram}`);
+    
+    // For analysis training, go to terms page first
+    if (selectedProgram === 'analysis_training') {
+      router.push('/analysis-terms');
+    } else {
+      router.push(`/registration?channel=education&program=${selectedProgram}`);
+    }
   };
 
   const selectedProgramData = educationPrograms.find(p => p.id === selectedProgram);
@@ -185,6 +204,16 @@ export default function EducationScreen() {
                     {program.titleAr}
                   </Text>
 
+                  {/* Description */}
+                  <View style={styles.descriptionContainer}>
+                    <Text style={[styles.descriptionText, isSelected && styles.descriptionTextSelected]}>
+                      {program.descriptionEn}
+                    </Text>
+                    <Text style={[styles.descriptionTextAr, isSelected && styles.descriptionTextArSelected]}>
+                      {program.descriptionAr}
+                    </Text>
+                  </View>
+
                   <View style={styles.programInfo}>
                     <View style={styles.infoItem}>
                       <IconSymbol 
@@ -214,6 +243,23 @@ export default function EducationScreen() {
                       </Text>
                     </View>
                   </View>
+
+                  {/* Installment Info for Analysis Training */}
+                  {program.installmentInfo && (
+                    <View style={styles.installmentContainer}>
+                      <Text style={[styles.installmentText, isSelected && styles.installmentTextSelected]}>
+                        {program.installmentInfo.en}
+                      </Text>
+                      <Text style={[styles.installmentTextAr, isSelected && styles.installmentTextArSelected]}>
+                        {program.installmentInfo.ar}
+                      </Text>
+                      <View style={styles.tamaraContainer}>
+                        <Text style={[styles.tamaraText, isSelected && styles.tamaraTextSelected]}>
+                          Tamara
+                        </Text>
+                      </View>
+                    </View>
+                  )}
 
                   <View style={styles.featuresSection}>
                     <Text style={[styles.featuresTitle, isSelected && styles.featuresTitleSelected]}>
@@ -452,6 +498,26 @@ const styles = StyleSheet.create({
   programTitleArSelected: {
     color: colors.text,
   },
+  descriptionContainer: {
+    marginBottom: 12,
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  descriptionTextSelected: {
+    color: colors.text,
+    opacity: 0.9,
+  },
+  descriptionTextAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  descriptionTextArSelected: {
+    color: colors.text,
+    opacity: 0.85,
+  },
   programInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -491,6 +557,48 @@ const styles = StyleSheet.create({
   },
   priceTextSelected: {
     color: colors.text,
+  },
+  installmentContainer: {
+    marginBottom: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  installmentText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 2,
+    lineHeight: 18,
+  },
+  installmentTextSelected: {
+    color: colors.text,
+    opacity: 0.9,
+  },
+  installmentTextAr: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 8,
+    lineHeight: 18,
+  },
+  installmentTextArSelected: {
+    color: colors.text,
+    opacity: 0.85,
+  },
+  tamaraContainer: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    marginTop: 4,
+  },
+  tamaraText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: colors.background,
+  },
+  tamaraTextSelected: {
+    color: colors.background,
   },
   featuresSection: {
     marginTop: 8,
