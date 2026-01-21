@@ -99,6 +99,8 @@ export default function EducationScreen() {
     
     if (selectedProgram === 'analysis_training') {
       router.push('/analysis-terms');
+    } else if (selectedProgram === 'trading_training') {
+      router.push('/trading-terms');
     } else {
       router.push(`/registration?channel=education&program=${selectedProgram}`);
     }

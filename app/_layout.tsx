@@ -1,3 +1,4 @@
+
 import "react-native-reanimated";
 import React, { useEffect } from "react";
 import { useFonts } from "expo-font";
@@ -99,6 +100,8 @@ export default function RootLayout() {
               <Stack.Screen name="registration" options={{ headerShown: true, title: "Complete Registration" }} />
               <Stack.Screen name="about" options={{ headerShown: true, title: "About SBM" }} />
               <Stack.Screen name="profit-plans" options={{ headerShown: true, title: "Profit Plans" }} />
+              <Stack.Screen name="analysis-terms" options={{ headerShown: true, title: "Terms & Conditions" }} />
+              <Stack.Screen name="trading-terms" options={{ headerShown: true, title: "Terms & Conditions" }} />
             </Stack>
             <SystemBars style={"auto"} />
             </GestureHandlerRootView>
