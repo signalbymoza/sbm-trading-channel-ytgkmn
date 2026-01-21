@@ -29,7 +29,7 @@ export default function HomeScreen() {
 
   const handleEducationPress = () => {
     console.log('User tapped Education button');
-    router.push('/education');
+    router.push('/education-intro');
   };
 
   return (
