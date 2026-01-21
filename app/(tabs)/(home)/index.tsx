@@ -108,6 +108,151 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Services Section */}
+        <View style={styles.servicesSection}>
+          <Text style={styles.servicesSectionTitle}>تعرف على خدماتنا</Text>
+          
+          {/* Teaching Basics Service */}
+          <View style={styles.serviceCard}>
+            <View style={styles.serviceIconContainer}>
+              <IconSymbol 
+                ios_icon_name="book.fill" 
+                android_material_icon_name="menu-book" 
+                size={32} 
+                color={colors.highlight} 
+              />
+            </View>
+            <Text style={styles.serviceTitle}>تعليم الأساسيات</Text>
+            <Text style={styles.serviceDescription}>
+              عند انضمامك إلى أحد باقاتنا، ستحصل على التعليم الشامل الذي يجهزك بكل الأساسيات لتصبح مؤهلاً لهذا المجال.
+            </Text>
+            <View style={styles.serviceFeatures}>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>طريقة التأمين وحجز الأرباح</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>طريقة إدارة راس المال</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>تعليم التداول من الصفر</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>جداول الربح التراكمي مناسب لـ راس المال</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={styles.serviceButton}
+              onPress={() => router.push('/subscription?channel=gold')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.serviceButtonText}>اكتشف باقاتنا</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Recommendations Channels Service */}
+          <View style={styles.serviceCard}>
+            <View style={styles.serviceIconContainer}>
+              <IconSymbol 
+                ios_icon_name="chart.line.uptrend.xyaxis" 
+                android_material_icon_name="show-chart" 
+                size={32} 
+                color={colors.highlight} 
+              />
+            </View>
+            <Text style={styles.serviceTitle}>قنوات توصيات</Text>
+            <Text style={styles.serviceDescription}>
+              هي عبارة عن شراء او بيع تقدم من المحللة تتضمن التوصية نقطة الدخول والأهداف ووقف الخسارة
+            </Text>
+            <View style={styles.serviceFeatures}>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>مجتمع متفاعل</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>توصيات واخبار</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>قنوات التلقرام</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Cumulative Profit Plans Service */}
+          <View style={styles.serviceCard}>
+            <View style={styles.serviceIconContainer}>
+              <IconSymbol 
+                ios_icon_name="chart.pie.fill" 
+                android_material_icon_name="donut-large" 
+                size={32} 
+                color={colors.highlight} 
+              />
+            </View>
+            <Text style={styles.serviceTitle}>خطط الربح التراكمي</Text>
+            <Text style={styles.serviceDescription}>
+              وضع خطط الربح التراكمي لمساعدة المتداولين في الاستمرار
+            </Text>
+            <View style={styles.serviceFeatures}>
+              <View style={styles.featureItem}>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={20} 
+                  color={colors.highlight} 
+                />
+                <Text style={styles.featureItemText}>خطط مختلفة لجميع الأشخاص</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={styles.serviceButton}
+              onPress={handleProfitPlansPress}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.serviceButtonText}>حمل الخطط</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Channels Section */}
         <View style={styles.channelsSection}>
           <Text style={styles.sectionTitle}>Select Your Channel</Text>
@@ -411,6 +556,71 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
+  },
+  servicesSection: {
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+  },
+  servicesSectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  serviceCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  serviceIconContainer: {
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  serviceTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 12,
+    textAlign: 'right',
+  },
+  serviceDescription: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 24,
+    marginBottom: 16,
+    textAlign: 'right',
+  },
+  serviceFeatures: {
+    marginBottom: 16,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  featureItemText: {
+    fontSize: 15,
+    color: colors.text,
+    marginLeft: 12,
+    flex: 1,
+    textAlign: 'right',
+  },
+  serviceButton: {
+    backgroundColor: colors.highlight,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  serviceButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
   },
   channelsSection: {
     paddingHorizontal: 24,
