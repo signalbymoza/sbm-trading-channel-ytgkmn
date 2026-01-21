@@ -248,7 +248,7 @@ export default function HomeScreen() {
           >
             <IconSymbol 
               ios_icon_name="chart.pie.fill" 
-              android_material_icon_name="pie-chart" 
+              android_material_icon_name="donut-large" 
               size={24} 
               color={colors.highlight} 
             />

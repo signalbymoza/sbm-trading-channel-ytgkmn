@@ -1,11 +1,11 @@
 
 import React from "react";
-import { Stack } from "expo-router";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, ImageSourcePropType } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { IconSymbol } from "@/components/IconSymbol";
+import { Stack } from "expo-router";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -16,7 +16,7 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
 export default function HomeScreen() {
   const router = useRouter();
 
-  console.log('HomeScreen: Rendering SBM Trading Channels home screen (iOS)');
+  console.log('HomeScreen: Rendering SBM Trading Channels home screen');
 
   const handleChannelSelect = (channelType: string) => {
     console.log('User selected channel:', channelType);
@@ -42,18 +42,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: "SBM Trading",
-          headerStyle: {
-            backgroundColor: colors.background,
-          },
-          headerTintColor: colors.highlight,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.container}>
         {/* Top Navigation */}
         <View style={styles.topNav}>
@@ -262,7 +251,7 @@ export default function HomeScreen() {
             >
               <IconSymbol 
                 ios_icon_name="chart.pie.fill" 
-                android_material_icon_name="pie-chart" 
+                android_material_icon_name="donut-large" 
                 size={24} 
                 color={colors.highlight} 
               />
@@ -446,6 +435,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
     overflow: 'hidden',
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
