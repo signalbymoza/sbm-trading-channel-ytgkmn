@@ -56,6 +56,14 @@ export default function HomeScreen() {
         <View style={[styles.topNav, { paddingTop: topNavPaddingTop }]}>
           <TouchableOpacity 
             style={styles.navButton}
+            onPress={() => router.push('/brokers')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Brokers</Text>
+            <Text style={styles.navButtonTextAr}>البروكرات</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
             onPress={() => router.push('/subscription?channel=gold')}
             activeOpacity={0.7}
           >
