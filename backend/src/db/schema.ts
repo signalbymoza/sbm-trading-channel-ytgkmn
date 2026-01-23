@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, boolean, integer } from 'drizzle-orm/pg-core';
 
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -11,4 +11,7 @@ export const subscriptions = pgTable('subscriptions', {
   terms_accepted: boolean('terms_accepted').notNull().default(false),
   created_at: timestamp('created_at').defaultNow().notNull(),
   status: text('status').notNull().default('pending'),
+  subscription_start_date: timestamp('subscription_start_date'),
+  subscription_end_date: timestamp('subscription_end_date'),
+  total_months: integer('total_months').notNull().default(0),
 });
