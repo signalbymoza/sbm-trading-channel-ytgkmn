@@ -1,10 +1,16 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
+
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function SubscriptionScreen() {
   const router = useRouter();
@@ -65,6 +71,10 @@ export default function SubscriptionScreen() {
   const weeklyReportsEn = 'Weekly reports';
   const weeklyReportsAr = 'تقارير أسبوعية';
 
+  const goldImage = require('@/assets/images/5b6830c9-bbf6-4851-a29d-a850f00e7461.jpeg');
+  const analysisImage = require('@/assets/images/b7c16854-1456-41a4-a077-3679e12666d7.jpeg');
+  const forexImage = require('@/assets/images/c7537b3e-42a7-48f9-b086-f546738d9198.jpeg');
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -81,6 +91,19 @@ export default function SubscriptionScreen() {
             onPress={() => handleChannelSelect('gold')}
             activeOpacity={0.8}
           >
+            <View style={styles.channelImageContainer}>
+              <Image 
+                source={resolveImageSource(goldImage)} 
+                style={styles.channelImage}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['rgba(30, 58, 138, 0.85)', 'rgba(59, 130, 246, 0.85)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.channelImageOverlay}
+              />
+            </View>
             <LinearGradient
               colors={['#1E3A8A', '#3B82F6']}
               start={{ x: 0, y: 0 }}
@@ -142,6 +165,19 @@ export default function SubscriptionScreen() {
             onPress={() => handleChannelSelect('forex')}
             activeOpacity={0.8}
           >
+            <View style={styles.channelImageContainer}>
+              <Image 
+                source={resolveImageSource(forexImage)} 
+                style={styles.channelImage}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['rgba(30, 58, 138, 0.85)', 'rgba(59, 130, 246, 0.85)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.channelImageOverlay}
+              />
+            </View>
             <LinearGradient
               colors={['#1E3A8A', '#3B82F6']}
               start={{ x: 0, y: 0 }}
@@ -203,6 +239,19 @@ export default function SubscriptionScreen() {
             onPress={() => handleChannelSelect('analysis')}
             activeOpacity={0.8}
           >
+            <View style={styles.channelImageContainer}>
+              <Image 
+                source={resolveImageSource(analysisImage)} 
+                style={styles.channelImage}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['rgba(30, 58, 138, 0.85)', 'rgba(59, 130, 246, 0.85)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.channelImageOverlay}
+              />
+            </View>
             <LinearGradient
               colors={['#1E3A8A', '#3B82F6']}
               start={{ x: 0, y: 0 }}
@@ -325,10 +374,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
+  channelImageContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
+  channelImage: {
+    width: '100%',
+    height: '100%',
+  },
+  channelImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   channelGradient: {
     padding: 24,
-    minHeight: 220,
+    minHeight: 280,
     position: 'relative',
+    backgroundColor: 'transparent',
   },
   channelGradientSelected: {
     borderWidth: 3,
