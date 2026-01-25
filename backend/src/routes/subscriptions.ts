@@ -29,6 +29,31 @@ function calculateDaysRemaining(endDate: Date | null): number {
   return diffDays;
 }
 
+// Helper function to get subscription status based on end date
+function getSubscriptionStatus(endDate: Date | null): string {
+  if (!endDate) return 'pending';
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+  if (endDateOnly.getTime() < today.getTime()) {
+    return 'expired';
+  } else if (endDateOnly.getTime() === today.getTime()) {
+    return 'expiring_today';
+  } else {
+    return 'active';
+  }
+}
+
+// Helper function to generate CSV content
+function generateCSV(headers: string[], rows: string[][]): string {
+  const headerLine = headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',');
+  const dataLines = rows.map(row =>
+    row.map(cell => `"${(cell || '').replace(/"/g, '""')}"`).join(',')
+  );
+  return [headerLine, ...dataLines].join('\n');
+}
+
 export function register(app: App, fastify: FastifyInstance) {
   // POST /api/upload/id-document - Upload ID document
   fastify.post('/api/upload/id-document', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -223,6 +248,153 @@ export function register(app: App, fastify: FastifyInstance) {
     } catch (error) {
       app.logger.error({ err: error, query }, 'Failed to lookup subscription');
       return reply.status(500).send({ error: 'Failed to lookup subscription' });
+    }
+  });
+
+  // GET /api/subscriptions/stats - Get subscription statistics
+  fastify.get('/api/subscriptions/stats', {
+    schema: {
+      description: 'Get subscription statistics',
+      tags: ['subscriptions'],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            activeCount: { type: 'number' },
+            expiredCount: { type: 'number' },
+            expiringTodayCount: { type: 'number' },
+            totalCount: { type: 'number' },
+          },
+        },
+      },
+    }
+  }, async () => {
+    app.logger.info({}, 'Fetching subscription statistics');
+
+    try {
+      const subscriptions = await app.db.select().from(schema.subscriptions);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      let activeCount = 0;
+      let expiredCount = 0;
+      let expiringTodayCount = 0;
+
+      subscriptions.forEach(sub => {
+        if (!sub.subscription_end_date) return;
+        const endDateOnly = new Date(sub.subscription_end_date.getFullYear(), sub.subscription_end_date.getMonth(), sub.subscription_end_date.getDate());
+
+        if (endDateOnly.getTime() < today.getTime()) {
+          expiredCount++;
+        } else if (endDateOnly.getTime() === today.getTime()) {
+          expiringTodayCount++;
+        } else {
+          activeCount++;
+        }
+      });
+
+      app.logger.info({ activeCount, expiredCount, expiringTodayCount, totalCount: subscriptions.length }, 'Subscription statistics fetched successfully');
+
+      return {
+        activeCount,
+        expiredCount,
+        expiringTodayCount,
+        totalCount: subscriptions.length,
+      };
+    } catch (error) {
+      app.logger.error({ err: error }, 'Failed to fetch subscription statistics');
+      throw error;
+    }
+  });
+
+  // GET /api/subscriptions/list - Get list of all subscribers with details
+  fastify.get('/api/subscriptions/list', {
+    schema: {
+      description: 'Get list of all subscribers with details',
+      tags: ['subscriptions'],
+      response: {
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              email: { type: 'string' },
+              telegramUsername: { type: 'string' },
+              channelType: { type: 'string' },
+              subscriptionEndDate: { type: 'string' },
+              status: { type: 'string' },
+              daysRemaining: { type: 'number' },
+            },
+          },
+        },
+      },
+    }
+  }, async () => {
+    app.logger.info({}, 'Fetching subscribers list');
+
+    try {
+      const subscriptions = await app.db.select().from(schema.subscriptions);
+      const result = subscriptions.map(sub => ({
+        id: sub.id,
+        name: sub.name,
+        email: sub.email,
+        telegramUsername: sub.telegram_username,
+        channelType: sub.channel_type,
+        subscriptionEndDate: sub.subscription_end_date?.toISOString(),
+        status: getSubscriptionStatus(sub.subscription_end_date),
+        daysRemaining: calculateDaysRemaining(sub.subscription_end_date),
+      }));
+
+      app.logger.info({ count: result.length }, 'Subscribers list fetched successfully');
+      return result;
+    } catch (error) {
+      app.logger.error({ err: error }, 'Failed to fetch subscribers list');
+      throw error;
+    }
+  });
+
+  // GET /api/subscriptions/export - Export all subscriptions as CSV
+  fastify.get('/api/subscriptions/export', {
+    schema: {
+      description: 'Export all subscriptions as CSV',
+      tags: ['subscriptions'],
+      response: {
+        200: {
+          type: 'string',
+          description: 'CSV file',
+        },
+      },
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    app.logger.info({}, 'Exporting subscriptions to CSV');
+
+    try {
+      const subscriptions = await app.db.select().from(schema.subscriptions);
+
+      const headers = ['Name', 'Email', 'Telegram Username', 'Channel Type', 'End Date', 'Status', 'Days Remaining'];
+      const rows = subscriptions.map(sub => [
+        sub.name,
+        sub.email,
+        sub.telegram_username,
+        sub.channel_type,
+        sub.subscription_end_date?.toISOString() || '',
+        getSubscriptionStatus(sub.subscription_end_date),
+        calculateDaysRemaining(sub.subscription_end_date).toString(),
+      ]);
+
+      const csv = generateCSV(headers, rows);
+
+      reply.type('text/csv');
+      reply.header('Content-Disposition', 'attachment; filename="subscriptions.csv"');
+
+      app.logger.info({ count: subscriptions.length }, 'Subscriptions exported to CSV successfully');
+
+      return csv;
+    } catch (error) {
+      app.logger.error({ err: error }, 'Failed to export subscriptions to CSV');
+      return reply.status(500).send({ error: 'Failed to export subscriptions' });
     }
   });
 

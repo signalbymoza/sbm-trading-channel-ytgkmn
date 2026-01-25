@@ -14,4 +14,14 @@ export const subscriptions = pgTable('subscriptions', {
   subscription_start_date: timestamp('subscription_start_date'),
   subscription_end_date: timestamp('subscription_end_date'),
   total_months: integer('total_months').notNull().default(0),
+  broker_name: text('broker_name'),
+});
+
+export const broker_subscribers = pgTable('broker_subscribers', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  account_number: text('account_number').notNull(),
+  broker_name: text('broker_name').notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
 });

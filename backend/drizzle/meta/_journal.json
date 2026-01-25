@@ -15,6 +15,13 @@
       "when": 1769162597673,
       "tag": "20260123100317_skinny_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769378222130,
+      "tag": "20260125215702_concerned_tusk",
+      "breakpoints": true
     }
   ]
 }
