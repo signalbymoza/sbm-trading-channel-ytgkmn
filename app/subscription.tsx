@@ -71,9 +71,9 @@ export default function SubscriptionScreen() {
   const weeklyReportsEn = 'Weekly reports';
   const weeklyReportsAr = 'تقارير أسبوعية';
 
-  const goldImage = require('@/assets/images/b7c16854-1456-41a4-a077-3679e12666d7.jpeg');
+  const goldImage = require('@/assets/images/5b6830c9-bbf6-4851-a29d-a850f00e7461.jpeg');
   const analysisImage = require('@/assets/images/c7537b3e-42a7-48f9-b086-f546738d9198.jpeg');
-  const forexImage = require('@/assets/images/5b6830c9-bbf6-4851-a29d-a850f00e7461.jpeg');
+  const forexImage = require('@/assets/images/b7c16854-1456-41a4-a077-3679e12666d7.jpeg');
 
   return (
     <View style={styles.container}>
