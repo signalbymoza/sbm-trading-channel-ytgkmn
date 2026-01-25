@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType, Modal } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
@@ -18,6 +18,7 @@ export default function DurationSelectionScreen() {
   const channel = params.channel as string;
   const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 
   console.log('DurationSelectionScreen: Channel:', channel, 'Duration:', selectedDuration, 'Currency:', selectedCurrency);
 
@@ -171,7 +172,10 @@ export default function DurationSelectionScreen() {
     }
     console.log('User selected duration:', selectedDuration, 'currency:', selectedCurrency, 'for channel:', channel);
     
-    router.push(`/registration?channel=${channel}&duration=${selectedDuration}&currency=${selectedCurrency}`);
+    const selectedOption = durationOptions.find(opt => opt.id === selectedDuration);
+    const price = selectedOption?.price || '';
+    
+    router.push(`/registration?channel=${channel}&duration=${selectedDuration}&currency=${selectedCurrency}&price=${price}`);
   };
 
   const isDurationSelected = (id: string) => selectedDuration === id;
@@ -179,10 +183,10 @@ export default function DurationSelectionScreen() {
 
   const selectDurationEn = 'Select Subscription Duration';
   const selectDurationAr = 'اختر مدة الاشتراك';
-  const selectCurrencyEn = 'Select Currency';
-  const selectCurrencyAr = 'اختر العملة';
   const continueEn = 'Continue';
   const continueAr = 'متابعة';
+  const selectedCurrencyData = currencies.find(c => c.code === selectedCurrency);
+  const currencyDisplayText = `${selectedCurrencyData?.code} (${selectedCurrencyData?.symbol})`;
 
   return (
     <View style={styles.container}>
@@ -220,8 +224,28 @@ export default function DurationSelectionScreen() {
         </View>
 
         <View style={styles.titleSection}>
-          <Text style={styles.title}>{selectDurationEn}</Text>
-          <Text style={styles.titleAr}>{selectDurationAr}</Text>
+          <View style={styles.titleRow}>
+            <View style={styles.titleTextContainer}>
+              <Text style={styles.title}>{selectDurationEn}</Text>
+              <Text style={styles.titleAr}>{selectDurationAr}</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.currencyButton}
+              onPress={() => {
+                console.log('User tapped currency selector');
+                setShowCurrencyModal(true);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
+              <IconSymbol 
+                ios_icon_name="chevron.down" 
+                android_material_icon_name="arrow-drop-down" 
+                size={20} 
+                color={colors.text} 
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.optionsSection}>
@@ -278,46 +302,6 @@ export default function DurationSelectionScreen() {
             );
           })}
         </View>
-
-        <View style={styles.titleSection}>
-          <Text style={styles.title}>{selectCurrencyEn}</Text>
-          <Text style={styles.titleAr}>{selectCurrencyAr}</Text>
-        </View>
-
-        <View style={styles.currencySection}>
-          {currencies.map((currency, index) => {
-            const selected = isCurrencySelected(currency.code);
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.currencyCard,
-                  selected && styles.currencyCardSelected,
-                ]}
-                onPress={() => {
-                  console.log('User selected currency:', currency.code);
-                  setSelectedCurrency(currency.code);
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.currencySymbol, selected && styles.currencySymbolSelected]}>
-                  {currency.symbol}
-                </Text>
-                <View style={styles.currencyInfo}>
-                  <Text style={[styles.currencyCode, selected && styles.currencyCodeSelected]}>
-                    {currency.code}
-                  </Text>
-                  <Text style={[styles.currencyName, selected && styles.currencyNameSelected]}>
-                    {currency.nameAr}
-                  </Text>
-                </View>
-                <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
-                  {selected && <View style={styles.radioButtonInner} />}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
@@ -340,6 +324,71 @@ export default function DurationSelectionScreen() {
           />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={showCurrencyModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCurrencyModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Currency</Text>
+              <Text style={styles.modalTitleAr}>اختر العملة</Text>
+              <TouchableOpacity 
+                style={styles.modalCloseButton}
+                onPress={() => setShowCurrencyModal(false)}
+                activeOpacity={0.7}
+              >
+                <IconSymbol 
+                  ios_icon_name="xmark" 
+                  android_material_icon_name="close" 
+                  size={24} 
+                  color={colors.text} 
+                />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScroll}>
+              {currencies.map((currency, index) => {
+                const selected = isCurrencySelected(currency.code);
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.currencyModalItem,
+                      selected && styles.currencyModalItemSelected,
+                    ]}
+                    onPress={() => {
+                      console.log('User selected currency:', currency.code);
+                      setSelectedCurrency(currency.code);
+                      setShowCurrencyModal(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.currencyModalInfo}>
+                      <Text style={[styles.currencyModalSymbol, selected && styles.currencyModalSymbolSelected]}>
+                        {currency.symbol}
+                      </Text>
+                      <View style={styles.currencyModalTextContainer}>
+                        <Text style={[styles.currencyModalCode, selected && styles.currencyModalCodeSelected]}>
+                          {currency.code}
+                        </Text>
+                        <Text style={[styles.currencyModalName, selected && styles.currencyModalNameSelected]}>
+                          {currency.nameAr}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
+                      {selected && <View style={styles.radioButtonInner} />}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -416,18 +465,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  titleTextContainer: {
+    flex: 1,
+  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 4,
-    textAlign: 'center',
   },
   titleAr: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.text,
-    textAlign: 'center',
+  },
+  currencyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginLeft: 12,
+  },
+  currencyButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginRight: 4,
   },
   optionsSection: {
     paddingHorizontal: 24,
@@ -533,59 +605,6 @@ const styles = StyleSheet.create({
   optionDescriptionArSelected: {
     color: colors.text,
   },
-  currencySection: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  currencyCard: {
-    backgroundColor: colors.card,
-    borderRadius: 10,
-    padding: 10,
-    borderWidth: 2,
-    borderColor: colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: '30%',
-    flex: 1,
-  },
-  currencyCardSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
-  },
-  currencySymbol: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 8,
-    minWidth: 30,
-    textAlign: 'center',
-  },
-  currencySymbolSelected: {
-    color: colors.highlight,
-  },
-  currencyInfo: {
-    flex: 1,
-  },
-  currencyCode: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  currencyCodeSelected: {
-    color: colors.highlight,
-  },
-  currencyName: {
-    fontSize: 11,
-    color: colors.textSecondary,
-  },
-  currencyNameSelected: {
-    color: colors.text,
-  },
   radioButton: {
     width: 20,
     height: 20,
@@ -594,7 +613,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 6,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
   },
   radioButtonSelected: {
     borderColor: colors.highlight,
@@ -638,5 +659,96 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text,
     marginRight: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '70%',
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    padding: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    position: 'relative',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  modalTitleAr: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    padding: 4,
+  },
+  modalScroll: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+  },
+  currencyModalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  currencyModalItemSelected: {
+    borderColor: colors.highlight,
+    backgroundColor: colors.accent,
+  },
+  currencyModalInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  currencyModalSymbol: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginRight: 16,
+    minWidth: 40,
+    textAlign: 'center',
+  },
+  currencyModalSymbolSelected: {
+    color: colors.highlight,
+  },
+  currencyModalTextContainer: {
+    flex: 1,
+  },
+  currencyModalCode: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  currencyModalCodeSelected: {
+    color: colors.highlight,
+  },
+  currencyModalName: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  currencyModalNameSelected: {
+    color: colors.text,
   },
 });

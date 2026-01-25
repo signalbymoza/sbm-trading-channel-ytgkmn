@@ -9,23 +9,11 @@ export default function AnalysisChannelTermsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const duration = params.duration as string;
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const currency = params.currency as string;
+  const price = params.price as string;
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  console.log('AnalysisChannelTermsScreen: Duration:', duration, 'Agreed:', agreedToTerms);
-
-  const currencies = [
-    { code: 'USD', symbol: '$', rate: 1 },
-    { code: 'EUR', symbol: '€', rate: 0.92 },
-    { code: 'GBP', symbol: '£', rate: 0.79 },
-    { code: 'AED', symbol: 'د.إ', rate: 3.67 },
-    { code: 'SAR', symbol: 'ر.س', rate: 3.75 },
-  ];
-
-  const basePrice = 55;
-  const currentCurrency = currencies.find(c => c.code === selectedCurrency) || currencies[0];
-  const convertedPrice = Math.round(basePrice * currentCurrency.rate);
-  const priceDisplay = `${currentCurrency.symbol}${convertedPrice}`;
+  console.log('AnalysisChannelTermsScreen: Duration:', duration, 'Currency:', currency, 'Price:', price, 'Agreed:', agreedToTerms);
 
   const handleContinue = () => {
     if (!agreedToTerms) {
@@ -33,7 +21,7 @@ export default function AnalysisChannelTermsScreen() {
       return;
     }
     console.log('User accepted Analysis channel terms, navigating to registration');
-    router.push(`/registration?channel=analysis&duration=monthly&price=${priceDisplay}`);
+    router.push(`/registration?channel=analysis&duration=monthly&currency=${currency}&price=${price}`);
   };
 
   const pdfInfoEn = 'Upon purchasing the service, a PDF file containing the joining links for the channels (Analysis Channel, Discussion Channel, and Information Channel) will be downloaded. Please access the links provided in the file, and we will accept your joining request.';
@@ -76,44 +64,9 @@ export default function AnalysisChannelTermsScreen() {
         <View style={styles.priceSection}>
           <Text style={styles.priceLabel}>Subscription Price</Text>
           <Text style={styles.priceLabelAr}>سعر الاشتراك</Text>
-          <Text style={styles.price}>{priceDisplay}</Text>
+          <Text style={styles.price}>{price}</Text>
           <Text style={styles.durationLabel}>Monthly Subscription Only</Text>
           <Text style={styles.durationLabelAr}>اشتراك شهري فقط</Text>
-          
-          <View style={styles.currencySelector}>
-            <Text style={styles.currencyLabel}>Currency:</Text>
-            <Text style={styles.currencyLabelAr}>العملة:</Text>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={styles.currencyScroll}
-            >
-              {currencies.map((currency) => {
-                const isSelected = selectedCurrency === currency.code;
-                return (
-                  <TouchableOpacity
-                    key={currency.code}
-                    style={[
-                      styles.currencyButton,
-                      isSelected && styles.currencyButtonSelected,
-                    ]}
-                    onPress={() => {
-                      console.log('User selected currency:', currency.code);
-                      setSelectedCurrency(currency.code);
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[
-                      styles.currencyButtonText,
-                      isSelected && styles.currencyButtonTextSelected,
-                    ]}>
-                      {currency.code}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </View>
         </View>
 
         <View style={styles.infoSection}>
@@ -260,6 +213,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
+    alignItems: 'center',
   },
   priceLabel: {
     fontSize: 16,
@@ -285,44 +239,6 @@ const styles = StyleSheet.create({
   durationLabelAr: {
     fontSize: 13,
     color: colors.textSecondary,
-    marginBottom: 16,
-  },
-  currencySelector: {
-    marginTop: 8,
-  },
-  currencyLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  currencyLabelAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 8,
-  },
-  currencyScroll: {
-    flexDirection: 'row',
-  },
-  currencyButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: 8,
-  },
-  currencyButtonSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  currencyButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  currencyButtonTextSelected: {
-    color: '#1A1A2E',
   },
   infoSection: {
     paddingHorizontal: 24,
