@@ -1,9 +1,16 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
+import { LinearGradient } from "expo-linear-gradient";
+
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function DurationSelectionScreen() {
   const router = useRouter();
@@ -19,18 +26,21 @@ export default function DurationSelectionScreen() {
       nameAr: 'قناة الذهب',
       icon: 'star',
       iosIcon: 'star.fill',
+      image: require('@/assets/images/c7537b3e-42a7-48f9-b086-f546738d9198.jpeg'),
     },
     forex: {
       nameEn: 'Forex Channel',
       nameAr: 'قناة الفوركس',
       icon: 'show-chart',
       iosIcon: 'chart.line.uptrend.xyaxis',
+      image: require('@/assets/images/b7c16854-1456-41a4-a077-3679e12666d7.jpeg'),
     },
     analysis: {
       nameEn: 'Analysis Channel',
       nameAr: 'قناة التحليل',
       icon: 'bar-chart',
       iosIcon: 'chart.bar.fill',
+      image: require('@/assets/images/5b6830c9-bbf6-4851-a29d-a850f00e7461.jpeg'),
     },
   };
 
@@ -160,15 +170,32 @@ export default function DurationSelectionScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <IconSymbol 
-            ios_icon_name={currentChannel.iosIcon} 
-            android_material_icon_name={currentChannel.icon} 
-            size={48} 
-            color={colors.primary} 
-          />
-          <Text style={styles.channelName}>{currentChannel.nameEn}</Text>
-          <Text style={styles.channelNameAr}>{currentChannel.nameAr}</Text>
+        <View style={styles.headerCard}>
+          <View style={styles.headerImageContainer}>
+            <Image 
+              source={resolveImageSource(currentChannel.image)} 
+              style={styles.headerImage}
+              resizeMode="cover"
+            />
+            <LinearGradient
+              colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.headerImageOverlay}
+            />
+          </View>
+          <View style={styles.headerContent}>
+            <View style={styles.headerIconContainer}>
+              <IconSymbol 
+                ios_icon_name={currentChannel.iosIcon} 
+                android_material_icon_name={currentChannel.icon} 
+                size={48} 
+                color="#FFFFFF" 
+              />
+            </View>
+            <Text style={styles.channelName}>{currentChannel.nameEn}</Text>
+            <Text style={styles.channelNameAr}>{currentChannel.nameAr}</Text>
+          </View>
         </View>
 
         <View style={styles.titleSection}>
@@ -267,23 +294,62 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 120,
   },
-  header: {
+  headerCard: {
+    marginTop: Platform.OS === 'android' ? 48 : 0,
+    marginHorizontal: 24,
+    marginBottom: 24,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    minHeight: 200,
+    position: 'relative',
+  },
+  headerImageContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
+  headerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  headerImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  headerContent: {
+    padding: 24,
+    minHeight: 200,
+    position: 'relative',
+    zIndex: 1,
     alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? 72 : 24,
-    paddingBottom: 16,
-    paddingHorizontal: 24,
+    justifyContent: 'center',
+  },
+  headerIconContainer: {
+    marginBottom: 12,
   },
   channelName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  channelNameAr: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.text,
-    marginTop: 12,
-    marginBottom: 2,
-  },
-  channelNameAr: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
+    textAlign: 'center',
   },
   titleSection: {
     paddingHorizontal: 24,
