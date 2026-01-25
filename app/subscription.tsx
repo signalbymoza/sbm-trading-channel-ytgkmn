@@ -98,7 +98,7 @@ export default function SubscriptionScreen() {
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.75)', 'rgba(59, 130, 246, 0.75)']}
+                colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.channelImageOverlay}
@@ -164,7 +164,7 @@ export default function SubscriptionScreen() {
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.75)', 'rgba(59, 130, 246, 0.75)']}
+                colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.channelImageOverlay}
@@ -230,7 +230,7 @@ export default function SubscriptionScreen() {
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.75)', 'rgba(59, 130, 246, 0.75)']}
+                colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.channelImageOverlay}
