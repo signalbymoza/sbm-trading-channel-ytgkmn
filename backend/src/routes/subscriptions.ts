@@ -134,13 +134,13 @@ export function register(app: App, fastify: FastifyInstance) {
   // POST /api/subscriptions/lookup - Look up subscription by email or telegram username
   fastify.post('/api/subscriptions/lookup', {
     schema: {
-      description: 'Look up subscription by email or telegram username',
+      description: 'Look up subscription by email or telegram username (auto-detects query type)',
       tags: ['subscriptions'],
       body: {
         type: 'object',
+        required: ['query'],
         properties: {
-          email: { type: 'string' },
-          telegramUsername: { type: 'string' },
+          query: { type: 'string' },
         },
       },
       response: {
@@ -171,41 +171,47 @@ export function register(app: App, fastify: FastifyInstance) {
     }
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as {
-      email?: string;
-      telegramUsername?: string;
+      query: string;
     };
 
-    app.logger.info({ email: body.email, telegramUsername: body.telegramUsername }, 'Looking up subscription');
+    const query = body.query?.trim();
 
-    // Validate that at least one search field is provided
-    if (!body.email && !body.telegramUsername) {
-      app.logger.warn({}, 'Lookup request without email or telegramUsername');
-      return reply.status(400).send({ error: 'Either email or telegramUsername is required' });
+    app.logger.info({ query }, 'Looking up subscription');
+
+    // Validate that query is provided
+    if (!query) {
+      app.logger.warn({}, 'Lookup request with empty query');
+      return reply.status(400).send({ error: 'Query field is required' });
     }
 
     try {
-      // Build the where condition for case-insensitive search
-      const conditions = [];
-      if (body.email) {
-        conditions.push(ilike(schema.subscriptions.email, body.email));
-      }
-      if (body.telegramUsername) {
-        conditions.push(ilike(schema.subscriptions.telegram_username, body.telegramUsername));
-      }
+      // Auto-detect if query is email (contains @) or telegram username
+      const isEmail = query.includes('@');
+      let subscription;
 
-      const subscription = await app.db.query.subscriptions.findFirst({
-        where: conditions.length > 0 ? or(...conditions) : undefined,
-      });
+      if (isEmail) {
+        // Search by email (case-insensitive)
+        subscription = await app.db.query.subscriptions.findFirst({
+          where: ilike(schema.subscriptions.email, query),
+        });
+        app.logger.debug({ query, searchType: 'email' }, 'Searching by email');
+      } else {
+        // Search by telegram username (case-insensitive)
+        subscription = await app.db.query.subscriptions.findFirst({
+          where: ilike(schema.subscriptions.telegram_username, query),
+        });
+        app.logger.debug({ query, searchType: 'telegramUsername' }, 'Searching by telegram username');
+      }
 
       if (!subscription) {
-        app.logger.info({ email: body.email, telegramUsername: body.telegramUsername }, 'Subscription not found');
+        app.logger.info({ query, searchType: isEmail ? 'email' : 'telegramUsername' }, 'Subscription not found');
         return { found: false };
       }
 
       const formatted = formatSubscriptionResponse(subscription);
       const daysRemaining = calculateDaysRemaining(subscription.subscription_end_date);
 
-      app.logger.info({ subscriptionId: subscription.id }, 'Subscription lookup successful');
+      app.logger.info({ subscriptionId: subscription.id, searchType: isEmail ? 'email' : 'telegramUsername' }, 'Subscription lookup successful');
 
       return {
         found: true,
@@ -215,7 +221,7 @@ export function register(app: App, fastify: FastifyInstance) {
         },
       };
     } catch (error) {
-      app.logger.error({ err: error, email: body.email, telegramUsername: body.telegramUsername }, 'Failed to lookup subscription');
+      app.logger.error({ err: error, query }, 'Failed to lookup subscription');
       return reply.status(500).send({ error: 'Failed to lookup subscription' });
     }
   });
