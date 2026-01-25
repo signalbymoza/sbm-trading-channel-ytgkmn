@@ -36,7 +36,6 @@ interface SubscriptionData {
 export default function SubscriptionLookupScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [searchType, setSearchType] = useState<'email' | 'telegram'>('email');
   const [searchValue, setSearchValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
@@ -49,16 +48,15 @@ export default function SubscriptionLookupScreen() {
       return;
     }
 
-    console.log('Searching for subscription:', { searchType, searchValue });
+    console.log('Searching for subscription with query:', searchValue);
     setLoading(true);
     setNotFound(false);
     setSubscription(null);
     setShowExtendOptions(false);
 
     try {
-      const body = searchType === 'email' 
-        ? { email: searchValue.trim() }
-        : { telegramUsername: searchValue.trim() };
+      // Send the query to backend - backend will determine if it's email or telegram username
+      const body = { query: searchValue.trim() };
 
       console.log('Sending lookup request to backend:', body);
 
@@ -173,9 +171,6 @@ export default function SubscriptionLookupScreen() {
     return 'نشط';
   };
 
-  const searchTypeLabel = searchType === 'email' ? 'البريد الإلكتروني' : 'يوزر التلغرام';
-  const searchPlaceholder = searchType === 'email' ? 'أدخل البريد الإلكتروني' : 'أدخل يوزر التلغرام';
-
   return (
     <View style={[styles.container, { paddingTop: Platform.OS === 'android' ? 48 : insets.top }]}>
       <View style={styles.header}>
@@ -202,64 +197,16 @@ export default function SubscriptionLookupScreen() {
             أدخل البريد الإلكتروني أو يوزر التلغرام للاستعلام عن حالة الاشتراك
           </Text>
 
-          <View style={styles.searchTypeContainer}>
-            <TouchableOpacity
-              style={[
-                styles.searchTypeButton,
-                searchType === 'email' && styles.searchTypeButtonActive,
-              ]}
-              onPress={() => {
-                setSearchType('email');
-                setSearchValue('');
-                setSubscription(null);
-                setNotFound(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.searchTypeText,
-                  searchType === 'email' && styles.searchTypeTextActive,
-                ]}
-              >
-                البريد الإلكتروني
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.searchTypeButton,
-                searchType === 'telegram' && styles.searchTypeButtonActive,
-              ]}
-              onPress={() => {
-                setSearchType('telegram');
-                setSearchValue('');
-                setSubscription(null);
-                setNotFound(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.searchTypeText,
-                  searchType === 'telegram' && styles.searchTypeTextActive,
-                ]}
-              >
-                يوزر التلغرام
-              </Text>
-            </TouchableOpacity>
-          </View>
-
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{searchTypeLabel}</Text>
+            <Text style={styles.inputLabel}>البريد الإلكتروني أو يوزر التلغرام</Text>
             <TextInput
               style={styles.input}
-              placeholder={searchPlaceholder}
+              placeholder="أدخل البريد الإلكتروني أو يوزر التلغرام"
               placeholderTextColor={colors.textSecondary}
               value={searchValue}
               onChangeText={setSearchValue}
               autoCapitalize="none"
-              keyboardType={searchType === 'email' ? 'email-address' : 'default'}
+              keyboardType="default"
             />
           </View>
 
@@ -287,7 +234,7 @@ export default function SubscriptionLookupScreen() {
             />
             <Text style={styles.notFoundTitle}>لم يتم العثور على اشتراك</Text>
             <Text style={styles.notFoundDescription}>
-              لا يوجد اشتراك مسجل بهذا {searchTypeLabel}
+              لا يوجد اشتراك مسجل بهذا البريد الإلكتروني أو يوزر التلغرام
             </Text>
           </View>
         )}
@@ -535,33 +482,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'right',
     lineHeight: 20,
-  },
-  searchTypeContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
-  },
-  searchTypeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-  },
-  searchTypeButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  searchTypeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  searchTypeTextActive: {
-    color: '#FFFFFF',
   },
   inputContainer: {
     marginBottom: 20,

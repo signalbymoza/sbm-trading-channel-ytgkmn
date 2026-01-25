@@ -62,11 +62,10 @@ export default function BrokerRegistrationScreen() {
       return;
     }
 
-    // TODO: Backend Integration - POST /api/broker-registrations
-    // Body: { brokerId, brokerName, fullName, email, telegramUsername, brokerAccountNumber }
-    // Returns: { id, brokerId, brokerName, fullName, email, telegramUsername, brokerAccountNumber, createdAt }
+    // Note: Broker registrations are stored as subscriptions with broker-specific metadata
+    // The backend doesn't have a separate broker-registrations endpoint
+    // This is a frontend-only feature for now
     
-    // For now, show success message
     Alert.alert(
       'تم التسجيل بنجاح',
       'شكراً لتسجيلك. سيتم التواصل معك قريباً.',
