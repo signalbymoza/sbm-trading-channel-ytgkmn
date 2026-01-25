@@ -17,7 +17,7 @@ export default function DurationSelectionScreen() {
   const params = useLocalSearchParams();
   const channel = params.channel as string;
   const [selectedDuration, setSelectedDuration] = useState<string>('');
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('');
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
 
   console.log('DurationSelectionScreen: Channel:', channel, 'Duration:', selectedDuration, 'Currency:', selectedCurrency);
 
@@ -48,16 +48,24 @@ export default function DurationSelectionScreen() {
   const currentChannel = channelInfo[channel as keyof typeof channelInfo] || channelInfo.gold;
 
   const currencies = [
-    { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي' },
-    { code: 'SAR', symbol: 'ر.س', nameEn: 'Saudi Riyal', nameAr: 'ريال سعودي' },
-    { code: 'AED', symbol: 'د.إ', nameEn: 'UAE Dirham', nameAr: 'درهم إماراتي' },
-    { code: 'QAR', symbol: 'ر.ق', nameEn: 'Qatari Riyal', nameAr: 'ريال قطري' },
-    { code: 'BHD', symbol: 'د.ب', nameEn: 'Bahraini Dinar', nameAr: 'دينار بحريني' },
-    { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني' },
+    { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي', rate: 1 },
+    { code: 'SAR', symbol: 'ر.س', nameEn: 'Saudi Riyal', nameAr: 'ريال سعودي', rate: 3.75 },
+    { code: 'AED', symbol: 'د.إ', nameEn: 'UAE Dirham', nameAr: 'درهم إماراتي', rate: 3.67 },
+    { code: 'QAR', symbol: 'ر.ق', nameEn: 'Qatari Riyal', nameAr: 'ريال قطري', rate: 3.64 },
+    { code: 'BHD', symbol: 'د.ب', nameEn: 'Bahraini Dinar', nameAr: 'دينار بحريني', rate: 0.376 },
+    { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني', rate: 0.385 },
   ];
 
   const getDurationOptions = () => {
+    const selectedCurrencyData = currencies.find(c => c.code === selectedCurrency);
+    const rate = selectedCurrencyData?.rate || 1;
+    const symbol = selectedCurrencyData?.symbol || '$';
+
     if (channel === 'gold') {
+      const monthlyPrice = Math.round(115 * rate);
+      const threeMonthPrice = Math.round(300 * rate);
+      const annualPrice = Math.round(1100 * rate);
+
       return [
         {
           id: 'monthly',
@@ -65,7 +73,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'شهري',
           duration: '1 Month',
           durationAr: 'شهر واحد',
-          price: '$115',
+          price: `${symbol}${monthlyPrice}`,
           descriptionEn: 'Perfect for trying out our service',
           descriptionAr: 'مثالي لتجربة خدمتنا',
         },
@@ -75,7 +83,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'ثلاثة أشهر',
           duration: '3 Months',
           durationAr: '3 أشهر',
-          price: '$300',
+          price: `${symbol}${threeMonthPrice}`,
           descriptionEn: 'Best value - Save money',
           descriptionAr: 'أفضل قيمة - وفر المال',
           badgeEn: 'POPULAR',
@@ -87,7 +95,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'سنوي',
           duration: '12 Months',
           durationAr: '12 شهر',
-          price: '$1100',
+          price: `${symbol}${annualPrice}`,
           descriptionEn: 'Maximum savings',
           descriptionAr: 'أقصى توفير',
           badgeEn: 'BEST VALUE',
@@ -95,6 +103,10 @@ export default function DurationSelectionScreen() {
         },
       ];
     } else if (channel === 'forex') {
+      const monthlyPrice = Math.round(75 * rate);
+      const threeMonthPrice = Math.round(200 * rate);
+      const annualPrice = Math.round(750 * rate);
+
       return [
         {
           id: 'monthly',
@@ -102,7 +114,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'شهري',
           duration: '1 Month',
           durationAr: 'شهر واحد',
-          price: '$75',
+          price: `${symbol}${monthlyPrice}`,
           descriptionEn: 'Perfect for trying out our service',
           descriptionAr: 'مثالي لتجربة خدمتنا',
         },
@@ -112,7 +124,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'ثلاثة أشهر',
           duration: '3 Months',
           durationAr: '3 أشهر',
-          price: '$200',
+          price: `${symbol}${threeMonthPrice}`,
           descriptionEn: 'Best value - Save money',
           descriptionAr: 'أفضل قيمة - وفر المال',
           badgeEn: 'POPULAR',
@@ -124,7 +136,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'سنوي',
           duration: '12 Months',
           durationAr: '12 شهر',
-          price: '$750',
+          price: `${symbol}${annualPrice}`,
           descriptionEn: 'Maximum savings',
           descriptionAr: 'أقصى توفير',
           badgeEn: 'BEST VALUE',
@@ -132,6 +144,8 @@ export default function DurationSelectionScreen() {
         },
       ];
     } else if (channel === 'analysis') {
+      const monthlyPrice = Math.round(55 * rate);
+
       return [
         {
           id: 'monthly',
@@ -139,7 +153,7 @@ export default function DurationSelectionScreen() {
           titleAr: 'شهري',
           duration: '1 Month',
           durationAr: 'شهر واحد',
-          price: '$55',
+          price: `${symbol}${monthlyPrice}`,
           descriptionEn: 'Monthly subscription only',
           descriptionAr: 'اشتراك شهري فقط',
         },
@@ -157,13 +171,7 @@ export default function DurationSelectionScreen() {
     }
     console.log('User selected duration:', selectedDuration, 'currency:', selectedCurrency, 'for channel:', channel);
     
-    if (channel === 'gold') {
-      router.push(`/gold-terms?duration=${selectedDuration}&currency=${selectedCurrency}`);
-    } else if (channel === 'forex') {
-      router.push(`/forex-terms?duration=${selectedDuration}&currency=${selectedCurrency}`);
-    } else if (channel === 'analysis') {
-      router.push(`/analysis-channel-terms?duration=${selectedDuration}&currency=${selectedCurrency}`);
-    }
+    router.push(`/registration?channel=${channel}&duration=${selectedDuration}&currency=${selectedCurrency}`);
   };
 
   const isDurationSelected = (id: string) => selectedDuration === id;
@@ -292,24 +300,19 @@ export default function DurationSelectionScreen() {
                 }}
                 activeOpacity={0.7}
               >
-                <View style={styles.currencyContent}>
-                  <Text style={[styles.currencySymbol, selected && styles.currencySymbolSelected]}>
-                    {currency.symbol}
+                <Text style={[styles.currencySymbol, selected && styles.currencySymbolSelected]}>
+                  {currency.symbol}
+                </Text>
+                <View style={styles.currencyInfo}>
+                  <Text style={[styles.currencyCode, selected && styles.currencyCodeSelected]}>
+                    {currency.code}
                   </Text>
-                  <View style={styles.currencyInfo}>
-                    <Text style={[styles.currencyCode, selected && styles.currencyCodeSelected]}>
-                      {currency.code}
-                    </Text>
-                    <Text style={[styles.currencyName, selected && styles.currencyNameSelected]}>
-                      {currency.nameEn}
-                    </Text>
-                    <Text style={[styles.currencyNameAr, selected && styles.currencyNameArSelected]}>
-                      {currency.nameAr}
-                    </Text>
-                  </View>
-                  <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
-                    {selected && <View style={styles.radioButtonInner} />}
-                  </View>
+                  <Text style={[styles.currencyName, selected && styles.currencyNameSelected]}>
+                    {currency.nameAr}
+                  </Text>
+                </View>
+                <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
+                  {selected && <View style={styles.radioButtonInner} />}
                 </View>
               </TouchableOpacity>
             );
@@ -534,29 +537,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   currencyCard: {
     backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 10,
+    padding: 10,
     borderWidth: 2,
     borderColor: colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: '30%',
+    flex: 1,
   },
   currencyCardSelected: {
     borderColor: colors.highlight,
     backgroundColor: colors.accent,
   },
-  currencyContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   currencySymbol: {
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
-    marginRight: 16,
-    width: 50,
+    marginRight: 8,
+    minWidth: 30,
     textAlign: 'center',
   },
   currencySymbolSelected: {
@@ -566,7 +571,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currencyCode: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 2,
@@ -575,37 +580,29 @@ const styles = StyleSheet.create({
     color: colors.highlight,
   },
   currencyName: {
-    fontSize: 14,
+    fontSize: 11,
     color: colors.textSecondary,
-    marginBottom: 2,
   },
   currencyNameSelected: {
     color: colors.text,
   },
-  currencyNameAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  currencyNameArSelected: {
-    color: colors.text,
-  },
   radioButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 2,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 12,
+    marginLeft: 6,
   },
   radioButtonSelected: {
     borderColor: colors.highlight,
   },
   radioButtonInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: colors.highlight,
   },
   buttonContainer: {
