@@ -171,6 +171,11 @@ export default function SubscriptionLookupScreen() {
     return 'نشط';
   };
 
+  const cardDescriptionText = 'أدخل البريد الإلكتروني أو يوزر تلقرام للاستعلام عن حالة الاشتراك';
+  const inputLabelText = 'البريد الإلكتروني أو يوزر تلقرام';
+  const inputPlaceholderText = 'أدخل البريد الإلكتروني أو يوزر تلقرام';
+  const notFoundDescriptionText = 'لا يوجد اشتراك مسجل بهذا البريد الإلكتروني أو يوزر تلقرام';
+
   return (
     <View style={[styles.container, { paddingTop: Platform.OS === 'android' ? 48 : insets.top }]}>
       <View style={styles.header}>
@@ -194,14 +199,14 @@ export default function SubscriptionLookupScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>البحث عن الاشتراك</Text>
           <Text style={styles.cardDescription}>
-            أدخل البريد الإلكتروني أو يوزر التلغرام للاستعلام عن حالة الاشتراك
+            {cardDescriptionText}
           </Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>البريد الإلكتروني أو يوزر التلغرام</Text>
+            <Text style={styles.inputLabel}>{inputLabelText}</Text>
             <TextInput
               style={styles.input}
-              placeholder="أدخل البريد الإلكتروني أو يوزر التلغرام"
+              placeholder={inputPlaceholderText}
               placeholderTextColor={colors.textSecondary}
               value={searchValue}
               onChangeText={setSearchValue}
@@ -234,7 +239,7 @@ export default function SubscriptionLookupScreen() {
             />
             <Text style={styles.notFoundTitle}>لم يتم العثور على اشتراك</Text>
             <Text style={styles.notFoundDescription}>
-              لا يوجد اشتراك مسجل بهذا البريد الإلكتروني أو يوزر التلغرام
+              {notFoundDescriptionText}
             </Text>
           </View>
         )}
@@ -267,7 +272,7 @@ export default function SubscriptionLookupScreen() {
               </View>
 
               <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>يوزر التلغرام</Text>
+                <Text style={styles.resultLabel}>يوزر تلقرام</Text>
                 <Text style={styles.resultValue}>{subscription.telegramUsername}</Text>
               </View>
             </View>
