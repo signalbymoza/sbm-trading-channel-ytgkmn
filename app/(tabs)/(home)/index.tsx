@@ -51,47 +51,53 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {/* Top Navigation */}
-      <View style={[styles.topNav, { paddingTop: topNavPaddingTop }]}>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/subscription-lookup')}
-          activeOpacity={0.7}
+      <View style={[styles.topNavContainer, { paddingTop: topNavPaddingTop }]}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.topNav}
         >
-          <Text style={styles.navButtonText}>Check Status</Text>
-          <Text style={styles.navButtonTextAr}>الاستعلام</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/brokers')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Brokers</Text>
-          <Text style={styles.navButtonTextAr}>البروكرات</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/subscription?channel=gold')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Subscriptions</Text>
-          <Text style={styles.navButtonTextAr}>الاشتراكات</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={handleProfitPlansPress}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Profit Plans</Text>
-          <Text style={styles.navButtonTextAr}>خطط الربح</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={handleEducationPress}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Education</Text>
-          <Text style={styles.navButtonTextAr}>التعليم</Text>
-        </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.push('/subscription-lookup')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Check Status</Text>
+            <Text style={styles.navButtonTextAr}>الاستعلام</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.push('/brokers')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Brokers</Text>
+            <Text style={styles.navButtonTextAr}>البروكرات</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.push('/subscription?channel=gold')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Subscriptions</Text>
+            <Text style={styles.navButtonTextAr}>الاشتراكات</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={handleProfitPlansPress}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Profit Plans</Text>
+            <Text style={styles.navButtonTextAr}>خطط الربح</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={handleEducationPress}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Education</Text>
+            <Text style={styles.navButtonTextAr}>التعليم</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
       <ScrollView 
@@ -367,14 +373,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  topNav: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+  topNavContainer: {
     backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    paddingBottom: 12,
+  },
+  topNav: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
   },
   navButton: {
     paddingHorizontal: 12,
