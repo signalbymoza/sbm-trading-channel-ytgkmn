@@ -17,8 +17,9 @@ export default function DurationSelectionScreen() {
   const params = useLocalSearchParams();
   const channel = params.channel as string;
   const [selectedDuration, setSelectedDuration] = useState<string>('');
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('');
 
-  console.log('DurationSelectionScreen: Channel:', channel, 'Duration:', selectedDuration);
+  console.log('DurationSelectionScreen: Channel:', channel, 'Duration:', selectedDuration, 'Currency:', selectedCurrency);
 
   const channelInfo = {
     gold: {
@@ -45,6 +46,15 @@ export default function DurationSelectionScreen() {
   };
 
   const currentChannel = channelInfo[channel as keyof typeof channelInfo] || channelInfo.gold;
+
+  const currencies = [
+    { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي' },
+    { code: 'SAR', symbol: 'ر.س', nameEn: 'Saudi Riyal', nameAr: 'ريال سعودي' },
+    { code: 'AED', symbol: 'د.إ', nameEn: 'UAE Dirham', nameAr: 'درهم إماراتي' },
+    { code: 'QAR', symbol: 'ر.ق', nameEn: 'Qatari Riyal', nameAr: 'ريال قطري' },
+    { code: 'BHD', symbol: 'د.ب', nameEn: 'Bahraini Dinar', nameAr: 'دينار بحريني' },
+    { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني' },
+  ];
 
   const getDurationOptions = () => {
     if (channel === 'gold') {
@@ -141,25 +151,28 @@ export default function DurationSelectionScreen() {
   const durationOptions = getDurationOptions();
 
   const handleContinue = () => {
-    if (!selectedDuration) {
-      console.log('No duration selected');
+    if (!selectedDuration || !selectedCurrency) {
+      console.log('Duration or currency not selected');
       return;
     }
-    console.log('User selected duration:', selectedDuration, 'for channel:', channel);
+    console.log('User selected duration:', selectedDuration, 'currency:', selectedCurrency, 'for channel:', channel);
     
     if (channel === 'gold') {
-      router.push(`/gold-terms?duration=${selectedDuration}`);
+      router.push(`/gold-terms?duration=${selectedDuration}&currency=${selectedCurrency}`);
     } else if (channel === 'forex') {
-      router.push(`/forex-terms?duration=${selectedDuration}`);
+      router.push(`/forex-terms?duration=${selectedDuration}&currency=${selectedCurrency}`);
     } else if (channel === 'analysis') {
-      router.push(`/analysis-channel-terms?duration=${selectedDuration}`);
+      router.push(`/analysis-channel-terms?duration=${selectedDuration}&currency=${selectedCurrency}`);
     }
   };
 
-  const isSelected = (id: string) => selectedDuration === id;
+  const isDurationSelected = (id: string) => selectedDuration === id;
+  const isCurrencySelected = (code: string) => selectedCurrency === code;
 
   const selectDurationEn = 'Select Subscription Duration';
   const selectDurationAr = 'اختر مدة الاشتراك';
+  const selectCurrencyEn = 'Select Currency';
+  const selectCurrencyAr = 'اختر العملة';
   const continueEn = 'Continue';
   const continueAr = 'متابعة';
 
@@ -205,7 +218,7 @@ export default function DurationSelectionScreen() {
 
         <View style={styles.optionsSection}>
           {durationOptions.map((option, index) => {
-            const selected = isSelected(option.id);
+            const selected = isDurationSelected(option.id);
             return (
               <TouchableOpacity
                 key={index}
@@ -257,16 +270,61 @@ export default function DurationSelectionScreen() {
             );
           })}
         </View>
+
+        <View style={styles.titleSection}>
+          <Text style={styles.title}>{selectCurrencyEn}</Text>
+          <Text style={styles.titleAr}>{selectCurrencyAr}</Text>
+        </View>
+
+        <View style={styles.currencySection}>
+          {currencies.map((currency, index) => {
+            const selected = isCurrencySelected(currency.code);
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.currencyCard,
+                  selected && styles.currencyCardSelected,
+                ]}
+                onPress={() => {
+                  console.log('User selected currency:', currency.code);
+                  setSelectedCurrency(currency.code);
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={styles.currencyContent}>
+                  <Text style={[styles.currencySymbol, selected && styles.currencySymbolSelected]}>
+                    {currency.symbol}
+                  </Text>
+                  <View style={styles.currencyInfo}>
+                    <Text style={[styles.currencyCode, selected && styles.currencyCodeSelected]}>
+                      {currency.code}
+                    </Text>
+                    <Text style={[styles.currencyName, selected && styles.currencyNameSelected]}>
+                      {currency.nameEn}
+                    </Text>
+                    <Text style={[styles.currencyNameAr, selected && styles.currencyNameArSelected]}>
+                      {currency.nameAr}
+                    </Text>
+                  </View>
+                  <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
+                    {selected && <View style={styles.radioButtonInner} />}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
             styles.continueButton,
-            !selectedDuration && styles.continueButtonDisabled,
+            (!selectedDuration || !selectedCurrency) && styles.continueButtonDisabled,
           ]}
           onPress={handleContinue}
-          disabled={!selectedDuration}
+          disabled={!selectedDuration || !selectedCurrency}
           activeOpacity={0.8}
         >
           <Text style={styles.continueButtonText}>{continueEn}</Text>
@@ -472,6 +530,65 @@ const styles = StyleSheet.create({
   optionDescriptionArSelected: {
     color: colors.text,
   },
+  currencySection: {
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  currencyCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  currencyCardSelected: {
+    borderColor: colors.highlight,
+    backgroundColor: colors.accent,
+  },
+  currencyContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  currencySymbol: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginRight: 16,
+    width: 50,
+    textAlign: 'center',
+  },
+  currencySymbolSelected: {
+    color: colors.highlight,
+  },
+  currencyInfo: {
+    flex: 1,
+  },
+  currencyCode: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  currencyCodeSelected: {
+    color: colors.highlight,
+  },
+  currencyName: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  currencyNameSelected: {
+    color: colors.text,
+  },
+  currencyNameAr: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  currencyNameArSelected: {
+    color: colors.text,
+  },
   radioButton: {
     width: 24,
     height: 24,
@@ -480,9 +597,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
+    marginLeft: 12,
   },
   radioButtonSelected: {
     borderColor: colors.highlight,

@@ -56,8 +56,6 @@ export default function SubscriptionScreen() {
   const dailySignalsAr = 'إشارات يومية';
   const expertAnalysisEn = 'Expert analysis';
   const expertAnalysisAr = 'تحليل خبير';
-  const supportEn = '24/7 support';
-  const supportAr = 'دعم على مدار الساعة';
   const currencyPairsEn = 'Currency pairs';
   const currencyPairsAr = 'أزواج العملات';
   const marketUpdatesEn = 'Market updates';
@@ -129,12 +127,6 @@ export default function SubscriptionScreen() {
                   <Text style={styles.featureText}>{expertAnalysisEn}</Text>
                   <Text style={styles.featureText}>|</Text>
                   <Text style={styles.featureText}>{expertAnalysisAr}</Text>
-                </View>
-                <View style={styles.featureRow}>
-                  <Text style={styles.featureText}>•</Text>
-                  <Text style={styles.featureText}>{supportEn}</Text>
-                  <Text style={styles.featureText}>|</Text>
-                  <Text style={styles.featureText}>{supportAr}</Text>
                 </View>
               </View>
               {isSelected('gold') && (
