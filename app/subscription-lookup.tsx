@@ -40,8 +40,6 @@ export default function SubscriptionLookupScreen() {
   const [loading, setLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [extending, setExtending] = useState(false);
-  const [showExtendOptions, setShowExtendOptions] = useState(false);
 
   const handleSearch = async () => {
     if (!searchValue.trim()) {
@@ -52,10 +50,8 @@ export default function SubscriptionLookupScreen() {
     setLoading(true);
     setNotFound(false);
     setSubscription(null);
-    setShowExtendOptions(false);
 
     try {
-      // Send the query to backend - backend will determine if it's email or telegram username
       const body = { query: searchValue.trim() };
 
       console.log('Sending lookup request to backend:', body);
@@ -86,44 +82,6 @@ export default function SubscriptionLookupScreen() {
     }
   };
 
-  const handleExtendSubscription = async (additionalMonths: number) => {
-    if (!subscription) {
-      return;
-    }
-
-    console.log('Extending subscription:', { id: subscription.id, additionalMonths });
-    setExtending(true);
-
-    try {
-      const response = await fetch(`${backendUrl}/api/subscriptions/${subscription.id}/extend`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ additionalMonths }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to extend subscription');
-      }
-
-      const data = await response.json();
-      console.log('Subscription extended successfully:', data);
-
-      // Update the subscription data with the new values
-      setSubscription(data);
-      setShowExtendOptions(false);
-
-      // Show success message
-      alert('تم تمديد الاشتراك بنجاح!\nSubscription extended successfully!');
-    } catch (error) {
-      console.error('Error extending subscription:', error);
-      alert('فشل تمديد الاشتراك. يرجى المحاولة مرة أخرى.\nFailed to extend subscription. Please try again.');
-    } finally {
-      setExtending(false);
-    }
-  };
-
   const getChannelNameArabic = (channelType: string) => {
     const channelMap: Record<string, string> = {
       gold: 'قناة الذهب',
@@ -142,13 +100,15 @@ export default function SubscriptionLookupScreen() {
     return durationMap[duration.toLowerCase()] || duration;
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDateGregorian = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const dayStr = day.toString().padStart(2, '0');
+    const monthStr = month.toString().padStart(2, '0');
+    const yearStr = year.toString();
+    return `${dayStr}/${monthStr}/${yearStr}`;
   };
 
   const getStatusColor = (daysRemaining: number) => {
@@ -306,14 +266,14 @@ export default function SubscriptionLookupScreen() {
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>تاريخ البداية</Text>
                 <Text style={styles.resultValue}>
-                  {formatDate(subscription.subscriptionStartDate)}
+                  {formatDateGregorian(subscription.subscriptionStartDate)}
                 </Text>
               </View>
 
               <View style={styles.resultRow}>
                 <Text style={styles.resultLabel}>تاريخ الانتهاء</Text>
                 <Text style={styles.resultValue}>
-                  {formatDate(subscription.subscriptionEndDate)}
+                  {formatDateGregorian(subscription.subscriptionEndDate)}
                 </Text>
               </View>
 
@@ -331,103 +291,6 @@ export default function SubscriptionLookupScreen() {
                     : 'منتهي'}
                 </Text>
               </View>
-            </View>
-
-            {subscription.daysRemaining >= 0 && (
-              <View style={styles.infoBox}>
-                <IconSymbol
-                  ios_icon_name="info.circle"
-                  android_material_icon_name="info"
-                  size={20}
-                  color="#3B82F6"
-                />
-                <Text style={styles.infoText}>
-                  عند إضافة اشتراك جديد، سيتم إضافة المدة من تاريخ انتهاء الاشتراك الحالي
-                </Text>
-              </View>
-            )}
-
-            <View style={styles.divider} />
-
-            <View style={styles.extendSection}>
-              <Text style={styles.extendTitle}>تمديد الاشتراك</Text>
-              <Text style={styles.extendDescription}>
-                يمكنك تمديد اشتراكك بإضافة أشهر إضافية. سيتم إضافة المدة من تاريخ انتهاء الاشتراك الحالي.
-              </Text>
-
-              {!showExtendOptions ? (
-                <TouchableOpacity
-                  style={styles.extendButton}
-                  onPress={() => setShowExtendOptions(true)}
-                  activeOpacity={0.7}
-                >
-                  <IconSymbol
-                    ios_icon_name="plus.circle.fill"
-                    android_material_icon_name="add-circle"
-                    size={20}
-                    color="#FFFFFF"
-                  />
-                  <Text style={styles.extendButtonText}>تمديد الاشتراك</Text>
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.extendOptionsContainer}>
-                  <TouchableOpacity
-                    style={[styles.extendOptionButton, extending && styles.extendOptionButtonDisabled]}
-                    onPress={() => handleExtendSubscription(1)}
-                    disabled={extending}
-                    activeOpacity={0.7}
-                  >
-                    {extending ? (
-                      <ActivityIndicator color="#FFFFFF" />
-                    ) : (
-                      <>
-                        <Text style={styles.extendOptionText}>شهر واحد</Text>
-                        <Text style={styles.extendOptionSubtext}>1 Month</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.extendOptionButton, extending && styles.extendOptionButtonDisabled]}
-                    onPress={() => handleExtendSubscription(3)}
-                    disabled={extending}
-                    activeOpacity={0.7}
-                  >
-                    {extending ? (
-                      <ActivityIndicator color="#FFFFFF" />
-                    ) : (
-                      <>
-                        <Text style={styles.extendOptionText}>3 أشهر</Text>
-                        <Text style={styles.extendOptionSubtext}>3 Months</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.extendOptionButton, extending && styles.extendOptionButtonDisabled]}
-                    onPress={() => handleExtendSubscription(12)}
-                    disabled={extending}
-                    activeOpacity={0.7}
-                  >
-                    {extending ? (
-                      <ActivityIndicator color="#FFFFFF" />
-                    ) : (
-                      <>
-                        <Text style={styles.extendOptionText}>12 شهر</Text>
-                        <Text style={styles.extendOptionSubtext}>12 Months</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => setShowExtendOptions(false)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.cancelButtonText}>إلغاء</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
             </View>
           </View>
         )}
@@ -603,89 +466,5 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: 20,
-  },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#EFF6FF',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 20,
-    gap: 12,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#1E40AF',
-    lineHeight: 18,
-    textAlign: 'right',
-  },
-  extendSection: {
-    marginTop: 20,
-  },
-  extendTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: 'right',
-  },
-  extendDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 16,
-    textAlign: 'right',
-    lineHeight: 20,
-  },
-  extendButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  extendButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  extendOptionsContainer: {
-    gap: 12,
-  },
-  extendOptionButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  extendOptionButtonDisabled: {
-    opacity: 0.5,
-  },
-  extendOptionText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  extendOptionSubtext: {
-    fontSize: 13,
-    color: '#FFFFFF',
-    opacity: 0.8,
-  },
-  cancelButton: {
-    backgroundColor: colors.border,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
   },
 });

@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, ActivityIndicator } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { apiCall } from "@/utils/api";
 
 export default function BrokerRegistrationScreen() {
   const router = useRouter();
@@ -21,13 +22,14 @@ export default function BrokerRegistrationScreen() {
   const [telegramUsername, setTelegramUsername] = useState('');
   const [brokerAccountNumber, setBrokerAccountNumber] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBackPress = () => {
     console.log('User tapped back button on broker registration page');
     router.back();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log('User tapped submit button on broker registration form');
     console.log('Form data:', { fullName, email, telegramUsername, brokerAccountNumber, termsAccepted });
 
@@ -62,23 +64,53 @@ export default function BrokerRegistrationScreen() {
       return;
     }
 
-    // Note: Broker registrations are stored as subscriptions with broker-specific metadata
-    // The backend doesn't have a separate broker-registrations endpoint
-    // This is a frontend-only feature for now
-    
-    Alert.alert(
-      'تم التسجيل بنجاح',
-      'شكراً لتسجيلك. سيتم التواصل معك قريباً.',
-      [
-        {
-          text: 'حسناً',
-          onPress: () => {
-            console.log('Registration successful, navigating back');
-            router.back();
-          },
+    setIsSubmitting(true);
+    console.log('Submitting broker registration to backend...');
+
+    try {
+      interface BrokerSubscriberResponse {
+        id: string;
+        name: string;
+        email: string;
+        accountNumber: string;
+        brokerName: string;
+        createdAt: string;
+      }
+
+      const data = await apiCall<BrokerSubscriberResponse>('/api/broker-subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ]
-    );
+        body: JSON.stringify({
+          name: fullName.trim(),
+          email: email.trim(),
+          accountNumber: brokerAccountNumber.trim(),
+          brokerName: brokerName,
+        }),
+      });
+
+      console.log('Broker registration successful:', data.id);
+
+      Alert.alert(
+        'تم التسجيل بنجاح',
+        'شكراً لتسجيلك. سيتم التواصل معك قريباً.',
+        [
+          {
+            text: 'حسناً',
+            onPress: () => {
+              console.log('Registration successful, navigating back');
+              router.back();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error submitting broker registration:', error);
+      Alert.alert('خطأ', 'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
@@ -202,18 +234,24 @@ export default function BrokerRegistrationScreen() {
 
           {/* Submit Button */}
           <TouchableOpacity 
-            style={[styles.submitButton, !termsAccepted && styles.submitButtonDisabled]}
+            style={[styles.submitButton, (!termsAccepted || isSubmitting) && styles.submitButtonDisabled]}
             onPress={handleSubmit}
             activeOpacity={0.8}
-            disabled={!termsAccepted}
+            disabled={!termsAccepted || isSubmitting}
           >
-            <IconSymbol 
-              ios_icon_name="checkmark.circle.fill" 
-              android_material_icon_name="check-circle" 
-              size={24} 
-              color={colors.text} 
-            />
-            <Text style={styles.submitButtonText}>تسجيل</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color={colors.text} />
+            ) : (
+              <>
+                <IconSymbol 
+                  ios_icon_name="checkmark.circle.fill" 
+                  android_material_icon_name="check-circle" 
+                  size={24} 
+                  color={colors.text} 
+                />
+                <Text style={styles.submitButtonText}>تسجيل</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 

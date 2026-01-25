@@ -67,6 +67,14 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navButton}
+            onPress={() => router.push('/subscription-management')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Management</Text>
+            <Text style={styles.navButtonTextAr}>إدارة الاشتراكات</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.navButton}
             onPress={() => router.push('/brokers')}
             activeOpacity={0.7}
           >

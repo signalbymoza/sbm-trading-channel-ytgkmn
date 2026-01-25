@@ -1,0 +1,748 @@
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  Linking,
+  Alert,
+} from 'react-native';
+import { IconSymbol } from '@/components/IconSymbol';
+import { colors } from '@/styles/commonStyles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
+
+const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
+
+interface SubscriptionStats {
+  activeCount: number;
+  expiredCount: number;
+  expiringTodayCount: number;
+  totalCount: number;
+}
+
+interface Subscriber {
+  id: string;
+  name: string;
+  email: string;
+  telegramUsername: string;
+  channelType: string;
+  subscriptionEndDate: string;
+  status: string;
+  daysRemaining: number;
+}
+
+interface BrokerSubscriber {
+  id: string;
+  name: string;
+  email: string;
+  accountNumber: string;
+  brokerName: string;
+  createdAt: string;
+}
+
+export default function SubscriptionManagementScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<SubscriptionStats | null>(null);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [brokerSubscribers, setBrokerSubscribers] = useState<BrokerSubscriber[]>([]);
+  const [selectedBroker, setSelectedBroker] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<'stats' | 'subscribers' | 'brokers'>('stats');
+  const [exporting, setExporting] = useState(false);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    console.log('Loading subscription management data');
+    setLoading(true);
+    try {
+      const [statsResponse, subscribersResponse, brokersResponse] = await Promise.all([
+        fetch(`${backendUrl}/api/subscriptions/stats`),
+        fetch(`${backendUrl}/api/subscriptions/list`),
+        fetch(`${backendUrl}/api/broker-subscribers`),
+      ]);
+
+      const statsData = await statsResponse.json();
+      const subscribersData = await subscribersResponse.json();
+      const brokersData = await brokersResponse.json();
+
+      console.log('Stats loaded:', statsData);
+      console.log('Subscribers loaded:', subscribersData.length);
+      console.log('Broker subscribers loaded:', brokersData.length);
+
+      setStats(statsData);
+      setSubscribers(subscribersData);
+      setBrokerSubscribers(brokersData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      Alert.alert('خطأ', 'فشل تحميل البيانات. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportSubscriptions = async () => {
+    console.log('Exporting subscriptions');
+    setExporting(true);
+    try {
+      const url = `${backendUrl}/api/subscriptions/export`;
+      await Linking.openURL(url);
+    } catch (error) {
+      console.error('Error exporting subscriptions:', error);
+      Alert.alert('خطأ', 'فشل تصدير البيانات. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportBrokerSubscribers = async () => {
+    console.log('Exporting broker subscribers, broker:', selectedBroker);
+    setExporting(true);
+    try {
+      const url = selectedBroker === 'all'
+        ? `${backendUrl}/api/broker-subscribers/export`
+        : `${backendUrl}/api/broker-subscribers/export?broker=${selectedBroker}`;
+      await Linking.openURL(url);
+    } catch (error) {
+      console.error('Error exporting broker subscribers:', error);
+      Alert.alert('خطأ', 'فشل تصدير البيانات. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const formatDateGregorian = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const dayStr = day.toString().padStart(2, '0');
+    const monthStr = month.toString().padStart(2, '0');
+    const yearStr = year.toString();
+    return `${dayStr}/${monthStr}/${yearStr}`;
+  };
+
+  const getChannelNameArabic = (channelType: string) => {
+    const channelMap: Record<string, string> = {
+      gold: 'قناة الذهب',
+      forex: 'قناة الفوركس',
+      analysis: 'قناة التحليل',
+    };
+    return channelMap[channelType.toLowerCase()] || channelType;
+  };
+
+  const getStatusColor = (status: string) => {
+    const statusColors: Record<string, string> = {
+      active: '#10B981',
+      expired: '#EF4444',
+      expiring_today: '#F59E0B',
+    };
+    return statusColors[status] || '#6B7280';
+  };
+
+  const getStatusTextArabic = (status: string) => {
+    const statusMap: Record<string, string> = {
+      active: 'نشط',
+      expired: 'منتهي',
+      expiring_today: 'ينتهي اليوم',
+    };
+    return statusMap[status] || status;
+  };
+
+  const filteredBrokerSubscribers = selectedBroker === 'all'
+    ? brokerSubscribers
+    : brokerSubscribers.filter(sub => sub.brokerName === selectedBroker);
+
+  const brokers = ['XTB', 'AXI', 'Exness'];
+
+  const statsTitle = 'إحصائيات الاشتراكات';
+  const subscribersTitle = 'قاعدة بيانات المشتركين';
+  const brokersTitle = 'المشتركين عن طريق البروكر';
+
+  return (
+    <View style={[styles.container, { paddingTop: Platform.OS === 'android' ? 48 : insets.top }]}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+        >
+          <IconSymbol
+            ios_icon_name="chevron.left"
+            android_material_icon_name="arrow-back"
+            size={24}
+            color={colors.text}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>إدارة الاشتراكات</Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'stats' && styles.tabActive]}
+          onPress={() => setActiveTab('stats')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabText, activeTab === 'stats' && styles.tabTextActive]}>
+            الإحصائيات
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'subscribers' && styles.tabActive]}
+          onPress={() => setActiveTab('subscribers')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabText, activeTab === 'subscribers' && styles.tabTextActive]}>
+            المشتركين
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'brokers' && styles.tabActive]}
+          onPress={() => setActiveTab('brokers')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabText, activeTab === 'brokers' && styles.tabTextActive]}>
+            البروكرز
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>جاري تحميل البيانات...</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {activeTab === 'stats' && stats && (
+            <View>
+              <Text style={styles.sectionTitle}>{statsTitle}</Text>
+              
+              <View style={styles.statsGrid}>
+                <View style={[styles.statCard, { backgroundColor: '#10B981' }]}>
+                  <IconSymbol
+                    ios_icon_name="checkmark.circle.fill"
+                    android_material_icon_name="check-circle"
+                    size={32}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.statValue}>{stats.activeCount}</Text>
+                  <Text style={styles.statLabel}>مشتركين نشطين</Text>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: '#EF4444' }]}>
+                  <IconSymbol
+                    ios_icon_name="xmark.circle.fill"
+                    android_material_icon_name="cancel"
+                    size={32}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.statValue}>{stats.expiredCount}</Text>
+                  <Text style={styles.statLabel}>اشتراكات منتهية</Text>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: '#F59E0B' }]}>
+                  <IconSymbol
+                    ios_icon_name="clock.fill"
+                    android_material_icon_name="schedule"
+                    size={32}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.statValue}>{stats.expiringTodayCount}</Text>
+                  <Text style={styles.statLabel}>ينتهي اليوم</Text>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: colors.primary }]}>
+                  <IconSymbol
+                    ios_icon_name="person.3.fill"
+                    android_material_icon_name="group"
+                    size={32}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.statValue}>{stats.totalCount}</Text>
+                  <Text style={styles.statLabel}>إجمالي المشتركين</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {activeTab === 'subscribers' && (
+            <View>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{subscribersTitle}</Text>
+                <TouchableOpacity
+                  style={styles.exportButton}
+                  onPress={handleExportSubscriptions}
+                  disabled={exporting}
+                  activeOpacity={0.7}
+                >
+                  {exporting ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <React.Fragment>
+                      <IconSymbol
+                        ios_icon_name="arrow.down.doc.fill"
+                        android_material_icon_name="download"
+                        size={18}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.exportButtonText}>تصدير Excel</Text>
+                    </React.Fragment>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {subscribers.length === 0 ? (
+                <View style={styles.emptyCard}>
+                  <IconSymbol
+                    ios_icon_name="person.slash"
+                    android_material_icon_name="person-off"
+                    size={48}
+                    color={colors.textSecondary}
+                  />
+                  <Text style={styles.emptyText}>لا يوجد مشتركين</Text>
+                </View>
+              ) : (
+                <View style={styles.tableContainer}>
+                  {subscribers.map((subscriber, index) => (
+                    <View key={index} style={styles.subscriberCard}>
+                      <View style={styles.subscriberHeader}>
+                        <Text style={styles.subscriberName}>{subscriber.name}</Text>
+                        <View
+                          style={[
+                            styles.subscriberStatusBadge,
+                            { backgroundColor: getStatusColor(subscriber.status) },
+                          ]}
+                        >
+                          <Text style={styles.subscriberStatusText}>
+                            {getStatusTextArabic(subscriber.status)}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.subscriberRow}>
+                        <Text style={styles.subscriberLabel}>البريد الإلكتروني:</Text>
+                        <Text style={styles.subscriberValue}>{subscriber.email}</Text>
+                      </View>
+
+                      <View style={styles.subscriberRow}>
+                        <Text style={styles.subscriberLabel}>يوزر تلقرام:</Text>
+                        <Text style={styles.subscriberValue}>{subscriber.telegramUsername}</Text>
+                      </View>
+
+                      <View style={styles.subscriberRow}>
+                        <Text style={styles.subscriberLabel}>القناة:</Text>
+                        <Text style={styles.subscriberValue}>
+                          {getChannelNameArabic(subscriber.channelType)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.subscriberRow}>
+                        <Text style={styles.subscriberLabel}>تاريخ الانتهاء:</Text>
+                        <Text style={styles.subscriberValue}>
+                          {formatDateGregorian(subscriber.subscriptionEndDate)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.subscriberRow}>
+                        <Text style={styles.subscriberLabel}>الأيام المتبقية:</Text>
+                        <Text
+                          style={[
+                            styles.subscriberValue,
+                            { color: getStatusColor(subscriber.status) },
+                          ]}
+                        >
+                          {subscriber.daysRemaining >= 0
+                            ? `${subscriber.daysRemaining} يوم`
+                            : 'منتهي'}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+
+          {activeTab === 'brokers' && (
+            <View>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{brokersTitle}</Text>
+                <TouchableOpacity
+                  style={styles.exportButton}
+                  onPress={handleExportBrokerSubscribers}
+                  disabled={exporting}
+                  activeOpacity={0.7}
+                >
+                  {exporting ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <React.Fragment>
+                      <IconSymbol
+                        ios_icon_name="arrow.down.doc.fill"
+                        android_material_icon_name="download"
+                        size={18}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.exportButtonText}>تصدير Excel</Text>
+                    </React.Fragment>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.brokerFilterContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.brokerFilterButton,
+                    selectedBroker === 'all' && styles.brokerFilterButtonActive,
+                  ]}
+                  onPress={() => setSelectedBroker('all')}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.brokerFilterText,
+                      selectedBroker === 'all' && styles.brokerFilterTextActive,
+                    ]}
+                  >
+                    الكل
+                  </Text>
+                </TouchableOpacity>
+                {brokers.map((broker) => (
+                  <TouchableOpacity
+                    key={broker}
+                    style={[
+                      styles.brokerFilterButton,
+                      selectedBroker === broker && styles.brokerFilterButtonActive,
+                    ]}
+                    onPress={() => setSelectedBroker(broker)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.brokerFilterText,
+                        selectedBroker === broker && styles.brokerFilterTextActive,
+                      ]}
+                    >
+                      {broker}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {filteredBrokerSubscribers.length === 0 ? (
+                <View style={styles.emptyCard}>
+                  <IconSymbol
+                    ios_icon_name="person.slash"
+                    android_material_icon_name="person-off"
+                    size={48}
+                    color={colors.textSecondary}
+                  />
+                  <Text style={styles.emptyText}>لا يوجد مشتركين لهذا البروكر</Text>
+                </View>
+              ) : (
+                <View style={styles.tableContainer}>
+                  {filteredBrokerSubscribers.map((subscriber, index) => (
+                    <View key={index} style={styles.brokerCard}>
+                      <View style={styles.brokerCardHeader}>
+                        <Text style={styles.brokerCardName}>{subscriber.name}</Text>
+                        <View style={styles.brokerBadge}>
+                          <Text style={styles.brokerBadgeText}>{subscriber.brokerName}</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.brokerCardRow}>
+                        <Text style={styles.brokerCardLabel}>البريد الإلكتروني:</Text>
+                        <Text style={styles.brokerCardValue}>{subscriber.email}</Text>
+                      </View>
+
+                      <View style={styles.brokerCardRow}>
+                        <Text style={styles.brokerCardLabel}>رقم الحساب:</Text>
+                        <Text style={styles.brokerCardValue}>{subscriber.accountNumber}</Text>
+                      </View>
+
+                      <View style={styles.brokerCardRow}>
+                        <Text style={styles.brokerCardLabel}>تاريخ التسجيل:</Text>
+                        <Text style={styles.brokerCardValue}>
+                          {formatDateGregorian(subscriber.createdAt)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 40,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: colors.cardBackground,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  tabTextActive: {
+    color: colors.primary,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 16,
+    textAlign: 'right',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  exportButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  exportButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statCard: {
+    width: '48%',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    gap: 8,
+  },
+  statValue: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  statLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  tableContainer: {
+    gap: 12,
+  },
+  subscriberCard: {
+    backgroundColor: colors.cardBackground,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 12,
+  },
+  subscriberHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  subscriberName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    flex: 1,
+    textAlign: 'right',
+  },
+  subscriberStatusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  subscriberStatusText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  subscriberRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  subscriberLabel: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  subscriberValue: {
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: '600',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 12,
+  },
+  brokerFilterContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+    flexWrap: 'wrap',
+  },
+  brokerFilterButton: {
+    backgroundColor: colors.cardBackground,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  brokerFilterButtonActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  brokerFilterText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  brokerFilterTextActive: {
+    color: '#FFFFFF',
+  },
+  brokerCard: {
+    backgroundColor: colors.cardBackground,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 12,
+  },
+  brokerCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  brokerCardName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    flex: 1,
+    textAlign: 'right',
+  },
+  brokerBadge: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  brokerBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  brokerCardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  brokerCardLabel: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  brokerCardValue: {
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: '600',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 12,
+  },
+  emptyCard: {
+    backgroundColor: colors.cardBackground,
+    borderRadius: 16,
+    padding: 40,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 16,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+});
