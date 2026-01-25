@@ -5,11 +5,11 @@
     "slug": "SBM Trading Channel",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/final_quest_240x240.png",
+    "icon": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/final_quest_240x240.png",
+      "image": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
       "resizeMode": "contain",
       "backgroundColor": "#1a1a2e"
     },
@@ -22,14 +22,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/final_quest_240x240.png",
+        "foregroundImage": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
         "backgroundColor": "#1a1a2e"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.anonymous.Natively"
     },
     "web": {
-      "favicon": "./assets/images/final_quest_240x240.png",
+      "favicon": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
       "bundler": "metro"
     },
     "plugins": [
