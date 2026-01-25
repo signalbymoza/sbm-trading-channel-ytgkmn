@@ -61,19 +61,19 @@ export default function HomeScreen() {
           >
             <TouchableOpacity 
               style={styles.navButton}
+              onPress={() => router.push('/subscription-management-auth')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.navButtonText}>Management</Text>
+              <Text style={styles.navButtonTextAr}>إدارة الاشتراكات</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.navButton}
               onPress={() => router.push('/subscription-lookup')}
               activeOpacity={0.7}
             >
               <Text style={styles.navButtonText}>Check Status</Text>
               <Text style={styles.navButtonTextAr}>الاستعلام</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.navButton}
-              onPress={() => router.push('/subscription-management')}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.navButtonText}>Management</Text>
-              <Text style={styles.navButtonTextAr}>إدارة الاشتراكات</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.navButton}
