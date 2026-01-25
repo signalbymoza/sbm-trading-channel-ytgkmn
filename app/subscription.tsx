@@ -98,21 +98,13 @@ export default function SubscriptionScreen() {
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.85)', 'rgba(59, 130, 246, 0.85)']}
+                colors={['rgba(30, 58, 138, 0.75)', 'rgba(59, 130, 246, 0.75)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.channelImageOverlay}
               />
             </View>
-            <LinearGradient
-              colors={['#1E3A8A', '#3B82F6']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.channelGradient,
-                isSelected('gold') && styles.channelGradientSelected,
-              ]}
-            >
+            <View style={styles.channelContent}>
               <View style={styles.channelIconContainer}>
                 <IconSymbol 
                   ios_icon_name="star.fill" 
@@ -157,7 +149,7 @@ export default function SubscriptionScreen() {
                   <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
                 </View>
               )}
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -172,21 +164,13 @@ export default function SubscriptionScreen() {
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.85)', 'rgba(59, 130, 246, 0.85)']}
+                colors={['rgba(30, 58, 138, 0.75)', 'rgba(59, 130, 246, 0.75)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.channelImageOverlay}
               />
             </View>
-            <LinearGradient
-              colors={['#1E3A8A', '#3B82F6']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.channelGradient,
-                isSelected('forex') && styles.channelGradientSelected,
-              ]}
-            >
+            <View style={styles.channelContent}>
               <View style={styles.channelIconContainer}>
                 <IconSymbol 
                   ios_icon_name="chart.line.uptrend.xyaxis" 
@@ -231,7 +215,7 @@ export default function SubscriptionScreen() {
                   <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
                 </View>
               )}
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -246,21 +230,13 @@ export default function SubscriptionScreen() {
                 resizeMode="cover"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.85)', 'rgba(59, 130, 246, 0.85)']}
+                colors={['rgba(30, 58, 138, 0.75)', 'rgba(59, 130, 246, 0.75)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.channelImageOverlay}
               />
             </View>
-            <LinearGradient
-              colors={['#1E3A8A', '#3B82F6']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.channelGradient,
-                isSelected('analysis') && styles.channelGradientSelected,
-              ]}
-            >
+            <View style={styles.channelContent}>
               <View style={styles.channelIconContainer}>
                 <IconSymbol 
                   ios_icon_name="chart.bar.fill" 
@@ -305,7 +281,7 @@ export default function SubscriptionScreen() {
                   <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
                 </View>
               )}
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -373,6 +349,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    minHeight: 280,
+    position: 'relative',
   },
   channelImageContainer: {
     position: 'absolute',
@@ -393,15 +371,11 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  channelGradient: {
+  channelContent: {
     padding: 24,
     minHeight: 280,
     position: 'relative',
-    backgroundColor: 'transparent',
-  },
-  channelGradientSelected: {
-    borderWidth: 3,
-    borderColor: colors.success,
+    zIndex: 1,
   },
   channelIconContainer: {
     marginBottom: 12,
