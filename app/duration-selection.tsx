@@ -49,12 +49,12 @@ export default function DurationSelectionScreen() {
   const currentChannel = channelInfo[channel as keyof typeof channelInfo] || channelInfo.gold;
 
   const currencies = [
-    { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي', rate: 1 },
-    { code: 'SAR', symbol: 'ر.س', nameEn: 'Saudi Riyal', nameAr: 'ريال سعودي', rate: 3.75 },
-    { code: 'AED', symbol: 'د.إ', nameEn: 'UAE Dirham', nameAr: 'درهم إماراتي', rate: 3.67 },
-    { code: 'QAR', symbol: 'ر.ق', nameEn: 'Qatari Riyal', nameAr: 'ريال قطري', rate: 3.64 },
-    { code: 'BHD', symbol: 'د.ب', nameEn: 'Bahraini Dinar', nameAr: 'دينار بحريني', rate: 0.376 },
-    { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني', rate: 0.385 },
+    { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي', rate: 1, flag: '🇺🇸' },
+    { code: 'SAR', symbol: 'ر.س', nameEn: 'Saudi Riyal', nameAr: 'ريال سعودي', rate: 3.75, flag: '🇸🇦' },
+    { code: 'AED', symbol: 'د.إ', nameEn: 'UAE Dirham', nameAr: 'درهم إماراتي', rate: 3.67, flag: '🇦🇪' },
+    { code: 'QAR', symbol: 'ر.ق', nameEn: 'Qatari Riyal', nameAr: 'ريال قطري', rate: 3.64, flag: '🇶🇦' },
+    { code: 'BHD', symbol: 'د.ب', nameEn: 'Bahraini Dinar', nameAr: 'دينار بحريني', rate: 0.376, flag: '🇧🇭' },
+    { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني', rate: 0.385, flag: '🇴🇲' },
   ];
 
   const getDurationOptions = () => {
@@ -186,7 +186,7 @@ export default function DurationSelectionScreen() {
   const continueEn = 'Continue';
   const continueAr = 'متابعة';
   const selectedCurrencyData = currencies.find(c => c.code === selectedCurrency);
-  const currencyDisplayText = `${selectedCurrencyData?.code} (${selectedCurrencyData?.symbol})`;
+  const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code} (${selectedCurrencyData?.symbol})`;
 
   return (
     <View style={styles.container}>
@@ -367,6 +367,9 @@ export default function DurationSelectionScreen() {
                     activeOpacity={0.7}
                   >
                     <View style={styles.currencyModalInfo}>
+                      <Text style={styles.currencyModalFlag}>
+                        {currency.flag}
+                      </Text>
                       <Text style={[styles.currencyModalSymbol, selected && styles.currencyModalSymbolSelected]}>
                         {currency.symbol}
                       </Text>
@@ -720,6 +723,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+  },
+  currencyModalFlag: {
+    fontSize: 32,
+    marginRight: 12,
   },
   currencyModalSymbol: {
     fontSize: 24,
