@@ -157,16 +157,22 @@ export default function RegistrationScreen() {
 
       console.log('Subscription created successfully:', data.id);
 
-      Alert.alert(
-        'Success!',
-        'Your subscription request has been submitted. We will contact you shortly via Telegram.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.push('/(tabs)/(home)/'),
-          },
-        ]
-      );
+      // Check if this is a profit plan registration
+      if (program === 'profit_plan') {
+        console.log('Profit plan registration - navigating to success screen with download option');
+        router.push('/profit-plan-success');
+      } else {
+        Alert.alert(
+          'Success!',
+          'Your subscription request has been submitted. We will contact you shortly via Telegram.',
+          [
+            {
+              text: 'OK',
+              onPress: () => router.push('/(tabs)/(home)/'),
+            },
+          ]
+        );
+      }
     } catch (error) {
       console.error('Error creating subscription:', error);
       Alert.alert('Error', 'Failed to submit registration. Please try again.');
