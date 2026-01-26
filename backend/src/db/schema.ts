@@ -15,6 +15,7 @@ export const subscriptions = pgTable('subscriptions', {
   subscription_end_date: timestamp('subscription_end_date'),
   total_months: integer('total_months').notNull().default(0),
   broker_name: text('broker_name'),
+  plan_amount: text('plan_amount'),
 });
 
 export const broker_subscribers = pgTable('broker_subscribers', {
@@ -23,5 +24,14 @@ export const broker_subscribers = pgTable('broker_subscribers', {
   email: text('email').notNull(),
   account_number: text('account_number').notNull(),
   broker_name: text('broker_name').notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const profit_plan_files = pgTable('profit_plan_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  plan_amount: text('plan_amount').notNull(),
+  file_url: text('file_url').notNull(),
+  file_name: text('file_name').notNull(),
+  description: text('description'),
   created_at: timestamp('created_at').defaultNow().notNull(),
 });

@@ -133,6 +133,7 @@ export function register(app: App, fastify: FastifyInstance) {
       id_document_url: string;
       terms_accepted: boolean;
       program: string;
+      plan_amount?: string;
     };
 
     app.logger.info({ body }, 'Creating new subscription');
@@ -146,6 +147,7 @@ export function register(app: App, fastify: FastifyInstance) {
         subscription_duration: body.subscription_duration || null,
         id_document_url: body.id_document_url,
         terms_accepted: body.terms_accepted,
+        plan_amount: body.plan_amount || null,
       }).returning();
 
       app.logger.info({ subscriptionId: subscription[0].id }, 'Subscription created successfully');

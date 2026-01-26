@@ -29,6 +29,13 @@
       "when": 1769457711904,
       "tag": "20260126200151_open_the_hand",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1769458610390,
+      "tag": "20260126201650_nervous_talisman",
+      "breakpoints": true
     }
   ]
 }
