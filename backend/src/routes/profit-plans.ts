@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { Readable } from 'stream';
 import PDFDocument from 'pdfkit';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import * as schema from "../db/schema.js";
 import type { App } from "../index.js";
 
@@ -225,6 +225,121 @@ export function register(app: App, fastify: FastifyInstance) {
     } catch (error) {
       app.logger.error({ err: error, planAmount }, 'Failed to download profit plan document');
       return reply.status(500).send({ error: 'Failed to download profit plan document' });
+    }
+  });
+
+  // GET /api/profit-plans/files - Get list of all profit plan files
+  fastify.get('/api/profit-plans/files', {
+    schema: {
+      description: 'Get list of all profit plan files',
+      tags: ['profit-plans'],
+      response: {
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              plan_amount: { type: 'string' },
+              file_name: { type: 'string' },
+              file_url: { type: 'string' },
+              description: { type: 'string' },
+              created_at: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+  }, async () => {
+    app.logger.info({}, 'Fetching all profit plan files');
+
+    try {
+      const files = await app.db.select()
+        .from(schema.profit_plan_files)
+        .orderBy(desc(schema.profit_plan_files.created_at));
+
+      const result = files.map(file => ({
+        id: file.id,
+        plan_amount: file.plan_amount,
+        file_name: file.file_name,
+        file_url: file.file_url,
+        description: file.description || null,
+        created_at: file.created_at?.toISOString(),
+      }));
+
+      app.logger.info({ count: result.length }, 'Profit plan files fetched successfully');
+      return result;
+    } catch (error) {
+      app.logger.error({ err: error }, 'Failed to fetch profit plan files');
+      throw error;
+    }
+  });
+
+  // DELETE /api/profit-plans/files/:id - Delete a profit plan file
+  fastify.delete('/api/profit-plans/files/:id', {
+    schema: {
+      description: 'Delete a profit plan file by ID',
+      tags: ['profit-plans'],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+          },
+        },
+      },
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+
+    app.logger.info({ fileId: id }, 'Deleting profit plan file');
+
+    try {
+      // Find the file first to get the file_url for storage deletion
+      const file = await app.db.query.profit_plan_files.findFirst({
+        where: eq(schema.profit_plan_files.id, id),
+      });
+
+      if (!file) {
+        app.logger.warn({ fileId: id }, 'Profit plan file not found');
+        return reply.status(404).send({ error: 'File not found' });
+      }
+
+      // Delete from database
+      await app.db.delete(schema.profit_plan_files)
+        .where(eq(schema.profit_plan_files.id, id));
+
+      // Try to delete from storage (but don't fail if it doesn't work)
+      try {
+        // Extract the key from the file_url if possible
+        // Storage URLs might be signed URLs, so we'll try to delete by the key pattern
+        const storageKey = `profit-plans/${file.plan_amount}/${file.file_name}`;
+        await app.storage.delete(storageKey).catch(() => {
+          // Silently ignore storage deletion failures
+          app.logger.debug({ storageKey }, 'Storage file deletion failed or not found');
+        });
+      } catch (storageError) {
+        // Log but don't fail the request if storage deletion fails
+        app.logger.warn({ err: storageError, fileId: id }, 'Failed to delete file from storage');
+      }
+
+      app.logger.info({ fileId: id, planAmount: file.plan_amount }, 'Profit plan file deleted successfully');
+
+      return {
+        success: true,
+        message: 'File deleted successfully',
+      };
+    } catch (error) {
+      app.logger.error({ err: error, fileId: id }, 'Failed to delete profit plan file');
+      return reply.status(500).send({ error: 'Failed to delete profit plan file' });
     }
   });
 }
