@@ -4,9 +4,6 @@ import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Linking
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
-import * as FileSystem from 'expo-file-system/legacy';
-import * as Sharing from 'expo-sharing';
-import { BACKEND_URL } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
 
 export default function ProfitPlanSuccessScreen() {
@@ -43,55 +40,42 @@ export default function ProfitPlanSuccessScreen() {
   };
 
   const handleDownloadFile = async () => {
-    console.log('User tapped download file button for plan amount:', planAmount);
+    console.log('User tapped download file button - opening Google Drive link');
     setIsDownloading(true);
 
     try {
-      // Backend Integration - GET /api/profit-plans/download-file with plan_amount parameter
-      const fileUrl = `${BACKEND_URL}/api/profit-plans/download-file?plan_amount=${planAmount}`;
+      // Google Drive link for the profit plan file
+      const googleDriveUrl = 'https://drive.google.com/file/d/1eCQ007FTirGiNHIo5GERDNUejlh1DlsM/view?usp=share_link';
       
-      if (Platform.OS === 'web') {
-        // For web, open the file in a new tab
-        console.log('Opening file in browser:', fileUrl);
-        Linking.openURL(fileUrl);
+      console.log('Opening Google Drive link:', googleDriveUrl);
+      const canOpen = await Linking.canOpenURL(googleDriveUrl);
+      
+      if (canOpen) {
+        await Linking.openURL(googleDriveUrl);
         showModal(
           'success',
-          'Download Started',
-          'بدأ التنزيل',
-          'The file will open in a new tab.',
-          'سيتم فتح الملف في علامة تبويب جديدة.'
+          'Opening File',
+          'فتح الملف',
+          'The file will open in your browser or Google Drive app.',
+          'سيتم فتح الملف في المتصفح أو تطبيق Google Drive.'
         );
       } else {
-        // For mobile, download and share the file
-        const fileUri = FileSystem.documentDirectory + `profit-plan-${planAmount}.pdf`;
-        console.log('Downloading file to:', fileUri);
-
-        const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
-        console.log('File downloaded successfully:', downloadResult.uri);
-
-        // Check if sharing is available
-        const isAvailable = await Sharing.isAvailableAsync();
-        if (isAvailable) {
-          await Sharing.shareAsync(downloadResult.uri);
-          console.log('File shared successfully');
-        } else {
-          showModal(
-            'success',
-            'Download Complete',
-            'تم التنزيل',
-            'The file has been downloaded successfully.',
-            'تم تنزيل الملف بنجاح.'
-          );
-        }
+        showModal(
+          'error',
+          'Cannot Open Link',
+          'لا يمكن فتح الرابط',
+          'Unable to open the link. Please try again.',
+          'غير قادر على فتح الرابط. يرجى المحاولة مرة أخرى.'
+        );
       }
     } catch (error) {
-      console.error('Error downloading file:', error);
+      console.error('Error opening Google Drive link:', error);
       showModal(
         'error',
-        'Download Failed',
-        'فشل التنزيل',
-        'Failed to download the file. Please try again. Make sure the file exists in the database.',
-        'فشل تنزيل الملف. يرجى المحاولة مرة أخرى. تأكد من أن الملف موجود في قاعدة البيانات.'
+        'Error',
+        'خطأ',
+        'Failed to open the file. Please try again.',
+        'فشل فتح الملف. يرجى المحاولة مرة أخرى.'
       );
     } finally {
       setIsDownloading(false);
@@ -112,12 +96,8 @@ export default function ProfitPlanSuccessScreen() {
   const downloadDescriptionEn = 'Download the detailed plan document with all information about your profit plan.';
   const downloadDescriptionAr = 'قم بتنزيل مستند الخطة المفصل مع جميع المعلومات حول خطة الربح الخاصة بك.';
   const downloadButtonText = 'تنزيل الملف';
-  const downloadingText = 'جاري التنزيل...';
+  const downloadingText = 'جاري الفتح...';
   const backToHomeText = 'العودة إلى الصفحة الرئيسية';
-  const contactInfoTitleEn = 'Next Steps';
-  const contactInfoTitleAr = 'الخطوات التالية';
-  const contactInfoTextEn = 'We will contact you shortly via Telegram to complete the process.';
-  const contactInfoTextAr = 'سنتواصل معك قريباً عبر تيليجرام لإكمال العملية.';
 
   return (
     <View style={styles.container}>
@@ -180,24 +160,6 @@ export default function ProfitPlanSuccessScreen() {
               {isDownloading ? downloadingText : downloadButtonText}
             </Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Contact Info */}
-        <View style={styles.contactInfoSection}>
-          <View style={styles.contactInfoHeader}>
-            <IconSymbol 
-              ios_icon_name="info.circle.fill" 
-              android_material_icon_name="info" 
-              size={24} 
-              color={colors.highlight} 
-            />
-            <View style={styles.contactInfoHeaderText}>
-              <Text style={styles.contactInfoTitle}>{contactInfoTitleEn}</Text>
-              <Text style={styles.contactInfoTitleAr}>{contactInfoTitleAr}</Text>
-            </View>
-          </View>
-          <Text style={styles.contactInfoText}>{contactInfoTextEn}</Text>
-          <Text style={styles.contactInfoTextAr}>{contactInfoTextAr}</Text>
         </View>
 
         {/* Features List */}
@@ -401,46 +363,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1A1A2E',
     marginLeft: 8,
-  },
-  contactInfoSection: {
-    marginHorizontal: 24,
-    padding: 20,
-    backgroundColor: colors.accent,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 24,
-  },
-  contactInfoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  contactInfoHeaderText: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  contactInfoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  contactInfoTitleAr: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  contactInfoText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 4,
-  },
-  contactInfoTextAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    lineHeight: 20,
   },
   featuresSection: {
     marginHorizontal: 24,
