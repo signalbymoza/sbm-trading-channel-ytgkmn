@@ -77,7 +77,19 @@ export default function SubscriptionManagementScreen() {
       if (!statsResponse.ok) {
         const errorText = await statsResponse.text();
         console.error('Stats error response:', errorText);
-        throw new Error(`فشل تحميل الإحصائيات (${statsResponse.status})`);
+        
+        let errorMessage = `فشل تحميل الإحصائيات (${statsResponse.status})`;
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.message && errorJson.message.includes('relation') && errorJson.message.includes('does not exist')) {
+            errorMessage = 'جاري إعداد قاعدة البيانات. يرجى الانتظار لحظات ثم المحاولة مرة أخرى.';
+          }
+        } catch (e) {
+          console.log('Could not parse error as JSON');
+        }
+        
+        throw new Error(errorMessage);
       }
       
       const statsData = await statsResponse.json();
@@ -116,7 +128,6 @@ export default function SubscriptionManagementScreen() {
       console.error('Error loading data:', error);
       const errorMessage = error instanceof Error ? error.message : 'فشل تحميل البيانات';
       setError(errorMessage);
-      Alert.alert('خطأ', errorMessage + '\n\nيرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
