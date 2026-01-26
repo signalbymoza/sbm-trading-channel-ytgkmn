@@ -42,22 +42,6 @@ export default function ProfitPlansScreen() {
       {/* Top Navigation */}
       <View style={styles.topNav}>
         <TouchableOpacity 
-          style={styles.currencyButton}
-          onPress={() => {
-            console.log('User tapped currency selector on profit plans page');
-            setShowCurrencyModal(true);
-          }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
-          <IconSymbol 
-            ios_icon_name="chevron.down" 
-            android_material_icon_name="arrow-drop-down" 
-            size={18} 
-            color={colors.text} 
-          />
-        </TouchableOpacity>
-        <TouchableOpacity 
           style={styles.navButton}
           onPress={() => {
             console.log('User tapped Subscriptions button');
@@ -93,9 +77,33 @@ export default function ProfitPlansScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Header with Currency Button */}
         <View style={styles.header}>
-          <Text style={styles.title}>{titleEn}</Text>
+          <View style={styles.headerTop}>
+            <Text style={styles.title}>{titleEn}</Text>
+            <TouchableOpacity 
+              style={styles.currencyButton}
+              onPress={() => {
+                console.log('User tapped currency selector on profit plans page');
+                setShowCurrencyModal(true);
+              }}
+              activeOpacity={0.7}
+            >
+              <IconSymbol 
+                ios_icon_name="dollarsign.circle.fill" 
+                android_material_icon_name="attach-money" 
+                size={20} 
+                color={colors.text} 
+              />
+              <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
+              <IconSymbol 
+                ios_icon_name="chevron.down" 
+                android_material_icon_name="arrow-drop-down" 
+                size={20} 
+                color={colors.text} 
+              />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.titleAr}>{titleAr}</Text>
         </View>
 
@@ -266,21 +274,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  currencyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  currencyButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
-    marginRight: 4,
-  },
   navButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -312,21 +305,42 @@ const styles = StyleSheet.create({
   header: {
     padding: 24,
     paddingTop: 24,
+  },
+  headerTop: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
+    flex: 1,
   },
   titleAr: {
     fontSize: 26,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 32,
+    marginBottom: 16,
     textAlign: 'center',
+  },
+  currencyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.highlight,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+    marginLeft: 12,
+  },
+  currencyButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+    marginHorizontal: 6,
   },
   planCard: {
     backgroundColor: colors.card,

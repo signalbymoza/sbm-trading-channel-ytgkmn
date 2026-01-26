@@ -146,22 +146,6 @@ export default function EducationScreen() {
     <View style={styles.container}>
       <View style={styles.topNav}>
         <TouchableOpacity 
-          style={styles.currencyButton}
-          onPress={() => {
-            console.log('User tapped currency selector on education page');
-            setShowCurrencyModal(true);
-          }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
-          <IconSymbol 
-            ios_icon_name="chevron.down" 
-            android_material_icon_name="arrow-drop-down" 
-            size={18} 
-            color={colors.text} 
-          />
-        </TouchableOpacity>
-        <TouchableOpacity 
           style={styles.navButton}
           onPress={() => router.push('/subscription?channel=gold')}
           activeOpacity={0.7}
@@ -192,12 +176,36 @@ export default function EducationScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <IconSymbol 
-            ios_icon_name="book.fill" 
-            android_material_icon_name="menu-book" 
-            size={48} 
-            color={colors.highlight} 
-          />
+          <View style={styles.headerTop}>
+            <IconSymbol 
+              ios_icon_name="book.fill" 
+              android_material_icon_name="menu-book" 
+              size={48} 
+              color={colors.highlight} 
+            />
+            <TouchableOpacity 
+              style={styles.currencyButton}
+              onPress={() => {
+                console.log('User tapped currency selector on education page');
+                setShowCurrencyModal(true);
+              }}
+              activeOpacity={0.7}
+            >
+              <IconSymbol 
+                ios_icon_name="dollarsign.circle.fill" 
+                android_material_icon_name="attach-money" 
+                size={20} 
+                color={colors.text} 
+              />
+              <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
+              <IconSymbol 
+                ios_icon_name="chevron.down" 
+                android_material_icon_name="arrow-drop-down" 
+                size={20} 
+                color={colors.text} 
+              />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.title}>Education Programs</Text>
           <Text style={styles.titleAr}>برامج التعليم</Text>
           <Text style={styles.subtitle}>
@@ -495,21 +503,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  currencyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  currencyButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
-    marginRight: 4,
-  },
   navButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -542,6 +535,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     paddingTop: 32,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 12,
+  },
+  currencyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.highlight,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  currencyButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+    marginHorizontal: 6,
   },
   title: {
     fontSize: 28,
