@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { eq, or, ilike } from "drizzle-orm";
 import * as schema from "../db/schema.js";
 import type { App } from "../index.js";
+import { sendConfirmationEmail } from "../utils/email.js";
 
 // Helper function to format subscription response with camelCase
 function formatSubscriptionResponse(subscription: any) {
@@ -152,11 +153,88 @@ export function register(app: App, fastify: FastifyInstance) {
 
       app.logger.info({ subscriptionId: subscription[0].id }, 'Subscription created successfully');
 
+      // Send confirmation email asynchronously (don't wait for it)
+      sendConfirmationEmail({
+        email: body.email,
+        name: body.name,
+        channelType: body.channel_type,
+        subscriptionDuration: body.subscription_duration,
+        program: body.program,
+        planAmount: body.plan_amount,
+      }, app.logger).catch(err => {
+        app.logger.error({ err }, 'Error during confirmation email send');
+      });
+
       reply.status(201);
       return subscription[0];
     } catch (error) {
       app.logger.error({ err: error, body }, 'Failed to create subscription');
       return reply.status(500).send({ error: 'Failed to create subscription' });
+    }
+  });
+
+  // POST /api/subscriptions/send-confirmation-email - Send confirmation email
+  fastify.post('/api/subscriptions/send-confirmation-email', {
+    schema: {
+      description: 'Send a confirmation email for a registration',
+      tags: ['subscriptions'],
+      body: {
+        type: 'object',
+        required: ['email', 'name', 'program'],
+        properties: {
+          email: { type: 'string' },
+          name: { type: 'string' },
+          channelType: { type: 'string' },
+          subscriptionDuration: { type: 'string' },
+          program: { type: 'string' },
+          planAmount: { type: 'string' },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+          },
+        },
+      },
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = request.body as {
+      email: string;
+      name: string;
+      channelType?: string;
+      subscriptionDuration?: string;
+      program: string;
+      planAmount?: string;
+    };
+
+    app.logger.info({ email: body.email }, 'Sending confirmation email');
+
+    try {
+      const emailSent = await sendConfirmationEmail(
+        {
+          email: body.email,
+          name: body.name,
+          channelType: body.channelType,
+          subscriptionDuration: body.subscriptionDuration,
+          program: body.program,
+          planAmount: body.planAmount,
+        },
+        app.logger
+      );
+
+      if (!emailSent) {
+        app.logger.warn({ email: body.email }, 'Email sending returned false');
+        return reply.status(500).send({ success: false, message: 'Failed to send email' });
+      }
+
+      app.logger.info({ email: body.email }, 'Confirmation email sent successfully');
+      return { success: true, message: 'Email sent successfully' };
+    } catch (error) {
+      app.logger.error({ err: error, email: body.email }, 'Failed to send confirmation email');
+      return reply.status(500).send({ success: false, message: 'Failed to send email' });
     }
   });
 
