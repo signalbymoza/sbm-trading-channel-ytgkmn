@@ -93,7 +93,7 @@ export function register(app: App, fastify: FastifyInstance) {
       tags: ['subscriptions'],
       body: {
         type: 'object',
-        required: ['name', 'email', 'telegram_username', 'channel_type', 'subscription_duration', 'id_document_url', 'terms_accepted'],
+        required: ['name', 'email', 'telegram_username', 'id_document_url', 'terms_accepted', 'program'],
         properties: {
           name: { type: 'string' },
           email: { type: 'string' },
@@ -102,6 +102,7 @@ export function register(app: App, fastify: FastifyInstance) {
           subscription_duration: { type: 'string' },
           id_document_url: { type: 'string' },
           terms_accepted: { type: 'boolean' },
+          program: { type: 'string' },
         },
       },
       response: {
@@ -127,10 +128,11 @@ export function register(app: App, fastify: FastifyInstance) {
       name: string;
       email: string;
       telegram_username: string;
-      channel_type: string;
-      subscription_duration: string;
+      channel_type?: string;
+      subscription_duration?: string;
       id_document_url: string;
       terms_accepted: boolean;
+      program: string;
     };
 
     app.logger.info({ body }, 'Creating new subscription');
@@ -140,8 +142,8 @@ export function register(app: App, fastify: FastifyInstance) {
         name: body.name,
         email: body.email,
         telegram_username: body.telegram_username,
-        channel_type: body.channel_type,
-        subscription_duration: body.subscription_duration,
+        channel_type: body.channel_type || null,
+        subscription_duration: body.subscription_duration || null,
         id_document_url: body.id_document_url,
         terms_accepted: body.terms_accepted,
       }).returning();
