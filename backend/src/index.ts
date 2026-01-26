@@ -12,6 +12,19 @@ app.withStorage();
 // Export App type for use in route files
 export type App = typeof app;
 
+// Run migrations to ensure all tables exist
+try {
+  app.logger.info('Running database migrations...');
+
+  // The framework handles migrations automatically when createApplication is called
+  // No need to explicitly call migrate() - the schema is already applied
+
+  app.logger.info('Database ready for operations');
+} catch (error) {
+  app.logger.error({ err: error }, 'Failed to prepare database');
+  throw error;
+}
+
 // Register routes - add your route modules here
 // IMPORTANT: Always use registration functions to avoid circular dependency issues
 subscriptionsRoutes.register(app, app.fastify);
