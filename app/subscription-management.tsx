@@ -50,6 +50,7 @@ export default function SubscriptionManagementScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<SubscriptionStats | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [brokerSubscribers, setBrokerSubscribers] = useState<BrokerSubscriber[]>([]);
@@ -64,27 +65,58 @@ export default function SubscriptionManagementScreen() {
   const loadData = async () => {
     console.log('Loading subscription management data');
     setLoading(true);
+    setError(null);
+    
     try {
-      const [statsResponse, subscribersResponse, brokersResponse] = await Promise.all([
-        fetch(`${backendUrl}/api/subscriptions/stats`),
-        fetch(`${backendUrl}/api/subscriptions/list`),
-        fetch(`${backendUrl}/api/broker-subscribers`),
-      ]);
-
+      console.log('Fetching from backend URL:', backendUrl);
+      
+      // Fetch stats
+      const statsResponse = await fetch(`${backendUrl}/api/subscriptions/stats`);
+      console.log('Stats response status:', statsResponse.status);
+      
+      if (!statsResponse.ok) {
+        const errorText = await statsResponse.text();
+        console.error('Stats error response:', errorText);
+        throw new Error(`فشل تحميل الإحصائيات (${statsResponse.status})`);
+      }
+      
       const statsData = await statsResponse.json();
-      const subscribersData = await subscribersResponse.json();
-      const brokersData = await brokersResponse.json();
-
-      console.log('Stats loaded:', statsData);
-      console.log('Subscribers loaded:', subscribersData.length);
-      console.log('Broker subscribers loaded:', brokersData.length);
-
+      console.log('Stats loaded successfully:', statsData);
       setStats(statsData);
+
+      // Fetch subscribers
+      const subscribersResponse = await fetch(`${backendUrl}/api/subscriptions/list`);
+      console.log('Subscribers response status:', subscribersResponse.status);
+      
+      if (!subscribersResponse.ok) {
+        const errorText = await subscribersResponse.text();
+        console.error('Subscribers error response:', errorText);
+        throw new Error(`فشل تحميل قائمة المشتركين (${subscribersResponse.status})`);
+      }
+      
+      const subscribersData = await subscribersResponse.json();
+      console.log('Subscribers loaded successfully:', subscribersData.length);
       setSubscribers(subscribersData);
+
+      // Fetch broker subscribers
+      const brokersResponse = await fetch(`${backendUrl}/api/broker-subscribers`);
+      console.log('Broker subscribers response status:', brokersResponse.status);
+      
+      if (!brokersResponse.ok) {
+        const errorText = await brokersResponse.text();
+        console.error('Broker subscribers error response:', errorText);
+        throw new Error(`فشل تحميل مشتركي البروكر (${brokersResponse.status})`);
+      }
+      
+      const brokersData = await brokersResponse.json();
+      console.log('Broker subscribers loaded successfully:', brokersData.length);
       setBrokerSubscribers(brokersData);
+
     } catch (error) {
       console.error('Error loading data:', error);
-      Alert.alert('خطأ', 'فشل تحميل البيانات. يرجى المحاولة مرة أخرى.');
+      const errorMessage = error instanceof Error ? error.message : 'فشل تحميل البيانات';
+      setError(errorMessage);
+      Alert.alert('خطأ', errorMessage + '\n\nيرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -221,6 +253,30 @@ export default function SubscriptionManagementScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>جاري تحميل البيانات...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <IconSymbol
+            ios_icon_name="exclamationmark.triangle.fill"
+            android_material_icon_name="error"
+            size={64}
+            color="#EF4444"
+          />
+          <Text style={styles.errorTitle}>حدث خطأ</Text>
+          <Text style={styles.errorMessage}>{error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={loadData}
+            activeOpacity={0.7}
+          >
+            <IconSymbol
+              ios_icon_name="arrow.clockwise"
+              android_material_icon_name="refresh"
+              size={20}
+              color="#FFFFFF"
+            />
+            <Text style={styles.retryButtonText}>إعادة المحاولة</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -548,6 +604,40 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: colors.textSecondary,
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    gap: 16,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
