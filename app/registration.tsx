@@ -1,11 +1,12 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile, apiCall } from "@/utils/api";
+import Modal from "@/components/ui/Modal";
 
 export default function RegistrationScreen() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function RegistrationScreen() {
   const channelType = params.channel as string;
   const duration = params.duration as string;
   const program = params.program as string;
+  const planAmount = params.plan_amount as string;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,8 +24,35 @@ export default function RegistrationScreen() {
   const [idDocument, setIdDocument] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+    onConfirm?: () => void;
+  }>({
+    type: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+  });
 
-  console.log('RegistrationScreen: Channel:', channelType, 'Duration:', duration, 'Program:', program);
+  console.log('RegistrationScreen: Channel:', channelType, 'Duration:', duration, 'Program:', program, 'Plan Amount:', planAmount);
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    titleAr: string,
+    message: string,
+    messageAr: string,
+    onConfirm?: () => void
+  ) => {
+    setModalConfig({ type, title, titleAr, message, messageAr, onConfirm });
+    setModalVisible(true);
+  };
 
   const getTrainerOptions = () => {
     if (program === 'analysis_training') {
@@ -49,7 +78,13 @@ export default function RegistrationScreen() {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
     if (permissionResult.granted === false) {
-      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+      showModal(
+        'warning',
+        'Permission Required',
+        'الإذن مطلوب',
+        'Permission to access camera roll is required!',
+        'الإذن للوصول إلى معرض الصور مطلوب!'
+      );
       return;
     }
 
@@ -78,10 +113,22 @@ export default function RegistrationScreen() {
 
       console.log('Document uploaded successfully:', data.url);
       setIdDocument(data.url);
-      Alert.alert('Success', 'Document uploaded successfully!');
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Document uploaded successfully!',
+        'تم تحميل المستند بنجاح!'
+      );
     } catch (error) {
       console.error('Error uploading document:', error);
-      Alert.alert('Error', 'Failed to upload document. Please try again.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to upload document. Please try again.',
+        'فشل تحميل المستند. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setIsUploading(false);
     }
@@ -91,32 +138,68 @@ export default function RegistrationScreen() {
     console.log('User tapped Submit button');
 
     if (!name.trim()) {
-      Alert.alert('Required Field', 'Please enter your name');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please enter your name',
+        'يرجى إدخال اسمك'
+      );
       return;
     }
 
     if (!email.trim()) {
-      Alert.alert('Required Field', 'Please enter your email');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please enter your email',
+        'يرجى إدخال بريدك الإلكتروني'
+      );
       return;
     }
 
     if (!telegramUsername.trim()) {
-      Alert.alert('Required Field', 'Please enter your Telegram username');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please enter your Telegram username',
+        'يرجى إدخال اسم المستخدم في تيليجرام'
+      );
       return;
     }
 
     if (showTrainerSelection && !selectedTrainer) {
-      Alert.alert('Required Field', 'Please select a trainer');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please select a trainer',
+        'يرجى اختيار مدرب'
+      );
       return;
     }
 
     if (!idDocument) {
-      Alert.alert('Required Field', 'Please upload your ID or passport');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please upload your ID or passport',
+        'يرجى تحميل بطاقة الهوية أو جواز السفر'
+      );
       return;
     }
 
     if (!termsAccepted) {
-      Alert.alert('Terms Required', 'Please accept the terms and conditions');
+      showModal(
+        'warning',
+        'Terms Required',
+        'الشروط مطلوبة',
+        'Please accept the terms and conditions',
+        'يرجى قبول الشروط والأحكام'
+      );
       return;
     }
 
@@ -146,6 +229,7 @@ export default function RegistrationScreen() {
         subscription_duration?: string;
         program: string;
         trainer?: string;
+        plan_amount?: string;
         id_document_url: string;
         terms_accepted: boolean;
       } = {
@@ -167,6 +251,9 @@ export default function RegistrationScreen() {
       if (selectedTrainer) {
         requestBody.trainer = selectedTrainer;
       }
+      if (planAmount) {
+        requestBody.plan_amount = planAmount;
+      }
 
       console.log('Submitting registration with body:', requestBody);
 
@@ -182,23 +269,27 @@ export default function RegistrationScreen() {
 
       // Check if this is a profit plan registration
       if (program === 'profit_plan') {
-        console.log('Profit plan registration - navigating to success screen with download option');
-        router.push('/profit-plan-success');
+        console.log('Profit plan registration - navigating to success screen with download option for plan amount:', planAmount);
+        router.push(`/profit-plan-success?plan_amount=${planAmount || '250'}`);
       } else {
-        Alert.alert(
+        showModal(
+          'success',
           'Success!',
+          'نجح!',
           'Your subscription request has been submitted. We will contact you shortly via Telegram.',
-          [
-            {
-              text: 'OK',
-              onPress: () => router.push('/(tabs)/(home)/'),
-            },
-          ]
+          'تم إرسال طلب الاشتراك الخاص بك. سنتواصل معك قريباً عبر تيليجرام.',
+          () => router.push('/(tabs)/(home)/')
         );
       }
     } catch (error) {
       console.error('Error creating subscription:', error);
-      Alert.alert('Error', 'Failed to submit registration. Please try again.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to submit registration. Please try again.',
+        'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -367,6 +458,12 @@ export default function RegistrationScreen() {
               </Text>
             </View>
           )}
+          {planAmount && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Plan Amount:</Text>
+              <Text style={styles.summaryValue}>${planAmount}</Text>
+            </View>
+          )}
           {channelType && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Channel:</Text>
@@ -415,6 +512,18 @@ export default function RegistrationScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Custom Modal for feedback */}
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.message}
+        messageAr={modalConfig.messageAr}
+        onConfirm={modalConfig.onConfirm}
+      />
     </View>
   );
 }

@@ -22,8 +22,8 @@ export default function ProfitPlansScreen() {
   ];
 
   const handlePlanPress = () => {
-    console.log('User tapped on profit plan card - navigating to registration');
-    router.push('/registration?program=profit_plan');
+    console.log('User tapped on $250 profit plan card - navigating to registration');
+    router.push('/registration?program=profit_plan&plan_amount=250');
   };
 
   const isCurrencySelected = (code: string) => selectedCurrency === code;

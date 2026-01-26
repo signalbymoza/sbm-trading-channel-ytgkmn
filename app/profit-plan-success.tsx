@@ -1,35 +1,69 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Alert, Linking } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Linking } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { BACKEND_URL } from "@/utils/api";
+import Modal from "@/components/ui/Modal";
 
 export default function ProfitPlanSuccessScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const planAmount = params.plan_amount as string || '250';
   const [isDownloading, setIsDownloading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+  }>({
+    type: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+  });
 
-  console.log('ProfitPlanSuccessScreen: Registration successful, showing download option');
+  console.log('ProfitPlanSuccessScreen: Registration successful, showing download option for plan amount:', planAmount);
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    titleAr: string,
+    message: string,
+    messageAr: string
+  ) => {
+    setModalConfig({ type, title, titleAr, message, messageAr });
+    setModalVisible(true);
+  };
 
   const handleDownloadFile = async () => {
-    console.log('User tapped download file button');
+    console.log('User tapped download file button for plan amount:', planAmount);
     setIsDownloading(true);
 
     try {
-      // Backend Integration - GET /api/profit-plans/download-file
-      const fileUrl = `${BACKEND_URL}/api/profit-plans/download-file`;
+      // Backend Integration - GET /api/profit-plans/download-file with plan_amount parameter
+      const fileUrl = `${BACKEND_URL}/api/profit-plans/download-file?plan_amount=${planAmount}`;
       
       if (Platform.OS === 'web') {
         // For web, open the file in a new tab
         console.log('Opening file in browser:', fileUrl);
         Linking.openURL(fileUrl);
+        showModal(
+          'success',
+          'Download Started',
+          'بدأ التنزيل',
+          'The file will open in a new tab.',
+          'سيتم فتح الملف في علامة تبويب جديدة.'
+        );
       } else {
         // For mobile, download and share the file
-        const fileUri = FileSystem.documentDirectory + 'profit-plan-document.pdf';
+        const fileUri = FileSystem.documentDirectory + `profit-plan-${planAmount}.pdf`;
         console.log('Downloading file to:', fileUri);
 
         const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
@@ -41,19 +75,23 @@ export default function ProfitPlanSuccessScreen() {
           await Sharing.shareAsync(downloadResult.uri);
           console.log('File shared successfully');
         } else {
-          Alert.alert(
+          showModal(
+            'success',
+            'Download Complete',
             'تم التنزيل',
-            'تم تنزيل الملف بنجاح',
-            [{ text: 'حسناً' }]
+            'The file has been downloaded successfully.',
+            'تم تنزيل الملف بنجاح.'
           );
         }
       }
     } catch (error) {
       console.error('Error downloading file:', error);
-      Alert.alert(
-        'خطأ',
-        'فشل تنزيل الملف. يرجى المحاولة مرة أخرى.',
-        [{ text: 'حسناً' }]
+      showModal(
+        'error',
+        'Download Failed',
+        'فشل التنزيل',
+        'Failed to download the file. Please try again. Make sure the file exists in the database.',
+        'فشل تنزيل الملف. يرجى المحاولة مرة أخرى. تأكد من أن الملف موجود في قاعدة البيانات.'
       );
     } finally {
       setIsDownloading(false);
@@ -234,6 +272,17 @@ export default function ProfitPlanSuccessScreen() {
           <Text style={styles.backButtonText}>{backToHomeText}</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Custom Modal for feedback */}
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.message}
+        messageAr={modalConfig.messageAr}
+      />
     </View>
   );
 }
