@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Modal } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
@@ -9,8 +9,23 @@ import { LinearGradient } from "expo-linear-gradient";
 export default function EducationScreen() {
   const router = useRouter();
   const [selectedProgram, setSelectedProgram] = useState<string>('');
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 
-  console.log('EducationScreen: Rendering education programs page');
+  console.log('EducationScreen: Rendering education programs page, currency:', selectedCurrency);
+
+  const currencies = [
+    { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي', rate: 1, flag: '🇺🇸' },
+    { code: 'SAR', symbol: 'ر.س', nameEn: 'Saudi Riyal', nameAr: 'ريال سعودي', rate: 3.75, flag: '🇸🇦' },
+    { code: 'AED', symbol: 'د.إ', nameEn: 'UAE Dirham', nameAr: 'درهم إماراتي', rate: 3.67, flag: '🇦🇪' },
+    { code: 'QAR', symbol: 'ر.ق', nameEn: 'Qatari Riyal', nameAr: 'ريال قطري', rate: 3.64, flag: '🇶🇦' },
+    { code: 'BHD', symbol: 'د.ب', nameEn: 'Bahraini Dinar', nameAr: 'دينار بحريني', rate: 0.376, flag: '🇧🇭' },
+    { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني', rate: 0.385, flag: '🇴🇲' },
+  ];
+
+  const selectedCurrencyData = currencies.find(c => c.code === selectedCurrency);
+  const rate = selectedCurrencyData?.rate || 1;
+  const symbol = selectedCurrencyData?.symbol || '$';
 
   const educationPrograms = [
     {
@@ -37,8 +52,7 @@ export default function EducationScreen() {
       ],
       featuresTitleEn: 'Training will be conducted by analyst Noor:',
       featuresTitleAr: 'التعليم سيكون من خلال المحللة نور:',
-      priceAED: 'د.إ 5,509.00',
-      priceUSD: '$1,500',
+      priceUSD: 1500,
       duration: '2 months',
       durationAr: 'شهرين',
     },
@@ -50,8 +64,7 @@ export default function EducationScreen() {
       descriptionAr: 'دورة تداول كاملة من الأساسيات إلى الاستراتيجيات المتقدمة',
       icon: 'show-chart',
       color: '#3B82F6',
-      priceAED: 'د.إ 606.00',
-      priceUSD: '$165',
+      priceUSD: 165,
       duration: '1 month',
       durationAr: 'شهر واحد',
       features: [
@@ -70,8 +83,7 @@ export default function EducationScreen() {
       descriptionAr: 'تعليمات ونصائح لمشتركي قناة SBM',
       icon: 'help',
       color: '#10B981',
-      priceAED: 'د.إ 276.00',
-      priceUSD: '$75',
+      priceUSD: 75,
       duration: '1 month',
       durationAr: 'شهر واحد',
       features: [
@@ -89,8 +101,7 @@ export default function EducationScreen() {
       descriptionAr: 'دليل شامل يغطي أساسيات الفوركس',
       icon: 'menu-book',
       color: '#8B5CF6',
-      priceAED: 'د.إ 300.00',
-      priceUSD: '$82',
+      priceUSD: 82,
       duration: 'N/A',
       durationAr: 'غير محدد',
       features: [
@@ -128,11 +139,28 @@ export default function EducationScreen() {
     }
   };
 
-  const selectedProgramData = educationPrograms.find(p => p.id === selectedProgram);
+  const isCurrencySelected = (code: string) => selectedCurrency === code;
+  const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code}`;
 
   return (
     <View style={styles.container}>
       <View style={styles.topNav}>
+        <TouchableOpacity 
+          style={styles.currencyButton}
+          onPress={() => {
+            console.log('User tapped currency selector on education page');
+            setShowCurrencyModal(true);
+          }}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
+          <IconSymbol 
+            ios_icon_name="chevron.down" 
+            android_material_icon_name="arrow-drop-down" 
+            size={18} 
+            color={colors.text} 
+          />
+        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navButton}
           onPress={() => router.push('/subscription?channel=gold')}
@@ -183,7 +211,8 @@ export default function EducationScreen() {
         <View style={styles.programsSection}>
           {educationPrograms.map((program, index) => {
             const isSelected = selectedProgram === program.id;
-            const priceDisplay = program.priceAED || program.price;
+            const priceInCurrency = Math.round(program.priceUSD * rate);
+            const priceDisplay = `${symbol}${priceInCurrency}`;
             
             return (
               <TouchableOpacity
@@ -379,6 +408,74 @@ export default function EducationScreen() {
           />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={showCurrencyModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCurrencyModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Currency</Text>
+              <Text style={styles.modalTitleAr}>اختر العملة</Text>
+              <TouchableOpacity 
+                style={styles.modalCloseButton}
+                onPress={() => setShowCurrencyModal(false)}
+                activeOpacity={0.7}
+              >
+                <IconSymbol 
+                  ios_icon_name="xmark" 
+                  android_material_icon_name="close" 
+                  size={24} 
+                  color={colors.text} 
+                />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScroll}>
+              {currencies.map((currency, index) => {
+                const selected = isCurrencySelected(currency.code);
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.currencyModalItem,
+                      selected && styles.currencyModalItemSelected,
+                    ]}
+                    onPress={() => {
+                      console.log('User selected currency on education page:', currency.code);
+                      setSelectedCurrency(currency.code);
+                      setShowCurrencyModal(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.currencyModalInfo}>
+                      <Text style={styles.currencyModalFlag}>
+                        {currency.flag}
+                      </Text>
+                      <Text style={[styles.currencyModalSymbol, selected && styles.currencyModalSymbolSelected]}>
+                        {currency.symbol}
+                      </Text>
+                      <View style={styles.currencyModalTextContainer}>
+                        <Text style={[styles.currencyModalCode, selected && styles.currencyModalCodeSelected]}>
+                          {currency.code}
+                        </Text>
+                        <Text style={[styles.currencyModalName, selected && styles.currencyModalNameSelected]}>
+                          {currency.nameAr}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={[styles.radioButton, selected && styles.radioButtonSelected]}>
+                      {selected && <View style={styles.radioButtonInner} />}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -397,6 +494,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  currencyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  currencyButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
+    marginRight: 4,
   },
   navButton: {
     paddingHorizontal: 12,
@@ -724,5 +836,118 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text,
     marginRight: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '70%',
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    padding: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    position: 'relative',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  modalTitleAr: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    padding: 4,
+  },
+  modalScroll: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+  },
+  currencyModalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  currencyModalItemSelected: {
+    borderColor: colors.highlight,
+    backgroundColor: colors.accent,
+  },
+  currencyModalInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  currencyModalFlag: {
+    fontSize: 32,
+    marginRight: 12,
+  },
+  currencyModalSymbol: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginRight: 16,
+    minWidth: 40,
+    textAlign: 'center',
+  },
+  currencyModalSymbolSelected: {
+    color: colors.highlight,
+  },
+  currencyModalTextContainer: {
+    flex: 1,
+  },
+  currencyModalCode: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  currencyModalCodeSelected: {
+    color: colors.highlight,
+  },
+  currencyModalName: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  currencyModalNameSelected: {
+    color: colors.text,
+  },
+  radioButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioButtonSelected: {
+    borderColor: colors.highlight,
+  },
+  radioButtonInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.highlight,
   },
 });
