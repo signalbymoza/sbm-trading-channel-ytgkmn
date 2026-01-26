@@ -137,22 +137,45 @@ export default function RegistrationScreen() {
         status: string;
       }
 
+      // Build the request body - only include channel_type and subscription_duration if they exist
+      const requestBody: {
+        name: string;
+        email: string;
+        telegram_username: string;
+        channel_type?: string;
+        subscription_duration?: string;
+        program: string;
+        trainer?: string;
+        id_document_url: string;
+        terms_accepted: boolean;
+      } = {
+        name: name.trim(),
+        email: email.trim(),
+        telegram_username: telegramUsername.trim(),
+        program: program,
+        id_document_url: idDocument,
+        terms_accepted: termsAccepted,
+      };
+
+      // Only add channel_type and subscription_duration if they exist (for channel subscriptions)
+      if (channelType) {
+        requestBody.channel_type = channelType;
+      }
+      if (duration) {
+        requestBody.subscription_duration = duration;
+      }
+      if (selectedTrainer) {
+        requestBody.trainer = selectedTrainer;
+      }
+
+      console.log('Submitting registration with body:', requestBody);
+
       const data = await apiCall<SubscriptionResponse>('/api/subscriptions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          telegram_username: telegramUsername.trim(),
-          channel_type: channelType,
-          subscription_duration: duration,
-          program: program,
-          trainer: selectedTrainer,
-          id_document_url: idDocument,
-          terms_accepted: termsAccepted,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       console.log('Subscription created successfully:', data.id);
@@ -334,7 +357,16 @@ export default function RegistrationScreen() {
         </View>
 
         <View style={styles.summarySection}>
-          <Text style={styles.summaryTitle}>Subscription Summary</Text>
+          <Text style={styles.summaryTitle}>Registration Summary</Text>
+          <Text style={styles.summaryTitleAr}>ملخص التسجيل</Text>
+          {program && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Program:</Text>
+              <Text style={styles.summaryValue}>
+                {program === 'profit_plan' ? 'Profit Plan / خطة الربح' : program.replace(/_/g, ' ')}
+              </Text>
+            </View>
+          )}
           {channelType && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Channel:</Text>
@@ -345,12 +377,6 @@ export default function RegistrationScreen() {
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Duration:</Text>
               <Text style={styles.summaryValue}>{duration}</Text>
-            </View>
-          )}
-          {program && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Program:</Text>
-              <Text style={styles.summaryValue}>{program.replace(/_/g, ' ')}</Text>
             </View>
           )}
           {selectedTrainer && (
@@ -563,6 +589,12 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  summaryTitleAr: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 16,
