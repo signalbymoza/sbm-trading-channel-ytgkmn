@@ -1,11 +1,12 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile, apiCall } from "@/utils/api";
+import Modal from "@/components/ui/Modal";
 
 export default function ForexGuideRegistrationScreen() {
   const router = useRouter();
@@ -17,8 +18,35 @@ export default function ForexGuideRegistrationScreen() {
   const [idDocument, setIdDocument] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+    onConfirm?: () => void;
+  }>({
+    type: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+  });
 
   console.log('ForexGuideRegistrationScreen: Rendering registration form for Forex Guide');
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    titleAr: string,
+    message: string,
+    messageAr: string,
+    onConfirm?: () => void
+  ) => {
+    setModalConfig({ type, title, titleAr, message, messageAr, onConfirm });
+    setModalVisible(true);
+  };
 
   const pickDocument = async () => {
     console.log('User tapped upload ID document button');
@@ -26,7 +54,13 @@ export default function ForexGuideRegistrationScreen() {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
     if (permissionResult.granted === false) {
-      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+      showModal(
+        'warning',
+        'Permission Required',
+        'الإذن مطلوب',
+        'Permission to access camera roll is required!',
+        'الإذن للوصول إلى معرض الصور مطلوب!'
+      );
       return;
     }
 
@@ -55,10 +89,22 @@ export default function ForexGuideRegistrationScreen() {
 
       console.log('Document uploaded successfully:', data.url);
       setIdDocument(data.url);
-      Alert.alert('Success', 'Document uploaded successfully!');
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Document uploaded successfully!',
+        'تم تحميل المستند بنجاح!'
+      );
     } catch (error) {
       console.error('Error uploading document:', error);
-      Alert.alert('Error', 'Failed to upload document. Please try again.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to upload document. Please try again.',
+        'فشل تحميل المستند. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setIsUploading(false);
     }
@@ -68,27 +114,57 @@ export default function ForexGuideRegistrationScreen() {
     console.log('User tapped Submit button');
 
     if (!name.trim()) {
-      Alert.alert('Required Field', 'Please enter your name');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please enter your name',
+        'يرجى إدخال اسمك'
+      );
       return;
     }
 
     if (!email.trim()) {
-      Alert.alert('Required Field', 'Please enter your email');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please enter your email',
+        'يرجى إدخال بريدك الإلكتروني'
+      );
       return;
     }
 
     if (!telegramUsername.trim()) {
-      Alert.alert('Required Field', 'Please enter your Telegram username');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please enter your Telegram username',
+        'يرجى إدخال اسم المستخدم في تيليجرام'
+      );
       return;
     }
 
     if (!idDocument) {
-      Alert.alert('Required Field', 'Please upload your ID or passport');
+      showModal(
+        'warning',
+        'Required Field',
+        'حقل مطلوب',
+        'Please upload your ID or passport',
+        'يرجى تحميل بطاقة الهوية أو جواز السفر'
+      );
       return;
     }
 
     if (!termsAccepted) {
-      Alert.alert('Terms Required', 'Please accept the terms and conditions');
+      showModal(
+        'warning',
+        'Terms Required',
+        'الشروط مطلوبة',
+        'Please accept the terms and conditions',
+        'يرجى قبول الشروط والأحكام'
+      );
       return;
     }
 
@@ -129,19 +205,23 @@ export default function ForexGuideRegistrationScreen() {
 
       console.log('Forex Guide subscription created successfully:', data.id);
 
-      Alert.alert(
+      showModal(
+        'success',
         'Success!',
-        'Your purchase request has been submitted. We will send you the Forex Guide via email shortly.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.push('/(tabs)/(home)/'),
-          },
-        ]
+        'نجح!',
+        'Your purchase request has been submitted successfully! A confirmation email has been sent to your email address. We will send you the Forex Guide via email shortly.',
+        'تم إرسال طلب الشراء الخاص بك بنجاح! تم إرسال بريد إلكتروني للتأكيد إلى عنوان بريدك الإلكتروني. سنرسل لك دليل الفوركس عبر البريد الإلكتروني قريباً.',
+        () => router.push('/(tabs)/(home)/')
       );
     } catch (error) {
       console.error('Error creating subscription:', error);
-      Alert.alert('Error', 'Failed to submit registration. Please try again.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to submit registration. Please try again.',
+        'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -352,6 +432,18 @@ export default function ForexGuideRegistrationScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Custom Modal for feedback */}
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.message}
+        messageAr={modalConfig.messageAr}
+        onConfirm={modalConfig.onConfirm}
+      />
     </View>
   );
 }

@@ -89,8 +89,8 @@ export default function ProfitPlanSuccessScreen() {
 
   const successTitleEn = 'Registration Successful!';
   const successTitleAr = 'تم التسجيل بنجاح!';
-  const successMessageEn = 'Your registration for the Accumulated Profit Plan has been submitted successfully.';
-  const successMessageAr = 'تم إرسال تسجيلك في خطة الربح التراكمي بنجاح.';
+  const successMessageEn = 'Your registration for the Accumulated Profit Plan has been submitted successfully. A confirmation email has been sent to your email address.';
+  const successMessageAr = 'تم إرسال تسجيلك في خطة الربح التراكمي بنجاح. تم إرسال بريد إلكتروني للتأكيد إلى عنوان بريدك الإلكتروني.';
   const downloadTitleEn = 'Download Your Plan Document';
   const downloadTitleAr = 'قم بتنزيل مستند الخطة الخاص بك';
   const downloadDescriptionEn = 'Download the detailed plan document with all information about your profit plan.';

@@ -1,11 +1,12 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { apiCall } from "@/utils/api";
+import Modal from "@/components/ui/Modal";
 
 export default function BrokerRegistrationScreen() {
   const router = useRouter();
@@ -23,6 +24,33 @@ export default function BrokerRegistrationScreen() {
   const [brokerAccountNumber, setBrokerAccountNumber] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+    onConfirm?: () => void;
+  }>({
+    type: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+  });
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    titleAr: string,
+    message: string,
+    messageAr: string,
+    onConfirm?: () => void
+  ) => {
+    setModalConfig({ type, title, titleAr, message, messageAr, onConfirm });
+    setModalVisible(true);
+  };
 
   const handleBackPress = () => {
     console.log('User tapped back button on broker registration page');
@@ -35,32 +63,68 @@ export default function BrokerRegistrationScreen() {
 
     // Validation
     if (!fullName.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال الاسم الكامل');
+      showModal(
+        'warning',
+        'Error',
+        'خطأ',
+        'Please enter your full name',
+        'يرجى إدخال الاسم الكامل'
+      );
       return;
     }
 
     if (!email.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال البريد الإلكتروني');
+      showModal(
+        'warning',
+        'Error',
+        'خطأ',
+        'Please enter your email',
+        'يرجى إدخال البريد الإلكتروني'
+      );
       return;
     }
 
     if (!email.includes('@')) {
-      Alert.alert('خطأ', 'يرجى إدخال بريد إلكتروني صحيح');
+      showModal(
+        'warning',
+        'Error',
+        'خطأ',
+        'Please enter a valid email',
+        'يرجى إدخال بريد إلكتروني صحيح'
+      );
       return;
     }
 
     if (!telegramUsername.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال يوزر التلقرام');
+      showModal(
+        'warning',
+        'Error',
+        'خطأ',
+        'Please enter your Telegram username',
+        'يرجى إدخال يوزر التلقرام'
+      );
       return;
     }
 
     if (!brokerAccountNumber.trim()) {
-      Alert.alert('خطأ', 'يرجى إدخال رقم حساب البروكر');
+      showModal(
+        'warning',
+        'Error',
+        'خطأ',
+        'Please enter your broker account number',
+        'يرجى إدخال رقم حساب البروكر'
+      );
       return;
     }
 
     if (!termsAccepted) {
-      Alert.alert('خطأ', 'يرجى الموافقة على الشروط والأحكام');
+      showModal(
+        'warning',
+        'Error',
+        'خطأ',
+        'Please accept the terms and conditions',
+        'يرجى الموافقة على الشروط والأحكام'
+      );
       return;
     }
 
@@ -92,22 +156,26 @@ export default function BrokerRegistrationScreen() {
 
       console.log('Broker registration successful:', data.id);
 
-      Alert.alert(
+      showModal(
+        'success',
+        'Registration Successful',
         'تم التسجيل بنجاح',
+        'Thank you for registering. We will contact you shortly.',
         'شكراً لتسجيلك. سيتم التواصل معك قريباً.',
-        [
-          {
-            text: 'حسناً',
-            onPress: () => {
-              console.log('Registration successful, navigating back');
-              router.back();
-            },
-          },
-        ]
+        () => {
+          console.log('Registration successful, navigating back');
+          router.back();
+        }
       );
     } catch (error) {
       console.error('Error submitting broker registration:', error);
-      Alert.alert('خطأ', 'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to submit registration. Please try again.',
+        'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -268,6 +336,18 @@ export default function BrokerRegistrationScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Custom Modal for feedback */}
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.message}
+        messageAr={modalConfig.messageAr}
+        onConfirm={modalConfig.onConfirm}
+      />
     </View>
   );
 }

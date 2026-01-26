@@ -276,8 +276,8 @@ export default function RegistrationScreen() {
           'success',
           'Success!',
           'نجح!',
-          'Your subscription request has been submitted. We will contact you shortly via Telegram.',
-          'تم إرسال طلب الاشتراك الخاص بك. سنتواصل معك قريباً عبر تيليجرام.',
+          'Your subscription request has been submitted successfully! A confirmation email has been sent to your email address. We will contact you shortly via Telegram.',
+          'تم إرسال طلب الاشتراك الخاص بك بنجاح! تم إرسال بريد إلكتروني للتأكيد إلى عنوان بريدك الإلكتروني. سنتواصل معك قريباً عبر تيليجرام.',
           () => router.push('/(tabs)/(home)/')
         );
       }
