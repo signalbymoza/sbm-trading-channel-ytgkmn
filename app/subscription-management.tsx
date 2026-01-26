@@ -255,7 +255,7 @@ export default function SubscriptionManagementScreen() {
           activeOpacity={0.7}
         >
           <Text style={[styles.tabText, activeTab === 'brokers' && styles.tabTextActive]}>
-            البروكرز
+            البروكر
           </Text>
         </TouchableOpacity>
       </View>
