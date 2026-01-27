@@ -321,6 +321,15 @@ export function register(app: App, fastify: FastifyInstance) {
                 daysRemaining: { type: 'number' },
                 status: { type: 'string' },
                 createdAt: { type: 'string' },
+                profitPlan: {
+                  type: 'object',
+                  properties: {
+                    hasPlan: { type: 'boolean' },
+                    planAmount: { type: 'string' },
+                    fileUrl: { type: 'string' },
+                    fileName: { type: 'string' },
+                  },
+                },
               },
             },
           },
@@ -369,13 +378,44 @@ export function register(app: App, fastify: FastifyInstance) {
       const formatted = formatSubscriptionResponse(subscription);
       const daysRemaining = calculateDaysRemaining(subscription.subscription_end_date);
 
-      app.logger.info({ subscriptionId: subscription.id, searchType: isEmail ? 'email' : 'telegramUsername' }, 'Subscription lookup successful');
+      // Query profit plan information if subscription has a plan_amount
+      let profitPlan = {
+        hasPlan: false,
+        planAmount: null as string | null,
+        fileUrl: null as string | null,
+        fileName: null as string | null,
+      };
+
+      if (subscription.plan_amount) {
+        profitPlan.hasPlan = true;
+        profitPlan.planAmount = subscription.plan_amount;
+
+        // Look up the profit plan file
+        try {
+          const planFile = await app.db.query.profit_plan_files.findFirst({
+            where: eq(schema.profit_plan_files.plan_amount, subscription.plan_amount),
+          });
+
+          if (planFile) {
+            profitPlan.fileUrl = planFile.file_url;
+            profitPlan.fileName = planFile.file_name;
+            app.logger.debug({ planAmount: subscription.plan_amount, fileId: planFile.id }, 'Profit plan file found');
+          } else {
+            app.logger.debug({ planAmount: subscription.plan_amount }, 'Profit plan file not found for plan amount');
+          }
+        } catch (planError) {
+          app.logger.warn({ err: planError, planAmount: subscription.plan_amount }, 'Error querying profit plan file');
+        }
+      }
+
+      app.logger.info({ subscriptionId: subscription.id, searchType: isEmail ? 'email' : 'telegramUsername', hasPlan: profitPlan.hasPlan }, 'Subscription lookup successful');
 
       return {
         found: true,
         subscription: {
           ...formatted,
           daysRemaining,
+          profitPlan,
         },
       };
     } catch (error) {
