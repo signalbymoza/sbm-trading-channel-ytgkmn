@@ -38,11 +38,22 @@ export default function ChannelSuccessScreen() {
     setModalVisible(true);
   };
 
-  // Telegram channel invite link
-  const telegramLink = 'https://t.me/+9ckhkN9-kfJjZDk8';
+  // Get the appropriate Telegram channel link based on channel type
+  const getTelegramLink = () => {
+    if (channelType === 'gold') {
+      return 'https://t.me/+9ckhkN9-kfJjZDk8';
+    } else if (channelType === 'forex') {
+      return 'https://t.me/+TvFioJaWC1g4YTE0';
+    } else if (channelType === 'analysis') {
+      return 'https://t.me/+9ckhkN9-kfJjZDk8'; // Default to gold channel for now
+    }
+    return 'https://t.me/+9ckhkN9-kfJjZDk8'; // Default fallback
+  };
+
+  const telegramLink = getTelegramLink();
 
   const handleJoinChannel = async () => {
-    console.log('User tapped join channel button - opening Telegram link');
+    console.log('User tapped join channel button - opening Telegram link:', telegramLink);
 
     try {
       const canOpen = await Linking.canOpenURL(telegramLink);
