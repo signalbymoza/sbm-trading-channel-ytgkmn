@@ -27,7 +27,7 @@ function generateEmailHTML(data: ConfirmationEmailData): string {
   const isGoldChannel = !isProfitPlan && data.channelType?.toLowerCase() === 'gold';
   const programLabel = isProfitPlan ? 'Profit Plan' : 'Channel Subscription';
   const planLabel = data.planAmount ? `$${data.planAmount}` : 'N/A';
-  const telegramLink = data.telegramInviteLink || process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/SBMTradingChannel';
+  const telegramLink = data.telegramInviteLink || process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/+9ckhkN9-kfJjZDk8';
 
   return `
     <!DOCTYPE html>
@@ -96,6 +96,23 @@ function generateEmailHTML(data: ConfirmationEmailData): string {
               `}
             </table>
           </div>
+
+          ${isGoldChannel ? `
+          <div class="section" style="background-color: #fff3cd; border: 2px solid #ffc107; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <div class="section-title" style="color: #856404; border-color: #856404;">🔑 Your Gold Channel Access Link</div>
+            <p style="font-size: 14px; margin: 15px 0;">
+              Your exclusive Gold channel is now ready! Click the link below to join our private Telegram channel and start receiving premium trading signals:
+            </p>
+            <div style="text-align: center; margin: 20px 0;">
+              <a href="${telegramLink}" style="display: inline-block; background-color: #0088cc; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+                🔗 Join Gold Channel on Telegram
+              </a>
+            </div>
+            <p style="font-size: 12px; color: #666; margin: 15px 0;">
+              <strong>Direct Link:</strong> <a href="${telegramLink}" style="color: #0088cc; text-decoration: underline;">${telegramLink}</a>
+            </p>
+          </div>
+          ` : ''}
 
           <div class="section">
             <div class="section-title">Next Steps</div>
@@ -168,6 +185,23 @@ function generateEmailHTML(data: ConfirmationEmailData): string {
                 `}
               </table>
             </div>
+
+            ${isGoldChannel ? `
+            <div class="section" style="background-color: #fff3cd; border: 2px solid #ffc107; padding: 20px; border-radius: 5px; margin: 20px 0; direction: rtl; text-align: right;">
+              <div class="section-title" style="color: #856404; border-color: #856404; text-align: right;">🔑 رابط الوصول إلى قناة الذهب</div>
+              <p style="font-size: 14px; margin: 15px 0; text-align: right;">
+                قناتك الحصرية بالذهب جاهزة الآن! انقر على الرابط أدناه للانضمام إلى قناتنا الخاصة على تليجرام وابدأ بتلقي إشارات التداول المتميزة:
+              </p>
+              <div style="text-align: center; margin: 20px 0;">
+                <a href="${telegramLink}" style="display: inline-block; background-color: #0088cc; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+                  🔗 انضم إلى قناة الذهب على تليجرام
+                </a>
+              </div>
+              <p style="font-size: 12px; color: #666; margin: 15px 0; text-align: right;">
+                <strong>الرابط المباشر:</strong> <a href="${telegramLink}" style="color: #0088cc; text-decoration: underline;">${telegramLink}</a>
+              </p>
+            </div>
+            ` : ''}
 
             <div class="section">
               <div class="section-title" style="text-align: right;">الخطوات التالية</div>
