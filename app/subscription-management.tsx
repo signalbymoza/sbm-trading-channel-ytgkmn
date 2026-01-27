@@ -10,12 +10,12 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
-  Alert,
 } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import Modal from '@/components/ui/Modal';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
@@ -57,10 +57,35 @@ export default function SubscriptionManagementScreen() {
   const [selectedBroker, setSelectedBroker] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'stats' | 'subscribers' | 'brokers'>('stats');
   const [exporting, setExporting] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+  }>({
+    type: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+  });
 
   useEffect(() => {
     loadData();
   }, []);
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    titleAr: string,
+    message: string,
+    messageAr: string
+  ) => {
+    setModalConfig({ type, title, titleAr, message, messageAr });
+    setModalVisible(true);
+  };
 
   const loadData = async () => {
     console.log('Loading subscription management data');
@@ -141,7 +166,13 @@ export default function SubscriptionManagementScreen() {
       await Linking.openURL(url);
     } catch (error) {
       console.error('Error exporting subscriptions:', error);
-      Alert.alert('خطأ', 'فشل تصدير البيانات. يرجى المحاولة مرة أخرى.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to export data. Please try again.',
+        'فشل تصدير البيانات. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setExporting(false);
     }
@@ -157,7 +188,13 @@ export default function SubscriptionManagementScreen() {
       await Linking.openURL(url);
     } catch (error) {
       console.error('Error exporting broker subscribers:', error);
-      Alert.alert('خطأ', 'فشل تصدير البيانات. يرجى المحاولة مرة أخرى.');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to export data. Please try again.',
+        'فشل تصدير البيانات. يرجى المحاولة مرة أخرى.'
+      );
     } finally {
       setExporting(false);
     }
@@ -552,6 +589,17 @@ export default function SubscriptionManagementScreen() {
           )}
         </ScrollView>
       )}
+
+      {/* Custom Modal for feedback */}
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.message}
+        messageAr={modalConfig.messageAr}
+      />
     </View>
   );
 }

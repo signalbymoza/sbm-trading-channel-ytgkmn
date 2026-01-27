@@ -68,25 +68,59 @@ export async function uploadFile<T = any>(
   
   try {
     const formData = new FormData();
-    const filename = fileUri.split('/').pop() || 'file.jpg';
+    
+    // Extract filename from URI
+    let filename = 'document.jpg';
+    if (fileUri.includes('/')) {
+      const parts = fileUri.split('/');
+      filename = parts[parts.length - 1];
+    }
+    
+    // Determine file type from extension
     const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    const extension = match ? match[1].toLowerCase() : 'jpg';
+    let mimeType = 'image/jpeg';
+    
+    if (extension === 'png') {
+      mimeType = 'image/png';
+    } else if (extension === 'jpg' || extension === 'jpeg') {
+      mimeType = 'image/jpeg';
+    } else if (extension === 'pdf') {
+      mimeType = 'application/pdf';
+    }
 
-    console.log(`[API] File details - name: ${filename}, type: ${type}`);
+    console.log(`[API] File details - name: ${filename}, type: ${mimeType}`);
 
     // On Web, we need to fetch the file and convert it to a Blob
     // On Native (iOS/Android), we use the { uri, name, type } format
     if (Constants.platform?.web) {
       console.log('[API] Web platform detected - fetching file as blob');
       
-      // Fetch the file from the URI and convert to blob
-      const fileResponse = await fetch(fileUri);
-      const blob = await fileResponse.blob();
-      
-      console.log(`[API] Blob created - size: ${blob.size}, type: ${blob.type}`);
-      
-      // Append the blob to FormData
-      formData.append(fieldName, blob, filename);
+      try {
+        // Fetch the file from the URI and convert to blob
+        const fileResponse = await fetch(fileUri);
+        
+        if (!fileResponse.ok) {
+          throw new Error(`Failed to fetch file: ${fileResponse.status}`);
+        }
+        
+        const blob = await fileResponse.blob();
+        
+        console.log(`[API] Blob created - size: ${blob.size}, type: ${blob.type}`);
+        
+        // Create a new blob with the correct MIME type if needed
+        const typedBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
+        
+        console.log(`[API] Final blob - size: ${typedBlob.size}, type: ${typedBlob.type}`);
+        
+        // Append the blob to FormData with filename
+        formData.append(fieldName, typedBlob, filename);
+        
+        console.log('[API] FormData created successfully for web');
+      } catch (fetchError) {
+        console.error('[API] Error fetching blob:', fetchError);
+        throw new Error(`Failed to prepare file for upload: ${fetchError}`);
+      }
     } else {
       console.log('[API] Native platform detected - using uri format');
       
@@ -94,9 +128,13 @@ export async function uploadFile<T = any>(
       formData.append(fieldName, {
         uri: fileUri,
         name: filename,
-        type,
+        type: mimeType,
       } as any);
+      
+      console.log('[API] FormData created successfully for native');
     }
+
+    console.log('[API] Sending upload request...');
 
     // CRITICAL: Do NOT set Content-Type header manually for multipart/form-data
     // The browser/React Native will automatically set it with the correct boundary parameter
@@ -113,10 +151,9 @@ export async function uploadFile<T = any>(
       console.error(`[API] Upload error response:`, errorText);
       
       let errorData;
-      const errorDataText = errorText;
       try {
         errorData = JSON.parse(errorText);
-        errorDataText;
+        console.error('[API] Parsed error data:', errorData);
       } catch (e) {
         console.error('[API] Could not parse error response as JSON');
       }

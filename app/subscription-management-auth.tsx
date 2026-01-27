@@ -7,13 +7,13 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
-  Alert,
   KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Modal from '@/components/ui/Modal';
 
 const ADMIN_PASSWORD = 'admin123';
 
@@ -22,6 +22,7 @@ export default function SubscriptionManagementAuthScreen() {
   const insets = useSafeAreaInsets();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   console.log('SubscriptionManagementAuthScreen: Rendering password prompt');
 
@@ -33,7 +34,7 @@ export default function SubscriptionManagementAuthScreen() {
       router.replace('/subscription-management');
     } else {
       console.log('Password incorrect');
-      Alert.alert('خطأ', 'كلمة المرور غير صحيحة');
+      setModalVisible(true);
       setPassword('');
     }
   };
@@ -116,6 +117,17 @@ export default function SubscriptionManagementAuthScreen() {
           <Text style={styles.submitButtonText}>{submitButtonText}</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Custom Modal for incorrect password */}
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type="error"
+        title="Incorrect Password"
+        titleAr="كلمة المرور غير صحيحة"
+        message="The password you entered is incorrect. Please try again."
+        messageAr="كلمة المرور التي أدخلتها غير صحيحة. يرجى المحاولة مرة أخرى."
+      />
     </KeyboardAvoidingView>
   );
 }
