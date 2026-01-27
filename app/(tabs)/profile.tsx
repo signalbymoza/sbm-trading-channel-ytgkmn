@@ -26,6 +26,11 @@ export default function ProfileScreen() {
     router.push('/subscription-lookup');
   };
 
+  const handleTestEmail = () => {
+    console.log('User tapped test email button');
+    router.push('/test-email');
+  };
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <ScrollView
@@ -75,6 +80,15 @@ export default function ProfileScreen() {
             <View style={styles.adminButtonText}>
               <Text style={[styles.adminButtonTitle, { color: theme.colors.text }]}>Subscription Lookup</Text>
               <Text style={[styles.adminButtonSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>البحث عن الاشتراك</Text>
+            </View>
+            <IconSymbol ios_icon_name="chevron.right" android_material_icon_name="arrow-forward" size={20} color={theme.dark ? '#98989D' : '#666'} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.adminButton} onPress={handleTestEmail} activeOpacity={0.7}>
+            <IconSymbol ios_icon_name="envelope.badge" android_material_icon_name="email" size={24} color={theme.colors.primary} />
+            <View style={styles.adminButtonText}>
+              <Text style={[styles.adminButtonTitle, { color: theme.colors.text }]}>Test Email System</Text>
+              <Text style={[styles.adminButtonSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>اختبار نظام البريد الإلكتروني</Text>
             </View>
             <IconSymbol ios_icon_name="chevron.right" android_material_icon_name="arrow-forward" size={20} color={theme.dark ? '#98989D' : '#666'} />
           </TouchableOpacity>
