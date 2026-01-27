@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { eq, or, ilike, desc } from "drizzle-orm";
 import * as schema from "../db/schema.js";
 import type { App } from "../index.js";
-import { sendConfirmationEmail } from "../utils/email.js";
+import { sendConfirmationEmail, sendChannelSubscriptionEmail, sendAdminNotificationEmail, ChannelSubscriptionEmailData } from "../utils/email.js";
 
 // Helper function to format subscription response with camelCase
 function formatSubscriptionResponse(subscription: any) {
@@ -53,6 +53,30 @@ function generateCSV(headers: string[], rows: string[][]): string {
     row.map(cell => `"${(cell || '').replace(/"/g, '""')}"`).join(',')
   );
   return [headerLine, ...dataLines].join('\n');
+}
+
+// Helper function to convert subscription duration string to months
+function durationToMonths(duration: string): number {
+  const durationLower = duration?.toLowerCase() || '';
+  const months: { [key: string]: number } = {
+    '1_month': 1,
+    '1month': 1,
+    '3_months': 3,
+    '3months': 3,
+    '12_months': 12,
+    '12months': 12,
+    'monthly': 1,
+    '3_monthly': 3,
+    'annual': 12,
+  };
+  return months[durationLower] || 0;
+}
+
+// Helper function to calculate subscription end date
+function calculateEndDate(startDate: Date, months: number): Date {
+  const endDate = new Date(startDate);
+  endDate.setMonth(endDate.getMonth() + months);
+  return endDate;
 }
 
 export function register(app: App, fastify: FastifyInstance) {
@@ -176,6 +200,12 @@ export function register(app: App, fastify: FastifyInstance) {
     app.logger.info({ body }, 'Creating new subscription');
 
     try {
+      // For channel subscriptions, calculate start and end dates
+      const now = new Date();
+      const totalMonths = durationToMonths(body.subscription_duration);
+      const subscriptionStartDate = body.program === 'profit_plan' ? null : now;
+      const subscriptionEndDate = totalMonths > 0 ? calculateEndDate(now, totalMonths) : null;
+
       const subscription = await app.db.insert(schema.subscriptions).values({
         name: body.name,
         email: body.email,
@@ -185,27 +215,54 @@ export function register(app: App, fastify: FastifyInstance) {
         id_document_url: body.id_document_url,
         terms_accepted: body.terms_accepted,
         plan_amount: body.plan_amount || null,
+        subscription_start_date: subscriptionStartDate,
+        subscription_end_date: subscriptionEndDate,
+        total_months: totalMonths,
       }).returning();
 
-      app.logger.info({ subscriptionId: subscription[0].id }, 'Subscription created successfully');
+      app.logger.info({ subscriptionId: subscription[0].id, program: body.program, totalMonths }, 'Subscription created successfully');
 
-      // Send confirmation email asynchronously (don't wait for it)
-      // Include Telegram invite link for Gold channel subscribers
-      const telegramInviteLink = body.channel_type?.toLowerCase() === 'gold'
-        ? (process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/SBMTradingChannel')
-        : undefined;
+      // Send appropriate emails asynchronously
+      // For profit plans, send the existing confirmation email
+      if (body.program === 'profit_plan') {
+        const telegramInviteLink = body.channel_type?.toLowerCase() === 'gold'
+          ? (process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/SBMTradingChannel')
+          : undefined;
 
-      sendConfirmationEmail({
-        email: body.email,
-        name: body.name,
-        channelType: body.channel_type,
-        subscriptionDuration: body.subscription_duration,
-        program: body.program,
-        planAmount: body.plan_amount,
-        telegramInviteLink,
-      }, app.logger).catch(err => {
-        app.logger.error({ err }, 'Error during confirmation email send');
-      });
+        sendConfirmationEmail({
+          email: body.email,
+          name: body.name,
+          channelType: body.channel_type,
+          subscriptionDuration: body.subscription_duration,
+          program: body.program,
+          planAmount: body.plan_amount,
+          telegramInviteLink,
+        }, app.logger).catch(err => {
+          app.logger.error({ err }, 'Error during profit plan confirmation email send');
+        });
+      } else if (body.program === 'channel_subscription' && body.channel_type && subscriptionEndDate) {
+        // For channel subscriptions, send both subscriber and admin emails
+        const emailData: ChannelSubscriptionEmailData = {
+          subscriberName: body.name,
+          subscriberEmail: body.email,
+          telegramUsername: body.telegram_username,
+          channelType: body.channel_type,
+          subscriptionDuration: body.subscription_duration || '',
+          subscriptionStartDate: subscriptionStartDate!,
+          subscriptionEndDate: subscriptionEndDate,
+          totalMonths,
+        };
+
+        // Send subscriber confirmation email
+        sendChannelSubscriptionEmail(emailData, app.logger).catch(err => {
+          app.logger.error({ err }, 'Error during channel subscription confirmation email send');
+        });
+
+        // Send admin notification email
+        sendAdminNotificationEmail(emailData, app.logger).catch(err => {
+          app.logger.error({ err }, 'Error during admin notification email send');
+        });
+      }
 
       reply.status(201);
       return subscription[0];
