@@ -20,6 +20,9 @@ import Modal from '@/components/ui/Modal';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
+// Default Google Drive link for profit plan file
+const DEFAULT_PROFIT_PLAN_URL = 'https://drive.google.com/file/d/1eCQ007FTirGiNHIo5GERDNUejlh1DlsM/view?usp=share_link';
+
 interface ProfitPlan {
   hasPlan: boolean;
   planAmount: string | null;
@@ -163,23 +166,13 @@ export default function SubscriptionLookupScreen() {
   };
 
   const handleDownloadProfitPlan = async () => {
-    if (!subscription?.profitPlan?.fileUrl) {
-      console.log('No profit plan file URL available');
-      showModal(
-        'error',
-        'File Not Available',
-        'الملف غير متوفر',
-        'The profit plan file is not available for download.',
-        'ملف خطة الربح غير متوفر للتنزيل.'
-      );
-      return;
-    }
+    // Use the file URL from the subscription if available, otherwise use the default Google Drive link
+    const fileUrl = subscription?.profitPlan?.fileUrl || DEFAULT_PROFIT_PLAN_URL;
 
-    console.log('Downloading profit plan from URL:', subscription.profitPlan.fileUrl);
+    console.log('Opening profit plan from URL:', fileUrl);
     setDownloadingPlan(true);
 
     try {
-      const fileUrl = subscription.profitPlan.fileUrl;
       const canOpen = await Linking.canOpenURL(fileUrl);
 
       if (canOpen) {
@@ -187,10 +180,10 @@ export default function SubscriptionLookupScreen() {
         console.log('Profit plan file opened successfully');
         showModal(
           'success',
-          'Download Started',
-          'بدأ التنزيل',
-          'The profit plan file download has started.',
-          'بدأ تنزيل ملف خطة الربح.'
+          'File Opened',
+          'تم فتح الملف',
+          'The profit plan file has been opened.',
+          'تم فتح ملف خطة الربح.'
         );
       } else {
         console.error('Cannot open URL:', fileUrl);
@@ -203,13 +196,13 @@ export default function SubscriptionLookupScreen() {
         );
       }
     } catch (error) {
-      console.error('Error downloading profit plan:', error);
+      console.error('Error opening profit plan:', error);
       showModal(
         'error',
-        'Download Failed',
-        'فشل التنزيل',
-        'Failed to download the profit plan file.',
-        'فشل تنزيل ملف خطة الربح.'
+        'Failed to Open',
+        'فشل الفتح',
+        'Failed to open the profit plan file.',
+        'فشل فتح ملف خطة الربح.'
       );
     } finally {
       setDownloadingPlan(false);
@@ -417,43 +410,29 @@ export default function SubscriptionLookupScreen() {
                       )}
                     </View>
 
-                    {subscription.profitPlan.fileUrl ? (
-                      <TouchableOpacity
-                        style={[
-                          styles.downloadButton,
-                          downloadingPlan && styles.downloadButtonDisabled,
-                        ]}
-                        onPress={handleDownloadProfitPlan}
-                        disabled={downloadingPlan}
-                        activeOpacity={0.7}
-                      >
-                        {downloadingPlan ? (
-                          <ActivityIndicator color="#FFFFFF" size="small" />
-                        ) : (
-                          <React.Fragment>
-                            <IconSymbol
-                              ios_icon_name="arrow.down.circle.fill"
-                              android_material_icon_name="download"
-                              size={20}
-                              color="#FFFFFF"
-                            />
-                            <Text style={styles.downloadButtonText}>تنزيل جدول الربح</Text>
-                          </React.Fragment>
-                        )}
-                      </TouchableOpacity>
-                    ) : (
-                      <View style={styles.noFileCard}>
-                        <IconSymbol
-                          ios_icon_name="exclamationmark.triangle"
-                          android_material_icon_name="warning"
-                          size={20}
-                          color="#F59E0B"
-                        />
-                        <Text style={styles.noFileText}>
-                          ملف خطة الربح غير متوفر حالياً
-                        </Text>
-                      </View>
-                    )}
+                    <TouchableOpacity
+                      style={[
+                        styles.downloadButton,
+                        downloadingPlan && styles.downloadButtonDisabled,
+                      ]}
+                      onPress={handleDownloadProfitPlan}
+                      disabled={downloadingPlan}
+                      activeOpacity={0.7}
+                    >
+                      {downloadingPlan ? (
+                        <ActivityIndicator color="#FFFFFF" size="small" />
+                      ) : (
+                        <React.Fragment>
+                          <IconSymbol
+                            ios_icon_name="arrow.down.circle.fill"
+                            android_material_icon_name="download"
+                            size={20}
+                            color="#FFFFFF"
+                          />
+                          <Text style={styles.downloadButtonText}>تنزيل جدول الربح</Text>
+                        </React.Fragment>
+                      )}
+                    </TouchableOpacity>
                   </View>
                 </View>
               </React.Fragment>
