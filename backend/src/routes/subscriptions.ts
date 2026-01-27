@@ -58,31 +58,67 @@ function generateCSV(headers: string[], rows: string[][]): string {
 export function register(app: App, fastify: FastifyInstance) {
   // POST /api/upload/id-document - Upload ID document
   fastify.post('/api/upload/id-document', async (request: FastifyRequest, reply: FastifyReply) => {
-    app.logger.info({ method: 'POST', path: '/api/upload/id-document' }, 'Uploading ID document');
-
-    const options = { limits: { fileSize: 10 * 1024 * 1024 } }; // 10MB limit
-    const data = await request.file(options);
-
-    if (!data) {
-      app.logger.warn({}, 'No file provided in ID document upload');
-      return reply.status(400).send({ error: 'No file provided' });
-    }
+    app.logger.info({
+      method: 'POST',
+      path: '/api/upload/id-document',
+      contentType: request.headers['content-type']
+    }, 'ID document upload request received');
 
     try {
-      const buffer = await data.toBuffer();
-      const key = `id-documents/${Date.now()}-${data.filename}`;
+      const parts = request.parts();
+      let fileData: { filename: string; buffer: Buffer; mimetype?: string } | null = null;
+
+      // Iterate through the multipart form data to find the 'document' field
+      for await (const part of parts) {
+        app.logger.debug({
+          partType: part.type,
+          fieldname: (part as any).fieldname,
+          filename: (part as any).filename
+        }, 'Processing form part');
+
+        if (part.type === 'file' && ((part as any).fieldname === 'document' || (part as any).fieldname === 'file')) {
+          const buffer = await part.toBuffer();
+          fileData = {
+            filename: (part as any).filename,
+            buffer,
+            mimetype: (part as any).mimetype,
+          };
+          app.logger.debug({
+            filename: fileData.filename,
+            size: buffer.length,
+            mimetype: fileData.mimetype
+          }, 'File extracted from multipart form');
+        }
+      }
+
+      if (!fileData) {
+        app.logger.warn({}, 'No document file found in upload request (expected field: "document")');
+        return reply.status(400).send({ error: 'No file provided. Please upload a file with field name "document"' });
+      }
+
+      const key = `id-documents/${Date.now()}-${fileData.filename}`;
+
+      app.logger.debug({
+        key,
+        filename: fileData.filename,
+        size: fileData.buffer.length
+      }, 'Uploading file to storage');
 
       // Upload the file to storage and get the key
-      const uploadedKey = await app.storage.upload(key, buffer);
+      const uploadedKey = await app.storage.upload(key, fileData.buffer);
 
       // Generate a signed URL for access
       const { url } = await app.storage.getSignedUrl(uploadedKey);
 
-      app.logger.info({ key: uploadedKey, filename: data.filename }, 'ID document uploaded successfully');
+      app.logger.info({
+        key: uploadedKey,
+        filename: fileData.filename,
+        size: fileData.buffer.length
+      }, 'ID document uploaded successfully');
 
-      return { url, filename: data.filename };
+      return { url, filename: fileData.filename };
     } catch (error) {
-      app.logger.error({ err: error, filename: data.filename }, 'Failed to upload ID document');
+      app.logger.error({ err: error }, 'Failed to upload ID document');
       return reply.status(500).send({ error: 'File upload failed' });
     }
   });
