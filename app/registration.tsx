@@ -271,13 +271,18 @@ export default function RegistrationScreen() {
       if (program === 'profit_plan') {
         console.log('Profit plan registration - navigating to success screen with download option for plan amount:', planAmount);
         router.push(`/profit-plan-success?plan_amount=${planAmount || '250'}`);
+      } else if (channelType) {
+        // This is a channel subscription - navigate to channel success screen with Telegram link
+        console.log('Channel subscription - navigating to channel success screen for channel:', channelType);
+        router.push(`/channel-success?channel=${channelType}`);
       } else {
+        // Fallback for other types of registrations
         showModal(
           'success',
           'Success!',
           'نجح!',
-          'Your subscription request has been submitted successfully! A confirmation email has been sent to your email address. We will contact you shortly via Telegram.',
-          'تم إرسال طلب الاشتراك الخاص بك بنجاح! تم إرسال بريد إلكتروني للتأكيد إلى عنوان بريدك الإلكتروني. سنتواصل معك قريباً عبر تيليجرام.',
+          'Your registration has been submitted successfully! A confirmation email has been sent to your email address. We will contact you shortly via Telegram.',
+          'تم إرسال تسجيلك بنجاح! تم إرسال بريد إلكتروني للتأكيد إلى عنوان بريدك الإلكتروني. سنتواصل معك قريباً عبر تيليجرام.',
           () => router.push('/(tabs)/(home)/')
         );
       }
@@ -299,8 +304,6 @@ export default function RegistrationScreen() {
 
   const selectTrainerLabelEn = 'Select Trainer';
   const selectTrainerLabelAr = 'اختر المدرب';
-  const chooseTrainerEn = 'Choose your trainer';
-  const chooseTrainerAr = 'اختر مدربك';
 
   return (
     <View style={styles.container}>
