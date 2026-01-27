@@ -64,6 +64,7 @@ export async function uploadFile<T = any>(
   console.log(`[API] Uploading file to ${url}`);
   console.log(`[API] File URI: ${fileUri}`);
   console.log(`[API] Field name: ${fieldName}`);
+  console.log(`[API] Platform:`, Constants.platform?.web ? 'web' : 'native');
   
   try {
     const formData = new FormData();
@@ -73,11 +74,29 @@ export async function uploadFile<T = any>(
 
     console.log(`[API] File details - name: ${filename}, type: ${type}`);
 
-    formData.append(fieldName, {
-      uri: fileUri,
-      name: filename,
-      type,
-    } as any);
+    // On Web, we need to fetch the file and convert it to a Blob
+    // On Native (iOS/Android), we use the { uri, name, type } format
+    if (Constants.platform?.web) {
+      console.log('[API] Web platform detected - fetching file as blob');
+      
+      // Fetch the file from the URI and convert to blob
+      const fileResponse = await fetch(fileUri);
+      const blob = await fileResponse.blob();
+      
+      console.log(`[API] Blob created - size: ${blob.size}, type: ${blob.type}`);
+      
+      // Append the blob to FormData
+      formData.append(fieldName, blob, filename);
+    } else {
+      console.log('[API] Native platform detected - using uri format');
+      
+      // Native platforms (iOS/Android) use the { uri, name, type } format
+      formData.append(fieldName, {
+        uri: fileUri,
+        name: filename,
+        type,
+      } as any);
+    }
 
     // CRITICAL: Do NOT set Content-Type header manually for multipart/form-data
     // The browser/React Native will automatically set it with the correct boundary parameter
@@ -92,6 +111,16 @@ export async function uploadFile<T = any>(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[API] Upload error response:`, errorText);
+      
+      let errorData;
+      const errorDataText = errorText;
+      try {
+        errorData = JSON.parse(errorText);
+        errorDataText;
+      } catch (e) {
+        console.error('[API] Could not parse error response as JSON');
+      }
+      
       throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
     }
 
