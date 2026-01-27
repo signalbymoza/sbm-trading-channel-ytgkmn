@@ -62,6 +62,8 @@ export async function uploadFile<T = any>(
   const url = `${BACKEND_URL}${endpoint}`;
   
   console.log(`[API] Uploading file to ${url}`);
+  console.log(`[API] File URI: ${fileUri}`);
+  console.log(`[API] Field name: ${fieldName}`);
   
   try {
     const formData = new FormData();
@@ -69,18 +71,20 @@ export async function uploadFile<T = any>(
     const match = /\.(\w+)$/.exec(filename);
     const type = match ? `image/${match[1]}` : 'image/jpeg';
 
+    console.log(`[API] File details - name: ${filename}, type: ${type}`);
+
     formData.append(fieldName, {
       uri: fileUri,
       name: filename,
       type,
     } as any);
 
+    // CRITICAL: Do NOT set Content-Type header manually for multipart/form-data
+    // The browser/React Native will automatically set it with the correct boundary parameter
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      // No headers - let the browser set Content-Type with boundary automatically
     });
 
     console.log(`[API] Upload response status: ${response.status}`);
