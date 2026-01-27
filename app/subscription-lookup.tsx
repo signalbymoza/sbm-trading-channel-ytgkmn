@@ -10,13 +10,22 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
+  Linking,
 } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import Modal from '@/components/ui/Modal';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
+
+interface ProfitPlan {
+  hasPlan: boolean;
+  planAmount: string | null;
+  fileUrl: string | null;
+  fileName: string | null;
+}
 
 interface SubscriptionData {
   id: string;
@@ -31,6 +40,7 @@ interface SubscriptionData {
   daysRemaining: number;
   status: string;
   createdAt: string;
+  profitPlan?: ProfitPlan;
 }
 
 export default function SubscriptionLookupScreen() {
@@ -40,6 +50,15 @@ export default function SubscriptionLookupScreen() {
   const [loading, setLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [downloadingPlan, setDownloadingPlan] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    type: 'info' as 'success' | 'error' | 'warning' | 'info',
+    titleEn: '',
+    titleAr: '',
+    messageEn: '',
+    messageAr: '',
+  });
 
   const handleSearch = async () => {
     if (!searchValue.trim()) {
@@ -129,6 +148,72 @@ export default function SubscriptionLookupScreen() {
       return 'ينتهي اليوم';
     }
     return 'نشط';
+  };
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    titleEn: string,
+    titleAr: string,
+    messageEn: string,
+    messageAr: string
+  ) => {
+    console.log('Showing modal:', type, titleAr, messageAr);
+    setModalConfig({ type, titleEn, titleAr, messageEn, messageAr });
+    setModalVisible(true);
+  };
+
+  const handleDownloadProfitPlan = async () => {
+    if (!subscription?.profitPlan?.fileUrl) {
+      console.log('No profit plan file URL available');
+      showModal(
+        'error',
+        'File Not Available',
+        'الملف غير متوفر',
+        'The profit plan file is not available for download.',
+        'ملف خطة الربح غير متوفر للتنزيل.'
+      );
+      return;
+    }
+
+    console.log('Downloading profit plan from URL:', subscription.profitPlan.fileUrl);
+    setDownloadingPlan(true);
+
+    try {
+      const fileUrl = subscription.profitPlan.fileUrl;
+      const canOpen = await Linking.canOpenURL(fileUrl);
+
+      if (canOpen) {
+        await Linking.openURL(fileUrl);
+        console.log('Profit plan file opened successfully');
+        showModal(
+          'success',
+          'Download Started',
+          'بدأ التنزيل',
+          'The profit plan file download has started.',
+          'بدأ تنزيل ملف خطة الربح.'
+        );
+      } else {
+        console.error('Cannot open URL:', fileUrl);
+        showModal(
+          'error',
+          'Cannot Open File',
+          'لا يمكن فتح الملف',
+          'Unable to open the profit plan file.',
+          'غير قادر على فتح ملف خطة الربح.'
+        );
+      }
+    } catch (error) {
+      console.error('Error downloading profit plan:', error);
+      showModal(
+        'error',
+        'Download Failed',
+        'فشل التنزيل',
+        'Failed to download the profit plan file.',
+        'فشل تنزيل ملف خطة الربح.'
+      );
+    } finally {
+      setDownloadingPlan(false);
+    }
   };
 
   const cardDescriptionText = 'أدخل البريد الإلكتروني أو يوزر تلقرام للاستعلام عن حالة الاشتراك';
@@ -292,9 +377,93 @@ export default function SubscriptionLookupScreen() {
                 </Text>
               </View>
             </View>
+
+            {subscription.profitPlan?.hasPlan && (
+              <React.Fragment>
+                <View style={styles.divider} />
+
+                <View style={styles.profitPlanSection}>
+                  <View style={styles.profitPlanHeader}>
+                    <IconSymbol
+                      ios_icon_name="chart.bar.fill"
+                      android_material_icon_name="assessment"
+                      size={24}
+                      color={colors.primary}
+                    />
+                    <Text style={styles.profitPlanTitle}>خطة الربح التراكمية</Text>
+                  </View>
+
+                  <View style={styles.profitPlanCard}>
+                    <View style={styles.profitPlanRow}>
+                      <Text style={styles.profitPlanLabel}>قيمة الخطة</Text>
+                      <Text style={styles.profitPlanValue}>
+                        {subscription.profitPlan.planAmount}
+                      </Text>
+                    </View>
+
+                    {subscription.profitPlan.fileName && (
+                      <View style={styles.profitPlanRow}>
+                        <Text style={styles.profitPlanLabel}>اسم الملف</Text>
+                        <Text style={styles.profitPlanFileName}>
+                          {subscription.profitPlan.fileName}
+                        </Text>
+                      </View>
+                    )}
+
+                    {subscription.profitPlan.fileUrl ? (
+                      <TouchableOpacity
+                        style={[
+                          styles.downloadButton,
+                          downloadingPlan && styles.downloadButtonDisabled,
+                        ]}
+                        onPress={handleDownloadProfitPlan}
+                        disabled={downloadingPlan}
+                        activeOpacity={0.7}
+                      >
+                        {downloadingPlan ? (
+                          <ActivityIndicator color="#FFFFFF" />
+                        ) : (
+                          <React.Fragment>
+                            <IconSymbol
+                              ios_icon_name="arrow.down.circle.fill"
+                              android_material_icon_name="download"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.downloadButtonText}>تنزيل جدول الربح</Text>
+                          </React.Fragment>
+                        )}
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.noFileCard}>
+                        <IconSymbol
+                          ios_icon_name="exclamationmark.triangle"
+                          android_material_icon_name="warning"
+                          size={20}
+                          color="#F59E0B"
+                        />
+                        <Text style={styles.noFileText}>
+                          ملف خطة الربح غير متوفر حالياً
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </React.Fragment>
+            )}
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={modalVisible}
+        type={modalConfig.type}
+        titleEn={modalConfig.titleEn}
+        titleAr={modalConfig.titleAr}
+        messageEn={modalConfig.messageEn}
+        messageAr={modalConfig.messageAr}
+        onClose={() => setModalVisible(false)}
+      />
     </View>
   );
 }
@@ -466,5 +635,88 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: 20,
+  },
+  profitPlanSection: {
+    marginTop: 8,
+  },
+  profitPlanHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  profitPlanTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  profitPlanCard: {
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  profitPlanRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  profitPlanLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  profitPlanValue: {
+    fontSize: 16,
+    color: colors.primary,
+    fontWeight: '700',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 16,
+  },
+  profitPlanFileName: {
+    fontSize: 12,
+    color: colors.text,
+    fontWeight: '500',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 16,
+  },
+  downloadButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  downloadButtonDisabled: {
+    opacity: 0.5,
+  },
+  downloadButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  noFileCard: {
+    backgroundColor: '#FEF3C7',
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  noFileText: {
+    fontSize: 13,
+    color: '#92400E',
+    fontWeight: '500',
+    flex: 1,
+    textAlign: 'right',
   },
 });
