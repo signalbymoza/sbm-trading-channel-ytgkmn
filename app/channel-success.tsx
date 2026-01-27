@@ -77,41 +77,6 @@ export default function ChannelSuccessScreen() {
     }
   };
 
-  const handleCopyLink = async () => {
-    console.log('User tapped copy link button');
-    
-    if (Platform.OS === 'web') {
-      try {
-        await navigator.clipboard.writeText(telegramLink);
-        showModal(
-          'success',
-          'Link Copied',
-          'تم نسخ الرابط',
-          'The Telegram link has been copied to your clipboard.',
-          'تم نسخ رابط تيليجرام إلى الحافظة الخاصة بك.'
-        );
-      } catch (error) {
-        console.error('Error copying link:', error);
-        showModal(
-          'error',
-          'Error',
-          'خطأ',
-          'Failed to copy link. Please try again.',
-          'فشل نسخ الرابط. يرجى المحاولة مرة أخرى.'
-        );
-      }
-    } else {
-      // For native platforms, we'll just show the link in a modal
-      showModal(
-        'info',
-        'Channel Link',
-        'رابط القناة',
-        telegramLink,
-        telegramLink
-      );
-    }
-  };
-
   const handleBackToHome = () => {
     console.log('User tapped back to home button');
     router.push('/(tabs)/(home)/');
@@ -126,7 +91,6 @@ export default function ChannelSuccessScreen() {
   const channelAccessDescriptionEn = 'Click the button below to join the Telegram channel and start receiving trading signals and analysis.';
   const channelAccessDescriptionAr = 'انقر على الزر أدناه للانضمام إلى قناة تيليجرام والبدء في تلقي إشارات التداول والتحليل.';
   const joinChannelButtonText = 'انضم إلى القناة';
-  const copyLinkButtonText = 'نسخ الرابط';
   const backToHomeText = 'العودة إلى الصفحة الرئيسية';
 
   const channelNameEn = channelType === 'gold' ? 'Gold Channel' : channelType === 'forex' ? 'Forex Channel' : 'Analysis Channel';
@@ -199,20 +163,7 @@ export default function ChannelSuccessScreen() {
           <Text style={styles.telegramDescription}>{channelAccessDescriptionEn}</Text>
           <Text style={styles.telegramDescriptionAr}>{channelAccessDescriptionAr}</Text>
 
-          {/* Telegram Link Display */}
-          <View style={styles.linkContainer}>
-            <IconSymbol 
-              ios_icon_name="link" 
-              android_material_icon_name="link" 
-              size={20} 
-              color={colors.textSecondary} 
-            />
-            <Text style={styles.linkText} numberOfLines={1}>
-              {telegramLink}
-            </Text>
-          </View>
-
-          {/* Join Channel Button */}
+          {/* Join Channel Button - Only button, no URL display or copy button */}
           <TouchableOpacity
             style={styles.joinButton}
             onPress={handleJoinChannel}
@@ -225,21 +176,6 @@ export default function ChannelSuccessScreen() {
               color="#1A1A2E" 
             />
             <Text style={styles.joinButtonText}>{joinChannelButtonText}</Text>
-          </TouchableOpacity>
-
-          {/* Copy Link Button */}
-          <TouchableOpacity
-            style={styles.copyButton}
-            onPress={handleCopyLink}
-            activeOpacity={0.8}
-          >
-            <IconSymbol 
-              ios_icon_name="doc.on.doc" 
-              android_material_icon_name="content-copy" 
-              size={20} 
-              color={colors.text} 
-            />
-            <Text style={styles.copyButtonText}>{copyLinkButtonText}</Text>
           </TouchableOpacity>
         </View>
 
@@ -470,22 +406,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 20,
   },
-  linkContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  linkText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginLeft: 8,
-    flex: 1,
-  },
   joinButton: {
     backgroundColor: colors.primary,
     flexDirection: 'row',
@@ -493,28 +413,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
     borderRadius: 12,
-    marginBottom: 12,
   },
   joinButtonText: {
     fontSize: 17,
     fontWeight: 'bold',
     color: '#1A1A2E',
-    marginLeft: 8,
-  },
-  copyButton: {
-    backgroundColor: colors.card,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  copyButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.text,
     marginLeft: 8,
   },
   featuresSection: {
