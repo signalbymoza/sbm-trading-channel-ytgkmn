@@ -18,13 +18,16 @@ export interface ConfirmationEmailData {
   subscriptionDuration?: string;
   program: string;
   planAmount?: string;
+  telegramInviteLink?: string;
 }
 
 // Generate bilingual HTML email content
 function generateEmailHTML(data: ConfirmationEmailData): string {
   const isProfitPlan = data.program === 'profit_plan';
+  const isGoldChannel = !isProfitPlan && data.channelType?.toLowerCase() === 'gold';
   const programLabel = isProfitPlan ? 'Profit Plan' : 'Channel Subscription';
   const planLabel = data.planAmount ? `$${data.planAmount}` : 'N/A';
+  const telegramLink = data.telegramInviteLink || process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/SBMTradingChannel';
 
   return `
     <!DOCTYPE html>
@@ -96,8 +99,17 @@ function generateEmailHTML(data: ConfirmationEmailData): string {
 
           <div class="section">
             <div class="section-title">Next Steps</div>
+            ${isGoldChannel ? `
+            <p><strong>Your Gold Channel is Ready!</strong></p>
+            <p>You can now join our exclusive Telegram channel to access premium trading signals and analysis.</p>
+            <p style="margin: 15px 0;">
+              <a href="${telegramLink}" style="display: inline-block; background-color: #0088cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Join Gold Channel on Telegram</a>
+            </p>
+            <p>If you encounter any issues joining the channel, please contact our support team.</p>
+            ` : `
             <p>We will contact you shortly via Telegram to confirm your registration and provide you with access to your subscription.</p>
             <p>In the meantime, if you have any questions, please don't hesitate to reach out to us.</p>
+            `}
           </div>
 
           <div class="section">
@@ -159,8 +171,17 @@ function generateEmailHTML(data: ConfirmationEmailData): string {
 
             <div class="section">
               <div class="section-title" style="text-align: right;">الخطوات التالية</div>
+              ${isGoldChannel ? `
+              <p><strong>قناة الذهب الخاصة بك جاهزة!</strong></p>
+              <p>يمكنك الآن الانضمام إلى قناتنا الحصرية على تليجرام للوصول إلى إشارات تداول متميزة والتحليلات الفنية.</p>
+              <p style="margin: 15px 0; text-align: right;">
+                <a href="${telegramLink}" style="display: inline-block; background-color: #0088cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">انضم إلى قناة الذهب على تليجرام</a>
+              </p>
+              <p>إذا واجهت أي مشاكل في الانضمام إلى القناة، يرجى التواصل مع فريق الدعم لدينا.</p>
+              ` : `
               <p>سيتصل بك فريقنا قريبا عبر تطبيق تليجرام لتأكيد تسجيلك وتزويدك بإمكانية الوصول إلى الاشتراك.</p>
               <p>إذا كان لديك أي أسئلة، يرجى عدم التردد في التواصل معنا.</p>
+              `}
             </div>
 
             <div class="section">

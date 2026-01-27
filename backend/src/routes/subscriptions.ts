@@ -154,6 +154,11 @@ export function register(app: App, fastify: FastifyInstance) {
       app.logger.info({ subscriptionId: subscription[0].id }, 'Subscription created successfully');
 
       // Send confirmation email asynchronously (don't wait for it)
+      // Include Telegram invite link for Gold channel subscribers
+      const telegramInviteLink = body.channel_type?.toLowerCase() === 'gold'
+        ? (process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/SBMTradingChannel')
+        : undefined;
+
       sendConfirmationEmail({
         email: body.email,
         name: body.name,
@@ -161,6 +166,7 @@ export function register(app: App, fastify: FastifyInstance) {
         subscriptionDuration: body.subscription_duration,
         program: body.program,
         planAmount: body.plan_amount,
+        telegramInviteLink,
       }, app.logger).catch(err => {
         app.logger.error({ err }, 'Error during confirmation email send');
       });
@@ -188,6 +194,7 @@ export function register(app: App, fastify: FastifyInstance) {
           subscriptionDuration: { type: 'string' },
           program: { type: 'string' },
           planAmount: { type: 'string' },
+          telegramInviteLink: { type: 'string' },
         },
       },
       response: {
@@ -208,11 +215,18 @@ export function register(app: App, fastify: FastifyInstance) {
       subscriptionDuration?: string;
       program: string;
       planAmount?: string;
+      telegramInviteLink?: string;
     };
 
     app.logger.info({ email: body.email }, 'Sending confirmation email');
 
     try {
+      // Use provided telegram invite link or determine it based on channel type
+      const telegramInviteLink = body.telegramInviteLink
+        || (body.channelType?.toLowerCase() === 'gold'
+          ? (process.env.TELEGRAM_GOLD_CHANNEL_INVITE || 'https://t.me/SBMTradingChannel')
+          : undefined);
+
       const emailSent = await sendConfirmationEmail(
         {
           email: body.email,
@@ -221,6 +235,7 @@ export function register(app: App, fastify: FastifyInstance) {
           subscriptionDuration: body.subscriptionDuration,
           program: body.program,
           planAmount: body.planAmount,
+          telegramInviteLink,
         },
         app.logger
       );
