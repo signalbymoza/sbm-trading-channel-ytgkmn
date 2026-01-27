@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { eq, or, ilike } from "drizzle-orm";
+import { eq, or, ilike, desc } from "drizzle-orm";
 import * as schema from "../db/schema.js";
 import type { App } from "../index.js";
 import { sendConfirmationEmail } from "../utils/email.js";
@@ -357,17 +357,23 @@ export function register(app: App, fastify: FastifyInstance) {
       let subscription;
 
       if (isEmail) {
-        // Search by email (case-insensitive)
-        subscription = await app.db.query.subscriptions.findFirst({
-          where: ilike(schema.subscriptions.email, query),
-        });
-        app.logger.debug({ query, searchType: 'email' }, 'Searching by email');
+        // Search by email (case-insensitive), ordered by created_at DESC to get the most recent
+        const results = await app.db.select()
+          .from(schema.subscriptions)
+          .where(ilike(schema.subscriptions.email, query))
+          .orderBy(desc(schema.subscriptions.created_at))
+          .limit(1);
+        subscription = results.length > 0 ? results[0] : undefined;
+        app.logger.debug({ query, searchType: 'email', found: !!subscription }, 'Searching by email (most recent)');
       } else {
-        // Search by telegram username (case-insensitive)
-        subscription = await app.db.query.subscriptions.findFirst({
-          where: ilike(schema.subscriptions.telegram_username, query),
-        });
-        app.logger.debug({ query, searchType: 'telegramUsername' }, 'Searching by telegram username');
+        // Search by telegram username (case-insensitive), ordered by created_at DESC to get the most recent
+        const results = await app.db.select()
+          .from(schema.subscriptions)
+          .where(ilike(schema.subscriptions.telegram_username, query))
+          .orderBy(desc(schema.subscriptions.created_at))
+          .limit(1);
+        subscription = results.length > 0 ? results[0] : undefined;
+        app.logger.debug({ query, searchType: 'telegramUsername', found: !!subscription }, 'Searching by telegram username (most recent)');
       }
 
       if (!subscription) {
