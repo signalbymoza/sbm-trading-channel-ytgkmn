@@ -394,21 +394,28 @@ export default function SubscriptionLookupScreen() {
                   </View>
 
                   <View style={styles.profitPlanCard}>
-                    <View style={styles.profitPlanRow}>
-                      <Text style={styles.profitPlanLabel}>قيمة الخطة</Text>
-                      <Text style={styles.profitPlanValue}>
-                        {subscription.profitPlan.planAmount}
-                      </Text>
-                    </View>
-
-                    {subscription.profitPlan.fileName && (
-                      <View style={styles.profitPlanRow}>
-                        <Text style={styles.profitPlanLabel}>اسم الملف</Text>
-                        <Text style={styles.profitPlanFileName}>
-                          {subscription.profitPlan.fileName}
+                    <View style={styles.profitPlanInfoRow}>
+                      <View style={styles.profitPlanAmountContainer}>
+                        <Text style={styles.profitPlanLabel}>قيمة الخطة</Text>
+                        <Text style={styles.profitPlanValue}>
+                          ${subscription.profitPlan.planAmount}
                         </Text>
                       </View>
-                    )}
+
+                      {subscription.profitPlan.fileName && (
+                        <View style={styles.profitPlanFileContainer}>
+                          <IconSymbol
+                            ios_icon_name="doc.fill"
+                            android_material_icon_name="description"
+                            size={16}
+                            color={colors.textSecondary}
+                          />
+                          <Text style={styles.profitPlanFileName} numberOfLines={1}>
+                            {subscription.profitPlan.fileName}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
 
                     {subscription.profitPlan.fileUrl ? (
                       <TouchableOpacity
@@ -421,7 +428,7 @@ export default function SubscriptionLookupScreen() {
                         activeOpacity={0.7}
                       >
                         {downloadingPlan ? (
-                          <ActivityIndicator color="#FFFFFF" />
+                          <ActivityIndicator color="#FFFFFF" size="small" />
                         ) : (
                           <React.Fragment>
                             <IconSymbol
@@ -654,10 +661,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderRadius: 12,
     padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: colors.primary,
   },
-  profitPlanRow: {
+  profitPlanInfoRow: {
+    marginBottom: 16,
+  },
+  profitPlanAmountContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -669,20 +679,24 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   profitPlanValue: {
-    fontSize: 16,
+    fontSize: 20,
     color: colors.primary,
     fontWeight: '700',
     textAlign: 'right',
-    flex: 1,
-    marginLeft: 16,
+  },
+  profitPlanFileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.cardBackground,
+    padding: 8,
+    borderRadius: 8,
   },
   profitPlanFileName: {
     fontSize: 12,
-    color: colors.text,
+    color: colors.textSecondary,
     fontWeight: '500',
-    textAlign: 'right',
     flex: 1,
-    marginLeft: 16,
   },
   downloadButton: {
     backgroundColor: colors.primary,
@@ -693,7 +707,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 8,
   },
   downloadButtonDisabled: {
     opacity: 0.5,
@@ -710,7 +723,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 8,
   },
   noFileText: {
     fontSize: 13,
