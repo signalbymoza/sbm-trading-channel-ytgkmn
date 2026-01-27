@@ -45,7 +45,7 @@ export default function ChannelSuccessScreen() {
     } else if (channelType === 'forex') {
       return 'https://t.me/+TvFioJaWC1g4YTE0';
     } else if (channelType === 'analysis') {
-      return 'https://t.me/+9ckhkN9-kfJjZDk8'; // Default to gold channel for now
+      return 'https://t.me/+r0gOBR1VpO80OTk0';
     }
     return 'https://t.me/+9ckhkN9-kfJjZDk8'; // Default fallback
   };
@@ -257,7 +257,7 @@ export default function ChannelSuccessScreen() {
             <Text style={styles.noteTitle}>Important Note</Text>
           </View>
           <Text style={styles.noteText}>
-            Please make sure you have Telegram installed on your device. If you don't have it, download it from your app store before joining the channel.
+            Please make sure you have Telegram installed on your device. If you don&apos;t have it, download it from your app store before joining the channel.
           </Text>
           <Text style={styles.noteTextAr}>
             يرجى التأكد من تثبيت تيليجرام على جهازك. إذا لم يكن لديك، قم بتنزيله من متجر التطبيقات قبل الانضمام إلى القناة.
