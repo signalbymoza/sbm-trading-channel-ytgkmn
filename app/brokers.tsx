@@ -149,7 +149,7 @@ export default function BrokersScreen() {
               <Image 
                 source={resolveImageSource(broker.image)} 
                 style={styles.brokerImage}
-                resizeMode="contain"
+                resizeMode="cover"
               />
               <View style={styles.brokerNameContainer}>
                 <Text style={styles.brokerName}>{broker.name}</Text>
@@ -315,6 +315,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 12,
     backgroundColor: colors.background,
+    overflow: 'hidden',
   },
   brokerNameContainer: {
     flex: 1,
