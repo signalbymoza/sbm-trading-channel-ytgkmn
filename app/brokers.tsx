@@ -150,7 +150,7 @@ export default function BrokersScreen() {
               <Image 
                 source={resolveImageSource(broker.image)} 
                 style={styles.brokerImage}
-                resizeMode="cover"
+                resizeMode="contain"
               />
               <LinearGradient
                 colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
