@@ -5,6 +5,7 @@ import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -144,76 +145,87 @@ export default function BrokersScreen() {
         {/* Brokers List */}
         {brokers.map((broker, index) => (
           <View key={index} style={styles.brokerCard}>
-            {/* Broker Header */}
-            <View style={styles.brokerHeader}>
+            {/* Background Image */}
+            <View style={styles.brokerImageContainer}>
               <Image 
                 source={resolveImageSource(broker.image)} 
                 style={styles.brokerImage}
                 resizeMode="cover"
               />
+              <LinearGradient
+                colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.brokerImageOverlay}
+              />
+            </View>
+
+            {/* Content */}
+            <View style={styles.brokerContent}>
+              {/* Broker Name */}
               <View style={styles.brokerNameContainer}>
                 <Text style={styles.brokerName}>{broker.name}</Text>
                 <Text style={styles.brokerNameAr}>{broker.nameAr}</Text>
               </View>
-            </View>
 
-            {/* Features Title */}
-            <View style={styles.featuresTitleContainer}>
-              <IconSymbol 
-                ios_icon_name="star.fill" 
-                android_material_icon_name="star" 
-                size={20} 
-                color={colors.highlight} 
-              />
-              <Text style={styles.featuresTitle}>المميزات</Text>
-            </View>
-
-            {/* Features List */}
-            <View style={styles.featuresList}>
-              {broker.features.map((feature, featureIndex) => (
-                <View key={featureIndex} style={styles.featureItem}>
-                  <IconSymbol 
-                    ios_icon_name="checkmark.circle.fill" 
-                    android_material_icon_name="check-circle" 
-                    size={18} 
-                    color={colors.highlight} 
-                  />
-                  <Text style={styles.featureText}>{feature}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.actionButtonsContainer}>
-              {/* Register with Broker Button */}
-              <TouchableOpacity 
-                style={styles.registerButton}
-                onPress={() => handleRegisterWithBroker(broker)}
-                activeOpacity={0.8}
-              >
+              {/* Features Title */}
+              <View style={styles.featuresTitleContainer}>
                 <IconSymbol 
-                  ios_icon_name="link" 
-                  android_material_icon_name="open-in-new" 
-                  size={20} 
-                  color={colors.text} 
-                />
-                <Text style={styles.registerButtonText}>التسجيل في البروكر</Text>
-              </TouchableOpacity>
-
-              {/* Already Registered Button */}
-              <TouchableOpacity 
-                style={styles.alreadyRegisteredButton}
-                onPress={() => handleAlreadyRegistered(broker.id, broker.name)}
-                activeOpacity={0.8}
-              >
-                <IconSymbol 
-                  ios_icon_name="checkmark.circle" 
-                  android_material_icon_name="check-circle" 
+                  ios_icon_name="star.fill" 
+                  android_material_icon_name="star" 
                   size={20} 
                   color={colors.highlight} 
                 />
-                <Text style={styles.alreadyRegisteredButtonText}>تم التسجيل</Text>
-              </TouchableOpacity>
+                <Text style={styles.featuresTitle}>المميزات</Text>
+              </View>
+
+              {/* Features List */}
+              <View style={styles.featuresList}>
+                {broker.features.map((feature, featureIndex) => (
+                  <View key={featureIndex} style={styles.featureItem}>
+                    <IconSymbol 
+                      ios_icon_name="checkmark.circle.fill" 
+                      android_material_icon_name="check-circle" 
+                      size={18} 
+                      color={colors.highlight} 
+                    />
+                    <Text style={styles.featureText}>{feature}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.actionButtonsContainer}>
+                {/* Register with Broker Button */}
+                <TouchableOpacity 
+                  style={styles.registerButton}
+                  onPress={() => handleRegisterWithBroker(broker)}
+                  activeOpacity={0.8}
+                >
+                  <IconSymbol 
+                    ios_icon_name="link" 
+                    android_material_icon_name="open-in-new" 
+                    size={20} 
+                    color={colors.text} 
+                  />
+                  <Text style={styles.registerButtonText}>التسجيل في البروكر</Text>
+                </TouchableOpacity>
+
+                {/* Already Registered Button */}
+                <TouchableOpacity 
+                  style={styles.alreadyRegisteredButton}
+                  onPress={() => handleAlreadyRegistered(broker.id, broker.name)}
+                  activeOpacity={0.8}
+                >
+                  <IconSymbol 
+                    ios_icon_name="checkmark.circle" 
+                    android_material_icon_name="check-circle" 
+                    size={20} 
+                    color={colors.highlight} 
+                  />
+                  <Text style={styles.alreadyRegisteredButtonText}>تم التسجيل</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ))}
@@ -294,43 +306,60 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   brokerCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
     marginHorizontal: 24,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    minHeight: 500,
+    position: 'relative',
   },
-  brokerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  brokerImageContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
+  brokerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  brokerImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  brokerContent: {
+    padding: 20,
+    minHeight: 500,
+    position: 'relative',
+    zIndex: 1,
+  },
+  brokerNameContainer: {
+    alignItems: 'flex-end',
     marginBottom: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  brokerImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    backgroundColor: colors.background,
-    overflow: 'hidden',
-  },
-  brokerNameContainer: {
-    flex: 1,
-    marginLeft: 16,
-    alignItems: 'flex-end',
+    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
   },
   brokerName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: colors.text,
   },
   brokerNameAr: {
-    fontSize: 18,
-    color: colors.textSecondary,
+    fontSize: 20,
+    color: colors.text,
     marginTop: 4,
+    opacity: 0.9,
   },
   featuresTitleContainer: {
     flexDirection: 'row',
@@ -362,6 +391,7 @@ const styles = StyleSheet.create({
   },
   actionButtonsContainer: {
     gap: 12,
+    marginTop: 'auto',
   },
   registerButton: {
     backgroundColor: colors.highlight,
@@ -379,7 +409,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   alreadyRegisteredButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
