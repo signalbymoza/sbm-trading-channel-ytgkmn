@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator, Modal as RNModal } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -43,6 +43,8 @@ export default function RegistrationScreen() {
     messageAr: '',
   });
 
+  const isPickerOpenRef = useRef(false);
+
   console.log('RegistrationScreen: Channel:', channelType, 'Duration:', duration, 'Program:', program, 'Plan Amount:', planAmount);
 
   const showModal = (
@@ -81,10 +83,15 @@ export default function RegistrationScreen() {
   };
 
   const pickFromPhotos = async () => {
+    if (isPickerOpenRef.current) {
+      console.log('Picker already open, ignoring request');
+      return;
+    }
+
     console.log('User chose to pick from photos');
     setPickerModalVisible(false);
+    isPickerOpenRef.current = true;
     
-    // Add a small delay to ensure modal is fully closed before opening picker
     setTimeout(async () => {
       try {
         console.log('Requesting photo library permissions...');
@@ -92,6 +99,7 @@ export default function RegistrationScreen() {
         
         if (!permissionResult.granted) {
           console.log('Photo library permission denied');
+          isPickerOpenRef.current = false;
           showModal(
             'warning',
             'Permission Required',
@@ -104,7 +112,7 @@ export default function RegistrationScreen() {
 
         console.log('Opening image picker...');
         const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ['images'],
           allowsEditing: false,
           quality: 0.8,
         });
@@ -113,6 +121,7 @@ export default function RegistrationScreen() {
 
         if (result.canceled) {
           console.log('User cancelled image picker');
+          isPickerOpenRef.current = false;
           return;
         }
 
@@ -132,27 +141,36 @@ export default function RegistrationScreen() {
           'Failed to pick image. Please try again.',
           'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
         );
+      } finally {
+        isPickerOpenRef.current = false;
       }
-    }, 300);
+    }, 500);
   };
 
   const pickFromFiles = async () => {
+    if (isPickerOpenRef.current) {
+      console.log('Picker already open, ignoring request');
+      return;
+    }
+
     console.log('User chose to pick from files');
     setPickerModalVisible(false);
+    isPickerOpenRef.current = true;
     
-    // Add a small delay to ensure modal is fully closed before opening picker
     setTimeout(async () => {
       try {
         console.log('Opening document picker...');
         const result = await DocumentPicker.getDocumentAsync({
           type: ['image/*', 'application/pdf'],
           copyToCacheDirectory: true,
+          multiple: false,
         });
 
         console.log('Document picker result:', result);
 
         if (result.canceled) {
           console.log('User cancelled document picker');
+          isPickerOpenRef.current = false;
           return;
         }
 
@@ -162,17 +180,21 @@ export default function RegistrationScreen() {
           setDocumentFileName(asset.name);
           await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error picking document:', error);
-        showModal(
-          'error',
-          'Error',
-          'خطأ',
-          'Failed to pick document. Please try again.',
-          'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
-        );
+        if (error.code !== 'ERR_CANCELED') {
+          showModal(
+            'error',
+            'Error',
+            'خطأ',
+            'Failed to pick document. Please try again.',
+            'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
+          );
+        }
+      } finally {
+        isPickerOpenRef.current = false;
       }
-    }, 300);
+    }, 500);
   };
 
   const uploadDocument = async (uri: string, fileName: string, mimeType: string) => {
@@ -295,7 +317,6 @@ export default function RegistrationScreen() {
         status: string;
       }
 
-      // Build the request body - only include channel_type and subscription_duration if they exist
       const requestBody: {
         name: string;
         email: string;
@@ -316,7 +337,6 @@ export default function RegistrationScreen() {
         terms_accepted: termsAccepted,
       };
 
-      // Only add channel_type and subscription_duration if they exist (for channel subscriptions)
       if (channelType) {
         requestBody.channel_type = channelType;
       }
@@ -342,16 +362,13 @@ export default function RegistrationScreen() {
 
       console.log('Subscription created successfully:', data.id);
 
-      // Check if this is a profit plan registration
       if (program === 'profit_plan') {
         console.log('Profit plan registration - navigating to success screen with download option for plan amount:', planAmount);
         router.push(`/profit-plan-success?plan_amount=${planAmount || '250'}`);
       } else if (channelType) {
-        // This is a channel subscription - navigate to channel success screen with Telegram link
         console.log('Channel subscription - navigating to channel success screen for channel:', channelType);
         router.push(`/channel-success?channel=${channelType}`);
       } else {
-        // Fallback for other types of registrations
         showModal(
           'success',
           'Success!',
@@ -598,7 +615,6 @@ export default function RegistrationScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Picker Options Modal */}
       <RNModal
         visible={pickerModalVisible}
         transparent={true}
@@ -675,7 +691,6 @@ export default function RegistrationScreen() {
         </TouchableOpacity>
       </RNModal>
 
-      {/* Custom Modal for feedback */}
       <Modal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
