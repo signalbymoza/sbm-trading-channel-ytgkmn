@@ -1,11 +1,11 @@
 
 import React from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -16,6 +16,7 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   console.log('HomeScreen: Rendering SBM Trading Channels home screen');
 
@@ -47,6 +48,301 @@ export default function HomeScreen() {
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
   const topNavPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    topNavContainer: {
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      paddingBottom: 12,
+    },
+    topNav: {
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+    },
+    navButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      marginLeft: 8,
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+    },
+    navButtonText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: '#FFFFFF',
+      textAlign: 'center',
+    },
+    navButtonTextAr: {
+      fontSize: 11,
+      color: '#E0E7FF',
+      textAlign: 'center',
+      marginTop: 2,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 100,
+    },
+    header: {
+      alignItems: 'center',
+      paddingTop: 40,
+      paddingBottom: 20,
+    },
+    logo: {
+      fontSize: 48,
+      fontWeight: 'bold',
+      color: colors.highlight,
+      letterSpacing: 4,
+    },
+    tagline: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 4,
+      letterSpacing: 2,
+    },
+    taglineAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    welcomeSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      alignItems: 'center',
+    },
+    welcomeTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    welcomeTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    welcomeText: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: 8,
+    },
+    welcomeTextAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    aboutMozaSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+    },
+    aboutMozaCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+    },
+    mozaImage: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      marginBottom: 20,
+      borderWidth: 3,
+      borderColor: colors.highlight,
+    },
+    aboutMozaTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    aboutMozaText: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    servicesSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 24,
+    },
+    servicesSectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+    serviceCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 24,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    serviceIconContainer: {
+      alignSelf: 'flex-start',
+      marginBottom: 12,
+    },
+    serviceTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'right',
+    },
+    serviceDescription: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      lineHeight: 24,
+      marginBottom: 16,
+      textAlign: 'right',
+    },
+    serviceFeatures: {
+      marginBottom: 16,
+    },
+    featureItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    featureItemText: {
+      fontSize: 15,
+      color: colors.text,
+      marginLeft: 12,
+      flex: 1,
+      textAlign: 'right',
+    },
+    serviceButtonContainer: {
+      marginTop: 8,
+    },
+    serviceButton: {
+      backgroundColor: colors.highlight,
+      paddingVertical: 14,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    serviceButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+    },
+    paymentSection: {
+      paddingHorizontal: 24,
+      paddingTop: 32,
+      paddingBottom: 16,
+    },
+    paymentSectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    paymentSectionTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    paymentSectionDescription: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    paymentSectionDescriptionAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    paymentCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    paymentHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    paymentName: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginLeft: 12,
+    },
+    paymentDescription: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: 8,
+    },
+    paymentDescriptionAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      textAlign: 'right',
+    },
+    paymentNote: {
+      flexDirection: 'row',
+      backgroundColor: colors.accent,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 8,
+    },
+    paymentNoteText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginLeft: 12,
+      flex: 1,
+      lineHeight: 18,
+    },
+    paymentNoteTextAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginLeft: 12,
+      flex: 1,
+      lineHeight: 18,
+      textAlign: 'right',
+    },
+    footer: {
+      paddingHorizontal: 24,
+      paddingTop: 40,
+      paddingBottom: 20,
+      alignItems: 'center',
+    },
+    footerText: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginBottom: 2,
+    },
+    footerTextAr: {
+      fontSize: 11,
+      color: colors.textSecondary,
+    },
+  });
 
   return (
     <View style={styles.container}>
@@ -375,298 +671,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  topNavContainer: {
-    backgroundColor: colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingBottom: 12,
-  },
-  topNav: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-  },
-  navButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  navButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  navButtonTextAr: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 100,
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  logo: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: colors.highlight,
-    letterSpacing: 4,
-  },
-  tagline: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: 4,
-    letterSpacing: 2,
-  },
-  taglineAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  welcomeSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  welcomeTitleAr: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  welcomeText: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 8,
-  },
-  welcomeTextAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  aboutMozaSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  aboutMozaCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-  },
-  mozaImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: colors.highlight,
-  },
-  aboutMozaTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  aboutMozaText: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  servicesSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-  },
-  servicesSectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  serviceCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  serviceIconContainer: {
-    alignSelf: 'flex-start',
-    marginBottom: 12,
-  },
-  serviceTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
-    textAlign: 'right',
-  },
-  serviceDescription: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    lineHeight: 24,
-    marginBottom: 16,
-    textAlign: 'right',
-  },
-  serviceFeatures: {
-    marginBottom: 16,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  featureItemText: {
-    fontSize: 15,
-    color: colors.text,
-    marginLeft: 12,
-    flex: 1,
-    textAlign: 'right',
-  },
-  serviceButtonContainer: {
-    marginTop: 8,
-  },
-  serviceButton: {
-    backgroundColor: colors.highlight,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  serviceButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  paymentSection: {
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 16,
-  },
-  paymentSectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  paymentSectionTitleAr: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  paymentSectionDescription: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  paymentSectionDescriptionAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  paymentCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  paymentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  paymentName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginLeft: 12,
-  },
-  paymentDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  paymentDescriptionAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    textAlign: 'right',
-  },
-  paymentNote: {
-    flexDirection: 'row',
-    backgroundColor: colors.accent,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  paymentNoteText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginLeft: 12,
-    flex: 1,
-    lineHeight: 18,
-  },
-  paymentNoteTextAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginLeft: 12,
-    flex: 1,
-    lineHeight: 18,
-    textAlign: 'right',
-  },
-  footer: {
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  footerTextAr: {
-    fontSize: 11,
-    color: colors.textSecondary,
-  },
-});

@@ -1,191 +1,241 @@
 
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, Platform, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
-import { useTheme } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import React from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { useRouter } from 'expo-router';
+import { IconSymbol } from '@/components/IconSymbol';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ProfileScreen() {
-  const theme = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { theme, toggleTheme, colors } = useTheme();
 
-  const handleAdminProfitPlans = () => {
-    console.log('User tapped admin profit plans button');
-    router.push('/admin-profit-plans');
+  console.log('ProfileScreen: Rendering profile screen with theme:', theme);
+
+  const handleAboutPress = () => {
+    console.log('User tapped About button');
+    router.push('/about');
   };
 
-  const handleSubscriptionManagement = () => {
-    console.log('User tapped subscription management button');
-    router.push('/subscription-management-auth');
+  const handleThemeToggle = () => {
+    console.log('User tapped theme toggle button');
+    toggleTheme();
   };
 
-  const handleSubscriptionLookup = () => {
-    console.log('User tapped subscription lookup button');
-    router.push('/subscription-lookup');
-  };
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
-  const handleTestEmail = () => {
-    console.log('User tapped test email button');
-    router.push('/test-email');
-  };
+  const themeLabel = theme === 'dark' ? 'الخلفية الزرقاء الغامقة' : 'الخلفية البيضاء';
+  const themeDescription = theme === 'dark' 
+    ? 'اضغط للتبديل إلى الخلفية البيضاء' 
+    : 'اضغط للتبديل إلى الخلفية الزرقاء الغامقة';
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: topPaddingTop,
+      paddingHorizontal: 24,
+      paddingBottom: 20,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    headerSubtitle: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 120,
+    },
+    section: {
+      paddingHorizontal: 24,
+      paddingTop: 24,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 16,
+    },
+    themeCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    themeHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 12,
+    },
+    themeInfo: {
+      flex: 1,
+    },
+    themeLabel: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    themeDescription: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+    },
+    toggleButton: {
+      backgroundColor: colors.highlight,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      marginTop: 12,
+    },
+    toggleButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+    },
+    menuCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+    },
+    menuItemText: {
+      fontSize: 16,
+      color: colors.text,
+      marginLeft: 16,
+      flex: 1,
+    },
+    infoSection: {
+      paddingHorizontal: 24,
+      paddingTop: 24,
+      paddingBottom: 40,
+    },
+    infoCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    infoTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    infoText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+    },
+  });
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={[
-          styles.contentContainer,
-          Platform.OS !== 'ios' && styles.contentContainerWithTabBar
-        ]}
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>الإعدادات</Text>
+        <Text style={styles.headerSubtitle}>Settings</Text>
+      </View>
+
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <GlassView style={[
-          styles.profileHeader,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <IconSymbol ios_icon_name="person.circle.fill" android_material_icon_name="person" size={80} color={theme.colors.primary} />
-          <Text style={[styles.name, { color: theme.colors.text }]}>Moza Al-Balushi</Text>
-          <Text style={[styles.email, { color: theme.dark ? '#98989D' : '#666' }]}>SBM Trading Channels</Text>
-        </GlassView>
-
-        {/* Admin Section */}
-        <GlassView style={[
-          styles.section,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Admin Tools</Text>
-          <Text style={[styles.sectionTitleAr, { color: theme.dark ? '#98989D' : '#666' }]}>أدوات الإدارة</Text>
+        {/* Theme Toggle Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>المظهر / Appearance</Text>
           
-          <TouchableOpacity style={styles.adminButton} onPress={handleAdminProfitPlans} activeOpacity={0.7}>
-            <IconSymbol ios_icon_name="doc.text.fill" android_material_icon_name="description" size={24} color={theme.colors.primary} />
-            <View style={styles.adminButtonText}>
-              <Text style={[styles.adminButtonTitle, { color: theme.colors.text }]}>Manage Profit Plan Files</Text>
-              <Text style={[styles.adminButtonSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>إدارة ملفات خطط الربح</Text>
+          <View style={styles.themeCard}>
+            <View style={styles.themeHeader}>
+              <View style={styles.themeInfo}>
+                <Text style={styles.themeLabel}>{themeLabel}</Text>
+                <Text style={styles.themeDescription}>{themeDescription}</Text>
+              </View>
+              <IconSymbol 
+                ios_icon_name={theme === 'dark' ? 'moon.fill' : 'sun.max.fill'} 
+                android_material_icon_name={theme === 'dark' ? 'nightlight' : 'wb-sunny'} 
+                size={32} 
+                color={colors.highlight} 
+              />
             </View>
-            <IconSymbol ios_icon_name="chevron.right" android_material_icon_name="arrow-forward" size={20} color={theme.dark ? '#98989D' : '#666'} />
-          </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.toggleButton}
+              onPress={handleThemeToggle}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.toggleButtonText}>
+                {theme === 'dark' ? 'تبديل إلى الأبيض' : 'تبديل إلى الأزرق الغامق'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-          <TouchableOpacity style={styles.adminButton} onPress={handleSubscriptionManagement} activeOpacity={0.7}>
-            <IconSymbol ios_icon_name="person.3.fill" android_material_icon_name="group" size={24} color={theme.colors.primary} />
-            <View style={styles.adminButtonText}>
-              <Text style={[styles.adminButtonTitle, { color: theme.colors.text }]}>Subscription Management</Text>
-              <Text style={[styles.adminButtonSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>إدارة الاشتراكات</Text>
-            </View>
-            <IconSymbol ios_icon_name="chevron.right" android_material_icon_name="arrow-forward" size={20} color={theme.dark ? '#98989D' : '#666'} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.adminButton} onPress={handleSubscriptionLookup} activeOpacity={0.7}>
-            <IconSymbol ios_icon_name="magnifyingglass" android_material_icon_name="search" size={24} color={theme.colors.primary} />
-            <View style={styles.adminButtonText}>
-              <Text style={[styles.adminButtonTitle, { color: theme.colors.text }]}>Subscription Lookup</Text>
-              <Text style={[styles.adminButtonSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>البحث عن الاشتراك</Text>
-            </View>
-            <IconSymbol ios_icon_name="chevron.right" android_material_icon_name="arrow-forward" size={20} color={theme.dark ? '#98989D' : '#666'} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.adminButton} onPress={handleTestEmail} activeOpacity={0.7}>
-            <IconSymbol ios_icon_name="envelope.badge" android_material_icon_name="email" size={24} color={theme.colors.primary} />
-            <View style={styles.adminButtonText}>
-              <Text style={[styles.adminButtonTitle, { color: theme.colors.text }]}>Test Email System</Text>
-              <Text style={[styles.adminButtonSubtitle, { color: theme.dark ? '#98989D' : '#666' }]}>اختبار نظام البريد الإلكتروني</Text>
-            </View>
-            <IconSymbol ios_icon_name="chevron.right" android_material_icon_name="arrow-forward" size={20} color={theme.dark ? '#98989D' : '#666'} />
-          </TouchableOpacity>
-        </GlassView>
-
-        {/* Contact Section */}
-        <GlassView style={[
-          styles.section,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Contact Information</Text>
-          <Text style={[styles.sectionTitleAr, { color: theme.dark ? '#98989D' : '#666' }]}>معلومات الاتصال</Text>
+        {/* Menu Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>القائمة / Menu</Text>
           
-          <View style={styles.infoRow}>
-            <IconSymbol ios_icon_name="envelope.fill" android_material_icon_name="email" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>info@sbmtrading.com</Text>
+          <View style={styles.menuCard}>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={handleAboutPress}
+              activeOpacity={0.7}
+            >
+              <IconSymbol 
+                ios_icon_name="info.circle.fill" 
+                android_material_icon_name="info" 
+                size={24} 
+                color={colors.highlight} 
+              />
+              <Text style={styles.menuItemText}>حول التطبيق / About</Text>
+              <IconSymbol 
+                ios_icon_name="chevron.right" 
+                android_material_icon_name="chevron-right" 
+                size={20} 
+                color={colors.textSecondary} 
+              />
+            </TouchableOpacity>
           </View>
-          <View style={styles.infoRow}>
-            <IconSymbol ios_icon_name="paperplane.fill" android_material_icon_name="send" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>Telegram: @SBMTrading</Text>
+        </View>
+
+        {/* Info Section */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>SBM Trading Channels</Text>
+            <Text style={styles.infoText}>
+              قنوات التداول المتميزة - Premium Trading Channels
+            </Text>
+            <Text style={[styles.infoText, { marginTop: 12 }]}>
+              Version 1.0.0
+            </Text>
           </View>
-        </GlassView>
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  contentContainerWithTabBar: {
-    paddingBottom: 100,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    borderRadius: 12,
-    padding: 32,
-    marginBottom: 16,
-    gap: 12,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  email: {
-    fontSize: 16,
-  },
-  section: {
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 2,
-  },
-  sectionTitleAr: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  adminButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    marginBottom: 8,
-  },
-  adminButtonText: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  adminButtonTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  adminButtonSubtitle: {
-    fontSize: 13,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 4,
-  },
-  infoText: {
-    fontSize: 16,
-  },
-});
