@@ -1,12 +1,15 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, Platform, TouchableOpacity, Modal } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useRouter } from "expo-router";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfitPlansScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 

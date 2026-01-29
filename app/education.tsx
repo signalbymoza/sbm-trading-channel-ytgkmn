@@ -1,13 +1,16 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Modal } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function EducationScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
@@ -142,32 +145,510 @@ export default function EducationScreen() {
   const isCurrencySelected = (code: string) => selectedCurrency === code;
   const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code}`;
 
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: topPaddingTop,
+      paddingHorizontal: 16,
+      paddingBottom: 16,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    backButton: {
+      padding: 8,
+    },
+    headerTitleContainer: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    headerTitleAr: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 120,
+    },
+    headerSection: {
+      alignItems: 'center',
+      padding: 24,
+      paddingTop: 32,
+    },
+    headerTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: 12,
+    },
+    currencyButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.highlight,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    currencyButtonText: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: colors.text,
+      marginHorizontal: 6,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginTop: 12,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    titleAr: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: 4,
+    },
+    subtitleAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    programsSection: {
+      paddingHorizontal: 24,
+    },
+    programCard: {
+      marginBottom: 20,
+      borderRadius: 16,
+      overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    programCardSelected: {
+      borderColor: colors.highlight,
+    },
+    programGradient: {
+      padding: 20,
+    },
+    programHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    selectedBadge: {
+      backgroundColor: colors.background,
+      borderRadius: 20,
+      padding: 4,
+    },
+    programTitle: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    programTitleSelected: {
+      color: colors.text,
+    },
+    programTitleAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+    },
+    programTitleArSelected: {
+      color: colors.text,
+    },
+    descriptionContainer: {
+      marginBottom: 12,
+    },
+    descriptionText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 2,
+    },
+    descriptionTextSelected: {
+      color: colors.text,
+      opacity: 0.9,
+    },
+    descriptionTextAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    descriptionTextArSelected: {
+      color: colors.text,
+      opacity: 0.85,
+    },
+    programInfo: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 16,
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    infoItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    infoTextContainer: {
+      marginLeft: 8,
+    },
+    infoText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    infoTextSelected: {
+      color: colors.text,
+    },
+    infoTextAr: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+    infoTextArSelected: {
+      color: colors.text,
+      opacity: 0.8,
+    },
+    priceText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.highlight,
+      marginLeft: 8,
+    },
+    priceTextSelected: {
+      color: colors.text,
+    },
+    installmentContainer: {
+      marginBottom: 16,
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    installmentText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 2,
+      lineHeight: 18,
+    },
+    installmentTextSelected: {
+      color: colors.text,
+      opacity: 0.9,
+    },
+    installmentTextAr: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginBottom: 8,
+      lineHeight: 18,
+    },
+    installmentTextArSelected: {
+      color: colors.text,
+      opacity: 0.85,
+    },
+    tamaraContainer: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.primary,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 6,
+      marginTop: 4,
+    },
+    tamaraText: {
+      fontSize: 13,
+      fontWeight: 'bold',
+      color: colors.background,
+    },
+    tamaraTextSelected: {
+      color: colors.background,
+    },
+    featuresSection: {
+      marginTop: 8,
+    },
+    featuresTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    featuresTitleSelected: {
+      color: colors.text,
+    },
+    featuresTitleAr: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 12,
+    },
+    featuresTitleArSelected: {
+      color: colors.text,
+    },
+    featureItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: 8,
+    },
+    featureTextContainer: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    featureText: {
+      fontSize: 14,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    featureTextSelected: {
+      color: colors.text,
+    },
+    featureTextAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    featureTextArSelected: {
+      color: colors.text,
+      opacity: 0.85,
+    },
+    benefitsSection: {
+      paddingHorizontal: 24,
+      paddingTop: 24,
+    },
+    benefitsTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    benefitsTitleAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 16,
+    },
+    benefitItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: 16,
+      backgroundColor: colors.card,
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    benefitContent: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    benefitText: {
+      fontSize: 15,
+      color: colors.text,
+      marginBottom: 4,
+    },
+    benefitTextAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    buttonContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: 24,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    enrollButton: {
+      backgroundColor: colors.highlight,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 18,
+      borderRadius: 12,
+    },
+    enrollButtonDisabled: {
+      backgroundColor: colors.border,
+      opacity: 0.5,
+    },
+    enrollButtonText: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 4,
+    },
+    enrollButtonTextAr: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 8,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      maxHeight: '70%',
+      paddingBottom: 40,
+    },
+    modalHeader: {
+      padding: 24,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      position: 'relative',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    modalTitleAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    modalCloseButton: {
+      position: 'absolute',
+      top: 24,
+      right: 24,
+      padding: 4,
+    },
+    modalScroll: {
+      paddingHorizontal: 24,
+      paddingTop: 16,
+    },
+    currencyModalItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.card,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    currencyModalItemSelected: {
+      borderColor: colors.highlight,
+      backgroundColor: colors.accent,
+    },
+    currencyModalInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    currencyModalFlag: {
+      fontSize: 32,
+      marginRight: 12,
+    },
+    currencyModalSymbol: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 16,
+      minWidth: 40,
+      textAlign: 'center',
+    },
+    currencyModalSymbolSelected: {
+      color: colors.highlight,
+    },
+    currencyModalTextContainer: {
+      flex: 1,
+    },
+    currencyModalCode: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    currencyModalCodeSelected: {
+      color: colors.highlight,
+    },
+    currencyModalName: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    currencyModalNameSelected: {
+      color: colors.text,
+    },
+    radioButton: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    radioButtonSelected: {
+      borderColor: colors.highlight,
+    },
+    radioButtonInner: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.highlight,
+    },
+  });
+
   return (
     <View style={styles.container}>
-      <View style={styles.topNav}>
+      {/* Header with Back Button */}
+      <View style={styles.header}>
         <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/subscription?channel=gold')}
+          style={styles.backButton}
+          onPress={() => {
+            console.log('User tapped back button on education page');
+            router.back();
+          }}
           activeOpacity={0.7}
         >
-          <Text style={styles.navButtonText}>Subscriptions</Text>
-          <Text style={styles.navButtonTextAr}>الاشتراكات</Text>
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/profit-plans')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Profit Plans</Text>
-          <Text style={styles.navButtonTextAr}>خطط الربح</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.navButton, styles.navButtonActive]}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Education</Text>
-          <Text style={styles.navButtonTextAr}>التعليم</Text>
-        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Education</Text>
+          <Text style={styles.headerTitleAr}>التعليم</Text>
+        </View>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView 
@@ -175,7 +656,7 @@ export default function EducationScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View style={styles.headerSection}>
           <View style={styles.headerTop}>
             <IconSymbol 
               ios_icon_name="book.fill" 
@@ -487,483 +968,3 @@ export default function EducationScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  topNav: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingTop: Platform.OS === 'android' ? 60 : 12,
-    backgroundColor: colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  navButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  navButtonActive: {
-    backgroundColor: colors.highlight,
-  },
-  navButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  navButtonTextAr: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 120,
-  },
-  header: {
-    alignItems: 'center',
-    padding: 24,
-    paddingTop: 32,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 12,
-  },
-  currencyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.highlight,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  currencyButtonText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.text,
-    marginHorizontal: 6,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginTop: 12,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  titleAr: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 4,
-  },
-  subtitleAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  programsSection: {
-    paddingHorizontal: 24,
-  },
-  programCard: {
-    marginBottom: 20,
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  programCardSelected: {
-    borderColor: colors.highlight,
-  },
-  programGradient: {
-    padding: 20,
-  },
-  programHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  selectedBadge: {
-    backgroundColor: colors.background,
-    borderRadius: 20,
-    padding: 4,
-  },
-  programTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  programTitleSelected: {
-    color: colors.text,
-  },
-  programTitleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  programTitleArSelected: {
-    color: colors.text,
-  },
-  descriptionContainer: {
-    marginBottom: 12,
-  },
-  descriptionText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  descriptionTextSelected: {
-    color: colors.text,
-    opacity: 0.9,
-  },
-  descriptionTextAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  descriptionTextArSelected: {
-    color: colors.text,
-    opacity: 0.85,
-  },
-  programInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  infoTextContainer: {
-    marginLeft: 8,
-  },
-  infoText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  infoTextSelected: {
-    color: colors.text,
-  },
-  infoTextAr: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  infoTextArSelected: {
-    color: colors.text,
-    opacity: 0.8,
-  },
-  priceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.highlight,
-    marginLeft: 8,
-  },
-  priceTextSelected: {
-    color: colors.text,
-  },
-  installmentContainer: {
-    marginBottom: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  installmentText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 2,
-    lineHeight: 18,
-  },
-  installmentTextSelected: {
-    color: colors.text,
-    opacity: 0.9,
-  },
-  installmentTextAr: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 8,
-    lineHeight: 18,
-  },
-  installmentTextArSelected: {
-    color: colors.text,
-    opacity: 0.85,
-  },
-  tamaraContainer: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    marginTop: 4,
-  },
-  tamaraText: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: colors.background,
-  },
-  tamaraTextSelected: {
-    color: colors.background,
-  },
-  featuresSection: {
-    marginTop: 8,
-  },
-  featuresTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  featuresTitleSelected: {
-    color: colors.text,
-  },
-  featuresTitleAr: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  featuresTitleArSelected: {
-    color: colors.text,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  featureTextContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  featureText: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  featureTextSelected: {
-    color: colors.text,
-  },
-  featureTextAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  featureTextArSelected: {
-    color: colors.text,
-    opacity: 0.85,
-  },
-  benefitsSection: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-  },
-  benefitsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  benefitsTitleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 16,
-  },
-  benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  benefitContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  benefitText: {
-    fontSize: 15,
-    color: colors.text,
-    marginBottom: 4,
-  },
-  benefitTextAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  enrollButton: {
-    backgroundColor: colors.highlight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 18,
-    borderRadius: 12,
-  },
-  enrollButtonDisabled: {
-    backgroundColor: colors.border,
-    opacity: 0.5,
-  },
-  enrollButtonText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 4,
-  },
-  enrollButtonTextAr: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 8,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '70%',
-    paddingBottom: 40,
-  },
-  modalHeader: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    position: 'relative',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  modalTitleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    padding: 4,
-  },
-  modalScroll: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  currencyModalItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  currencyModalItemSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
-  },
-  currencyModalInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  currencyModalFlag: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  currencyModalSymbol: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 16,
-    minWidth: 40,
-    textAlign: 'center',
-  },
-  currencyModalSymbolSelected: {
-    color: colors.highlight,
-  },
-  currencyModalTextContainer: {
-    flex: 1,
-  },
-  currencyModalCode: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  currencyModalCodeSelected: {
-    color: colors.highlight,
-  },
-  currencyModalName: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  currencyModalNameSelected: {
-    color: colors.text,
-  },
-  radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioButtonSelected: {
-    borderColor: colors.highlight,
-  },
-  radioButtonInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.highlight,
-  },
-});
