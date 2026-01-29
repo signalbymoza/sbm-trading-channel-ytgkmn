@@ -38,39 +38,336 @@ export default function ProfitPlansScreen() {
   const priceText = '0$';
   const tapToDownloadText = 'اضغط للتنزيل';
 
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: topPaddingTop,
+      paddingHorizontal: 16,
+      paddingBottom: 16,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    backButton: {
+      padding: 8,
+    },
+    headerTitleContainer: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    headerTitleAr: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 40,
+    },
+    headerSection: {
+      padding: 24,
+      paddingTop: 24,
+    },
+    headerTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      flex: 1,
+    },
+    titleAr: {
+      fontSize: 26,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    currencyButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.highlight,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: colors.border,
+      marginLeft: 12,
+    },
+    currencyButtonText: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: colors.text,
+      marginHorizontal: 6,
+    },
+    planCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 24,
+      marginHorizontal: 24,
+      marginBottom: 24,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    planHeader: {
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    planContent: {
+      marginBottom: 24,
+    },
+    planDuration: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    riskPercentage: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    planDetails: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: 20,
+      marginBottom: 20,
+    },
+    detailRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    detailText: {
+      fontSize: 16,
+      color: colors.text,
+      marginLeft: 12,
+    },
+    priceSection: {
+      alignItems: 'center',
+      paddingVertical: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      marginBottom: 12,
+    },
+    priceText: {
+      fontSize: 36,
+      fontWeight: 'bold',
+      color: colors.highlight,
+    },
+    tapIndicator: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: 8,
+    },
+    tapIndicatorText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.highlight,
+      marginRight: 8,
+    },
+    disclaimerSection: {
+      marginHorizontal: 24,
+      marginTop: 8,
+      padding: 20,
+      backgroundColor: colors.accent,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#FFA500',
+    },
+    disclaimerHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    disclaimerTitleContainer: {
+      marginLeft: 12,
+    },
+    disclaimerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    disclaimerTitleAr: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    disclaimerText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: 8,
+    },
+    disclaimerTextAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      lineHeight: 20,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      maxHeight: '70%',
+      paddingBottom: 40,
+    },
+    modalHeader: {
+      padding: 24,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      position: 'relative',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    modalTitleAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    modalCloseButton: {
+      position: 'absolute',
+      top: 24,
+      right: 24,
+      padding: 4,
+    },
+    modalScroll: {
+      paddingHorizontal: 24,
+      paddingTop: 16,
+    },
+    currencyModalItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.card,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    currencyModalItemSelected: {
+      borderColor: colors.highlight,
+      backgroundColor: colors.accent,
+    },
+    currencyModalInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    currencyModalFlag: {
+      fontSize: 32,
+      marginRight: 12,
+    },
+    currencyModalSymbol: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 16,
+      minWidth: 40,
+      textAlign: 'center',
+    },
+    currencyModalSymbolSelected: {
+      color: colors.highlight,
+    },
+    currencyModalTextContainer: {
+      flex: 1,
+    },
+    currencyModalCode: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    currencyModalCodeSelected: {
+      color: colors.highlight,
+    },
+    currencyModalName: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    currencyModalNameSelected: {
+      color: colors.text,
+    },
+    radioButton: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    radioButtonSelected: {
+      borderColor: colors.highlight,
+    },
+    radioButtonInner: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.highlight,
+    },
+  });
+
   return (
     <View style={styles.container}>
-      {/* Top Navigation */}
-      <View style={styles.topNav}>
+      {/* Header with Back Button */}
+      <View style={styles.header}>
         <TouchableOpacity 
-          style={styles.navButton}
+          style={styles.backButton}
           onPress={() => {
-            console.log('User tapped Subscriptions button');
-            router.push('/subscription?channel=gold');
+            console.log('User tapped back button on profit plans page');
+            router.back();
           }}
           activeOpacity={0.7}
         >
-          <Text style={styles.navButtonText}>Subscriptions</Text>
-          <Text style={styles.navButtonTextAr}>الاشتراكات</Text>
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.navButton, styles.navButtonActive]}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Profit Plans</Text>
-          <Text style={styles.navButtonTextAr}>خطط الربح</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => {
-            console.log('User tapped Education button');
-            router.push('/education');
-          }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Education</Text>
-          <Text style={styles.navButtonTextAr}>التعليم</Text>
-        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Profit Plans</Text>
+          <Text style={styles.headerTitleAr}>خطط الربح</Text>
+        </View>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView 
@@ -79,7 +376,7 @@ export default function ProfitPlansScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header with Currency Button */}
-        <View style={styles.header}>
+        <View style={styles.headerSection}>
           <View style={styles.headerTop}>
             <Text style={styles.title}>{titleEn}</Text>
             <TouchableOpacity 
@@ -317,309 +614,3 @@ export default function ProfitPlansScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  topNav: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingTop: Platform.OS === 'android' ? 60 : 12,
-    backgroundColor: colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  navButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  navButtonActive: {
-    backgroundColor: colors.highlight,
-  },
-  navButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  navButtonTextAr: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  header: {
-    padding: 24,
-    paddingTop: 24,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    flex: 1,
-  },
-  titleAr: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  currencyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.highlight,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    marginLeft: 12,
-  },
-  currencyButtonText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.text,
-    marginHorizontal: 6,
-  },
-  planCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 24,
-    marginHorizontal: 24,
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  planHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  planContent: {
-    marginBottom: 24,
-  },
-  planDuration: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  riskPercentage: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  planDetails: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 20,
-    marginBottom: 20,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  detailText: {
-    fontSize: 16,
-    color: colors.text,
-    marginLeft: 12,
-  },
-  priceSection: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    marginBottom: 12,
-  },
-  priceText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: colors.highlight,
-  },
-  tapIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 8,
-  },
-  tapIndicatorText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.highlight,
-    marginRight: 8,
-  },
-  disclaimerSection: {
-    marginHorizontal: 24,
-    marginTop: 8,
-    padding: 20,
-    backgroundColor: colors.accent,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FFA500',
-  },
-  disclaimerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  disclaimerTitleContainer: {
-    marginLeft: 12,
-  },
-  disclaimerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  disclaimerTitleAr: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  disclaimerText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  disclaimerTextAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '70%',
-    paddingBottom: 40,
-  },
-  modalHeader: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    position: 'relative',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  modalTitleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    padding: 4,
-  },
-  modalScroll: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  currencyModalItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  currencyModalItemSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
-  },
-  currencyModalInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  currencyModalFlag: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  currencyModalSymbol: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 16,
-    minWidth: 40,
-    textAlign: 'center',
-  },
-  currencyModalSymbolSelected: {
-    color: colors.highlight,
-  },
-  currencyModalTextContainer: {
-    flex: 1,
-  },
-  currencyModalCode: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  currencyModalCodeSelected: {
-    color: colors.highlight,
-  },
-  currencyModalName: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  currencyModalNameSelected: {
-    color: colors.text,
-  },
-  radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioButtonSelected: {
-    borderColor: colors.highlight,
-  },
-  radioButtonInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.highlight,
-  },
-});

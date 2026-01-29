@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType, Modal } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -15,6 +16,8 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
 export default function DurationSelectionScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const channel = params.channel as string;
   const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
@@ -189,8 +192,428 @@ export default function DurationSelectionScreen() {
   const selectedCurrencyData = currencies.find(c => c.code === selectedCurrency);
   const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code} (${selectedCurrencyData?.symbol})`;
 
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: topPaddingTop,
+      paddingHorizontal: 16,
+      paddingBottom: 16,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    backButton: {
+      padding: 8,
+    },
+    headerTitleContainer: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    headerTitleAr: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 120,
+    },
+    headerCard: {
+      marginTop: 24,
+      marginHorizontal: 24,
+      marginBottom: 24,
+      borderRadius: 16,
+      overflow: 'hidden',
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      minHeight: 200,
+      position: 'relative',
+    },
+    headerImageContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 0,
+    },
+    headerImage: {
+      width: '100%',
+      height: '100%',
+    },
+    headerImageOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    headerContent: {
+      padding: 24,
+      minHeight: 200,
+      position: 'relative',
+      zIndex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerIconContainer: {
+      marginBottom: 12,
+    },
+    channelName: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    channelNameAr: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    titleSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    titleTextContainer: {
+      flex: 1,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    titleAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    currencyButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginLeft: 12,
+    },
+    currencyButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+      marginRight: 4,
+    },
+    optionsSection: {
+      paddingHorizontal: 24,
+      paddingTop: 8,
+    },
+    optionCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      borderWidth: 2,
+      borderColor: colors.border,
+      position: 'relative',
+    },
+    optionCardSelected: {
+      borderColor: colors.highlight,
+      backgroundColor: colors.accent,
+    },
+    badge: {
+      position: 'absolute',
+      top: -8,
+      right: 16,
+      backgroundColor: colors.highlight,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 12,
+    },
+    badgeText: {
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    badgeTextAr: {
+      fontSize: 10,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    optionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 8,
+    },
+    optionTitleContainer: {
+      flex: 1,
+    },
+    optionTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    optionTitleSelected: {
+      color: colors.highlight,
+    },
+    optionTitleAr: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    optionTitleArSelected: {
+      color: colors.highlight,
+    },
+    optionDuration: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 2,
+    },
+    optionDurationSelected: {
+      color: colors.text,
+    },
+    optionDurationAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    optionDurationArSelected: {
+      color: colors.text,
+    },
+    optionPrice: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    optionPriceSelected: {
+      color: colors.highlight,
+    },
+    optionDescription: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 4,
+    },
+    optionDescriptionSelected: {
+      color: colors.text,
+    },
+    optionDescriptionAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    optionDescriptionArSelected: {
+      color: colors.text,
+    },
+    radioButton: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'absolute',
+      bottom: 20,
+      right: 20,
+    },
+    radioButtonSelected: {
+      borderColor: colors.highlight,
+    },
+    radioButtonInner: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.highlight,
+    },
+    buttonContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: 24,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    continueButton: {
+      backgroundColor: colors.highlight,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 18,
+      borderRadius: 12,
+    },
+    continueButtonDisabled: {
+      backgroundColor: colors.border,
+      opacity: 0.5,
+    },
+    continueButtonText: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 4,
+    },
+    continueButtonTextAr: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 8,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      maxHeight: '70%',
+      paddingBottom: 40,
+    },
+    modalHeader: {
+      padding: 24,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      position: 'relative',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    modalTitleAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    modalCloseButton: {
+      position: 'absolute',
+      top: 24,
+      right: 24,
+      padding: 4,
+    },
+    modalScroll: {
+      paddingHorizontal: 24,
+      paddingTop: 16,
+    },
+    currencyModalItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.card,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    currencyModalItemSelected: {
+      borderColor: colors.highlight,
+      backgroundColor: colors.accent,
+    },
+    currencyModalInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    currencyModalFlag: {
+      fontSize: 32,
+      marginRight: 12,
+    },
+    currencyModalSymbol: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 16,
+      minWidth: 40,
+      textAlign: 'center',
+    },
+    currencyModalSymbolSelected: {
+      color: colors.highlight,
+    },
+    currencyModalTextContainer: {
+      flex: 1,
+    },
+    currencyModalCode: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    currencyModalCodeSelected: {
+      color: colors.highlight,
+    },
+    currencyModalName: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    currencyModalNameSelected: {
+      color: colors.text,
+    },
+  });
+
   return (
     <View style={styles.container}>
+      {/* Header with Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => {
+            console.log('User tapped back button on duration selection page');
+            router.back();
+          }}
+          activeOpacity={0.7}
+        >
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Duration Selection</Text>
+          <Text style={styles.headerTitleAr}>اختيار المدة</Text>
+        </View>
+        <View style={styles.headerSpacer} />
+      </View>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -396,367 +819,3 @@ export default function DurationSelectionScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 120,
-  },
-  headerCard: {
-    marginTop: Platform.OS === 'android' ? 48 : 0,
-    marginHorizontal: 24,
-    marginBottom: 24,
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    minHeight: 200,
-    position: 'relative',
-  },
-  headerImageContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0,
-  },
-  headerImage: {
-    width: '100%',
-    height: '100%',
-  },
-  headerImageOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  headerContent: {
-    padding: 24,
-    minHeight: 200,
-    position: 'relative',
-    zIndex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerIconContainer: {
-    marginBottom: 12,
-  },
-  channelName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  channelNameAr: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  titleSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  titleTextContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  titleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  currencyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginLeft: 12,
-  },
-  currencyButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginRight: 4,
-  },
-  optionsSection: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-  },
-  optionCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: colors.border,
-    position: 'relative',
-  },
-  optionCardSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
-  },
-  badge: {
-    position: 'absolute',
-    top: -8,
-    right: 16,
-    backgroundColor: colors.highlight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  badgeTextAr: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  optionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  optionTitleContainer: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  optionTitleSelected: {
-    color: colors.highlight,
-  },
-  optionTitleAr: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  optionTitleArSelected: {
-    color: colors.highlight,
-  },
-  optionDuration: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  optionDurationSelected: {
-    color: colors.text,
-  },
-  optionDurationAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  optionDurationArSelected: {
-    color: colors.text,
-  },
-  optionPrice: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  optionPriceSelected: {
-    color: colors.highlight,
-  },
-  optionDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
-  optionDescriptionSelected: {
-    color: colors.text,
-  },
-  optionDescriptionAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 12,
-  },
-  optionDescriptionArSelected: {
-    color: colors.text,
-  },
-  radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-  },
-  radioButtonSelected: {
-    borderColor: colors.highlight,
-  },
-  radioButtonInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.highlight,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  continueButton: {
-    backgroundColor: colors.highlight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 18,
-    borderRadius: 12,
-  },
-  continueButtonDisabled: {
-    backgroundColor: colors.border,
-    opacity: 0.5,
-  },
-  continueButtonText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 4,
-  },
-  continueButtonTextAr: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 8,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '70%',
-    paddingBottom: 40,
-  },
-  modalHeader: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    position: 'relative',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  modalTitleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    padding: 4,
-  },
-  modalScroll: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  currencyModalItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  currencyModalItemSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
-  },
-  currencyModalInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  currencyModalFlag: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  currencyModalSymbol: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 16,
-    minWidth: 40,
-    textAlign: 'center',
-  },
-  currencyModalSymbolSelected: {
-    color: colors.highlight,
-  },
-  currencyModalTextContainer: {
-    flex: 1,
-  },
-  currencyModalCode: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  currencyModalCodeSelected: {
-    color: colors.highlight,
-  },
-  currencyModalName: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  currencyModalNameSelected: {
-    color: colors.text,
-  },
-});

@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -14,6 +15,8 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
 
 export default function SubscriptionScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [selectedChannel, setSelectedChannel] = useState<string>('');
 
   console.log('SubscriptionScreen: Selected channel:', selectedChannel);
@@ -73,8 +76,231 @@ export default function SubscriptionScreen() {
   const analysisImage = require('@/assets/images/5b6830c9-bbf6-4851-a29d-a850f00e7461.jpeg');
   const forexImage = require('@/assets/images/b7c16854-1456-41a4-a077-3679e12666d7.jpeg');
 
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: topPaddingTop,
+      paddingHorizontal: 16,
+      paddingBottom: 16,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    backButton: {
+      padding: 8,
+    },
+    headerTitleContainer: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    headerTitleAr: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 120,
+    },
+    channelsSection: {
+      paddingHorizontal: 24,
+      paddingTop: 24,
+      paddingBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    sectionTitleAr: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 24,
+      textAlign: 'center',
+    },
+    channelCard: {
+      marginBottom: 20,
+      borderRadius: 16,
+      overflow: 'hidden',
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      minHeight: 280,
+      position: 'relative',
+    },
+    channelImageContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 0,
+    },
+    channelImage: {
+      width: '100%',
+      height: '100%',
+    },
+    channelImageOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    channelContent: {
+      padding: 24,
+      minHeight: 280,
+      position: 'relative',
+      zIndex: 1,
+    },
+    channelIconContainer: {
+      marginBottom: 12,
+    },
+    channelTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    channelTitleAr: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    channelDescription: {
+      fontSize: 15,
+      color: colors.text,
+      marginBottom: 4,
+      opacity: 0.9,
+    },
+    channelDescriptionAr: {
+      fontSize: 14,
+      color: colors.text,
+      marginBottom: 16,
+      opacity: 0.85,
+    },
+    channelFeatures: {
+      marginTop: 8,
+    },
+    featureRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 4,
+    },
+    featureText: {
+      fontSize: 14,
+      color: colors.text,
+      marginRight: 4,
+      opacity: 0.9,
+    },
+    selectedBadge: {
+      position: 'absolute',
+      top: 16,
+      right: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 20,
+    },
+    selectedBadgeText: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: '#10B981',
+      marginLeft: 6,
+      marginRight: 2,
+    },
+    selectedBadgeTextAr: {
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: '#10B981',
+    },
+    buttonContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: 24,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    continueButton: {
+      backgroundColor: colors.highlight,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 18,
+      borderRadius: 12,
+    },
+    continueButtonDisabled: {
+      backgroundColor: colors.border,
+      opacity: 0.5,
+    },
+    continueButtonText: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 4,
+    },
+    continueButtonTextAr: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 8,
+    },
+  });
+
   return (
     <View style={styles.container}>
+      {/* Header with Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => {
+            console.log('User tapped back button on subscription page');
+            router.back();
+          }}
+          activeOpacity={0.7}
+        >
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Subscriptions</Text>
+          <Text style={styles.headerTitleAr}>الاشتراكات</Text>
+        </View>
+        <View style={styles.headerSpacer} />
+      </View>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -135,7 +361,7 @@ export default function SubscriptionScreen() {
                     ios_icon_name="checkmark.circle.fill" 
                     android_material_icon_name="check-circle" 
                     size={24} 
-                    color={colors.success} 
+                    color="#10B981" 
                   />
                   <Text style={styles.selectedBadgeText}>{selectedEn}</Text>
                   <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
@@ -201,7 +427,7 @@ export default function SubscriptionScreen() {
                     ios_icon_name="checkmark.circle.fill" 
                     android_material_icon_name="check-circle" 
                     size={24} 
-                    color={colors.success} 
+                    color="#10B981" 
                   />
                   <Text style={styles.selectedBadgeText}>{selectedEn}</Text>
                   <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
@@ -267,7 +493,7 @@ export default function SubscriptionScreen() {
                     ios_icon_name="checkmark.circle.fill" 
                     android_material_icon_name="check-circle" 
                     size={24} 
-                    color={colors.success} 
+                    color="#10B981" 
                   />
                   <Text style={styles.selectedBadgeText}>{selectedEn}</Text>
                   <Text style={styles.selectedBadgeTextAr}>{selectedAr}</Text>
@@ -301,170 +527,3 @@ export default function SubscriptionScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 120,
-  },
-  channelsSection: {
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'android' ? 72 : 24,
-    paddingBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  sectionTitleAr: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  channelCard: {
-    marginBottom: 20,
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    minHeight: 280,
-    position: 'relative',
-  },
-  channelImageContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0,
-  },
-  channelImage: {
-    width: '100%',
-    height: '100%',
-  },
-  channelImageOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  channelContent: {
-    padding: 24,
-    minHeight: 280,
-    position: 'relative',
-    zIndex: 1,
-  },
-  channelIconContainer: {
-    marginBottom: 12,
-  },
-  channelTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  channelTitleAr: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  channelDescription: {
-    fontSize: 15,
-    color: colors.text,
-    marginBottom: 4,
-    opacity: 0.9,
-  },
-  channelDescriptionAr: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 16,
-    opacity: 0.85,
-  },
-  channelFeatures: {
-    marginTop: 8,
-  },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  featureText: {
-    fontSize: 14,
-    color: colors.text,
-    marginRight: 4,
-    opacity: 0.9,
-  },
-  selectedBadge: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  selectedBadgeText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: colors.success,
-    marginLeft: 6,
-    marginRight: 2,
-  },
-  selectedBadgeTextAr: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: colors.success,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  continueButton: {
-    backgroundColor: colors.highlight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 18,
-    borderRadius: 12,
-  },
-  continueButtonDisabled: {
-    backgroundColor: colors.border,
-    opacity: 0.5,
-  },
-  continueButtonText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 4,
-  },
-  continueButtonTextAr: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 8,
-  },
-});
