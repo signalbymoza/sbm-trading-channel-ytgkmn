@@ -15,6 +15,7 @@ interface ThemeContextType {
     text: string;
     textSecondary: string;
     card: string;
+    cardBackground: string;
     highlight: string;
     success: string;
     border: string;
@@ -22,28 +23,30 @@ interface ThemeContextType {
 }
 
 const darkColors = {
-  primary: '#1E3A8A',
+  primary: '#60A5FA',
   secondary: '#0F172A',
-  accent: '#1E40AF',
+  accent: '#1E293B',
   background: '#0F172A',
   backgroundAlt: '#1E293B',
   text: '#FFFFFF',
   textSecondary: '#CBD5E1',
   card: '#1E293B',
+  cardBackground: '#1E293B',
   highlight: '#3B82F6',
   success: '#10B981',
   border: '#334155',
 };
 
 const lightColors = {
-  primary: '#1E3A8A',
+  primary: '#60A5FA',
   secondary: '#F8FAFC',
-  accent: '#1E40AF',
+  accent: '#F1F5F9',
   background: '#FFFFFF',
   backgroundAlt: '#F1F5F9',
   text: '#0F172A',
   textSecondary: '#475569',
   card: '#F8FAFC',
+  cardBackground: '#F8FAFC',
   highlight: '#3B82F6',
   success: '#10B981',
   border: '#E2E8F0',

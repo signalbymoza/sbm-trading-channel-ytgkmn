@@ -23,10 +23,11 @@ export default function ProfileScreen() {
     toggleTheme();
   };
 
-  const themeLabel = theme === 'dark' ? 'الخلفية الزرقاء الغامقة' : 'الخلفية البيضاء';
+  const themeLabel = theme === 'dark' ? 'خلفية داكنة' : 'خلفية فاتحة';
   const themeDescription = theme === 'dark' 
-    ? 'اضغط للتبديل إلى الخلفية البيضاء' 
-    : 'اضغط للتبديل إلى الخلفية الزرقاء الغامقة';
+    ? 'اضغط للتبديل إلى خلفية فاتحة' 
+    : 'اضغط للتبديل إلى خلفية داكنة';
+  const toggleButtonText = theme === 'dark' ? 'تبديل إلى خلفية فاتحة' : 'تبديل إلى خلفية داكنة';
 
   const styles = StyleSheet.create({
     container: {
@@ -88,7 +89,7 @@ export default function ProfileScreen() {
     toggleButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#FFFFFF',
+      color: colors.text,
     },
     menuCard: {
       backgroundColor: colors.card,
@@ -177,7 +178,7 @@ export default function ProfileScreen() {
                 activeOpacity={0.8}
               >
                 <Text style={styles.toggleButtonText}>
-                  {theme === 'dark' ? 'تبديل إلى الأبيض' : 'تبديل إلى الأزرق الغامق'}
+                  {toggleButtonText}
                 </Text>
               </TouchableOpacity>
             </View>
