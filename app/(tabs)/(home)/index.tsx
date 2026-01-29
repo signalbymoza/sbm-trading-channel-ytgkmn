@@ -47,7 +47,8 @@ export default function HomeScreen() {
 
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
-  const topNavPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+  // Fixed: Add padding to move buttons below status bar/notch
+  const topNavPaddingTop = Platform.OS === 'android' ? insets.top + 16 : insets.top + 8;
 
   const styles = StyleSheet.create({
     container: {
@@ -355,7 +356,10 @@ export default function HomeScreen() {
         >
           <TouchableOpacity 
             style={styles.navButton}
-            onPress={() => router.push('/subscription-management-auth')}
+            onPress={() => {
+              console.log('User tapped Management button');
+              router.push('/subscription-management-auth');
+            }}
             activeOpacity={0.7}
           >
             <Text style={styles.navButtonText}>Management</Text>
@@ -363,7 +367,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navButton}
-            onPress={() => router.push('/subscription-lookup')}
+            onPress={() => {
+              console.log('User tapped Check Status button');
+              router.push('/subscription-lookup');
+            }}
             activeOpacity={0.7}
           >
             <Text style={styles.navButtonText}>Check Status</Text>
@@ -371,7 +378,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navButton}
-            onPress={() => router.push('/brokers')}
+            onPress={() => {
+              console.log('User tapped Brokers button');
+              router.push('/brokers');
+            }}
             activeOpacity={0.7}
           >
             <Text style={styles.navButtonText}>Brokers</Text>
@@ -379,7 +389,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navButton}
-            onPress={() => router.push('/subscription?channel=gold')}
+            onPress={() => {
+              console.log('User tapped Subscriptions button');
+              router.push('/subscription?channel=gold');
+            }}
             activeOpacity={0.7}
           >
             <Text style={styles.navButtonText}>Subscriptions</Text>

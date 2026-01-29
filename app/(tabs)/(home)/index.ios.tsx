@@ -3,9 +3,9 @@ import { Stack } from "expo-router";
 import React from "react";
 import { IconSymbol } from "@/components/IconSymbol";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, ImageSourcePropType } from "react-native";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useTheme } from "@/contexts/ThemeContext";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -15,8 +15,8 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
 
 export default function HomeScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   console.log('HomeScreen (iOS): Rendering SBM Trading Channels home screen');
 
@@ -47,6 +47,9 @@ export default function HomeScreen() {
 
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
+  // Fixed: Add padding to move buttons below status bar/notch
+  const topNavPaddingTop = insets.top + 8;
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -57,7 +60,6 @@ export default function HomeScreen() {
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       paddingBottom: 12,
-      paddingTop: 8,
     },
     topNav: {
       flexDirection: 'row',
@@ -352,7 +354,7 @@ export default function HomeScreen() {
       />
       <View style={styles.container}>
         {/* Top Navigation */}
-        <View style={styles.topNavContainer}>
+        <View style={[styles.topNavContainer, { paddingTop: topNavPaddingTop }]}>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -360,7 +362,10 @@ export default function HomeScreen() {
           >
             <TouchableOpacity 
               style={styles.navButton}
-              onPress={() => router.push('/subscription-management-auth')}
+              onPress={() => {
+                console.log('User tapped Management button');
+                router.push('/subscription-management-auth');
+              }}
               activeOpacity={0.7}
             >
               <Text style={styles.navButtonText}>Management</Text>
@@ -368,7 +373,10 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.navButton}
-              onPress={() => router.push('/subscription-lookup')}
+              onPress={() => {
+                console.log('User tapped Check Status button');
+                router.push('/subscription-lookup');
+              }}
               activeOpacity={0.7}
             >
               <Text style={styles.navButtonText}>Check Status</Text>
@@ -376,7 +384,10 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.navButton}
-              onPress={() => router.push('/brokers')}
+              onPress={() => {
+                console.log('User tapped Brokers button');
+                router.push('/brokers');
+              }}
               activeOpacity={0.7}
             >
               <Text style={styles.navButtonText}>Brokers</Text>
@@ -384,7 +395,10 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.navButton}
-              onPress={() => router.push('/subscription?channel=gold')}
+              onPress={() => {
+                console.log('User tapped Subscriptions button');
+                router.push('/subscription?channel=gold');
+              }}
               activeOpacity={0.7}
             >
               <Text style={styles.navButtonText}>Subscriptions</Text>
