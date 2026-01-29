@@ -84,86 +84,95 @@ export default function RegistrationScreen() {
     console.log('User chose to pick from photos');
     setPickerModalVisible(false);
     
-    try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (!permissionResult.granted) {
-        console.log('Photo library permission denied');
+    // Add a small delay to ensure modal is fully closed before opening picker
+    setTimeout(async () => {
+      try {
+        console.log('Requesting photo library permissions...');
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        
+        if (!permissionResult.granted) {
+          console.log('Photo library permission denied');
+          showModal(
+            'warning',
+            'Permission Required',
+            'الإذن مطلوب',
+            'Please allow access to your photo library to upload images.',
+            'يرجى السماح بالوصول إلى مكتبة الصور لتحميل الصور.'
+          );
+          return;
+        }
+
+        console.log('Opening image picker...');
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          quality: 0.8,
+        });
+
+        console.log('Image picker result:', result);
+
+        if (result.canceled) {
+          console.log('User cancelled image picker');
+          return;
+        }
+
+        if (result.assets && result.assets.length > 0) {
+          const asset = result.assets[0];
+          console.log('User selected image:', asset.uri, 'Name:', asset.fileName);
+          const fileName = asset.fileName || `image_${Date.now()}.jpg`;
+          setDocumentFileName(fileName);
+          await uploadDocument(asset.uri, fileName, 'image/jpeg');
+        }
+      } catch (error) {
+        console.error('Error picking image:', error);
         showModal(
-          'warning',
-          'Permission Required',
-          'الإذن مطلوب',
-          'Please allow access to your photo library to upload images.',
-          'يرجى السماح بالوصول إلى مكتبة الصور لتحميل الصور.'
+          'error',
+          'Error',
+          'خطأ',
+          'Failed to pick image. Please try again.',
+          'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
         );
-        return;
       }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 0.8,
-      });
-
-      console.log('Image picker result:', result);
-
-      if (result.canceled) {
-        console.log('User cancelled image picker');
-        return;
-      }
-
-      if (result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        console.log('User selected image:', asset.uri, 'Name:', asset.fileName);
-        const fileName = asset.fileName || `image_${Date.now()}.jpg`;
-        setDocumentFileName(fileName);
-        await uploadDocument(asset.uri, fileName, 'image/jpeg');
-      }
-    } catch (error) {
-      console.error('Error picking image:', error);
-      showModal(
-        'error',
-        'Error',
-        'خطأ',
-        'Failed to pick image. Please try again.',
-        'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
-      );
-    }
+    }, 300);
   };
 
   const pickFromFiles = async () => {
     console.log('User chose to pick from files');
     setPickerModalVisible(false);
     
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ['image/*', 'application/pdf'],
-        copyToCacheDirectory: true,
-      });
+    // Add a small delay to ensure modal is fully closed before opening picker
+    setTimeout(async () => {
+      try {
+        console.log('Opening document picker...');
+        const result = await DocumentPicker.getDocumentAsync({
+          type: ['image/*', 'application/pdf'],
+          copyToCacheDirectory: true,
+        });
 
-      console.log('Document picker result:', result);
+        console.log('Document picker result:', result);
 
-      if (result.canceled) {
-        console.log('User cancelled document picker');
-        return;
+        if (result.canceled) {
+          console.log('User cancelled document picker');
+          return;
+        }
+
+        if (result.assets && result.assets.length > 0) {
+          const asset = result.assets[0];
+          console.log('User selected document:', asset.uri, 'Name:', asset.name, 'Type:', asset.mimeType);
+          setDocumentFileName(asset.name);
+          await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
+        }
+      } catch (error) {
+        console.error('Error picking document:', error);
+        showModal(
+          'error',
+          'Error',
+          'خطأ',
+          'Failed to pick document. Please try again.',
+          'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
+        );
       }
-
-      if (result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        console.log('User selected document:', asset.uri, 'Name:', asset.name, 'Type:', asset.mimeType);
-        setDocumentFileName(asset.name);
-        await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
-      }
-    } catch (error) {
-      console.error('Error picking document:', error);
-      showModal(
-        'error',
-        'Error',
-        'خطأ',
-        'Failed to pick document. Please try again.',
-        'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
-      );
-    }
+    }, 300);
   };
 
   const uploadDocument = async (uri: string, fileName: string, mimeType: string) => {
