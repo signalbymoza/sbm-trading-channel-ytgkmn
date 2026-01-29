@@ -21,9 +21,9 @@ export default function ProfitPlansScreen() {
     { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني', rate: 0.385, flag: '🇴🇲' },
   ];
 
-  const handlePlanPress = () => {
-    console.log('User tapped on $250 profit plan card - navigating to registration');
-    router.push('/registration?program=profit_plan&plan_amount=250');
+  const handlePlanPress = (planAmount: string) => {
+    console.log(`User tapped on $${planAmount} profit plan card - navigating to registration`);
+    router.push(`/registration?program=profit_plan&plan_amount=${planAmount}`);
   };
 
   const isCurrencySelected = (code: string) => selectedCurrency === code;
@@ -33,8 +33,6 @@ export default function ProfitPlansScreen() {
   const titleEn = 'Accumulated Profit Plans';
   const titleAr = 'خطط الربح التراكمي';
   const priceText = '0$';
-  const planDuration = 'خطة 250 دولار لمدة سنة';
-  const riskPercentage = 'نسبة المخاطرة 25%';
   const tapToDownloadText = 'اضغط للتنزيل';
 
   return (
@@ -107,10 +105,10 @@ export default function ProfitPlansScreen() {
           <Text style={styles.titleAr}>{titleAr}</Text>
         </View>
 
-        {/* Plan Card - Now Clickable */}
+        {/* Plan Card 1 - $250 Plan */}
         <TouchableOpacity 
           style={styles.planCard}
-          onPress={handlePlanPress}
+          onPress={() => handlePlanPress('250')}
           activeOpacity={0.8}
         >
           <View style={styles.planHeader}>
@@ -123,8 +121,66 @@ export default function ProfitPlansScreen() {
           </View>
 
           <View style={styles.planContent}>
-            <Text style={styles.planDuration}>{planDuration}</Text>
-            <Text style={styles.riskPercentage}>{riskPercentage}</Text>
+            <Text style={styles.planDuration}>خطة 250 دولار لمدة سنة</Text>
+            <Text style={styles.riskPercentage}>نسبة المخاطرة 25%</Text>
+          </View>
+
+          <View style={styles.planDetails}>
+            <View style={styles.detailRow}>
+              <IconSymbol 
+                ios_icon_name="calendar" 
+                android_material_icon_name="calendar-today" 
+                size={20} 
+                color={colors.textSecondary} 
+              />
+              <Text style={styles.detailText}>مدة سنة واحدة</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <IconSymbol 
+                ios_icon_name="exclamationmark.triangle" 
+                android_material_icon_name="warning" 
+                size={20} 
+                color="#FFA500" 
+              />
+              <Text style={styles.detailText}>مخاطرة متوسطة - 25%</Text>
+            </View>
+          </View>
+
+          {/* Price inside the card */}
+          <View style={styles.priceSection}>
+            <Text style={styles.priceText}>{priceText}</Text>
+          </View>
+
+          {/* Tap to download indicator */}
+          <View style={styles.tapIndicator}>
+            <Text style={styles.tapIndicatorText}>{tapToDownloadText}</Text>
+            <IconSymbol 
+              ios_icon_name="arrow.right" 
+              android_material_icon_name="arrow-forward" 
+              size={18} 
+              color={colors.highlight} 
+            />
+          </View>
+        </TouchableOpacity>
+
+        {/* Plan Card 2 - $400 Plan (NEW) */}
+        <TouchableOpacity 
+          style={styles.planCard}
+          onPress={() => handlePlanPress('400')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.planHeader}>
+            <IconSymbol 
+              ios_icon_name="chart.line.uptrend.xyaxis" 
+              android_material_icon_name="show-chart" 
+              size={32} 
+              color={colors.highlight} 
+            />
+          </View>
+
+          <View style={styles.planContent}>
+            <Text style={styles.planDuration}>خطة 400 دولار لمدة سنة</Text>
+            <Text style={styles.riskPercentage}>نسبة المخاطرة 25%</Text>
           </View>
 
           <View style={styles.planDetails}>
