@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator, Modal as RNModal } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
 
@@ -20,6 +21,7 @@ export default function ForexGuideRegistrationScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [pickerModalVisible, setPickerModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
     title: string;
@@ -49,8 +51,65 @@ export default function ForexGuideRegistrationScreen() {
     setModalVisible(true);
   };
 
-  const pickDocument = async () => {
-    console.log('User tapped upload ID document button');
+  const handleUploadPress = () => {
+    console.log('User tapped upload ID document button - showing picker options');
+    setPickerModalVisible(true);
+  };
+
+  const pickFromPhotos = async () => {
+    console.log('User chose to pick from photos');
+    setPickerModalVisible(false);
+    
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (!permissionResult.granted) {
+        console.log('Photo library permission denied');
+        showModal(
+          'warning',
+          'Permission Required',
+          'الإذن مطلوب',
+          'Please allow access to your photo library to upload images.',
+          'يرجى السماح بالوصول إلى مكتبة الصور لتحميل الصور.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.8,
+      });
+
+      console.log('Image picker result:', result);
+
+      if (result.canceled) {
+        console.log('User cancelled image picker');
+        return;
+      }
+
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log('User selected image:', asset.uri, 'Name:', asset.fileName);
+        const fileName = asset.fileName || `image_${Date.now()}.jpg`;
+        setDocumentFileName(fileName);
+        await uploadDocument(asset.uri, fileName, 'image/jpeg');
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to pick image. Please try again.',
+        'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
+      );
+    }
+  };
+
+  const pickFromFiles = async () => {
+    console.log('User chose to pick from files');
+    setPickerModalVisible(false);
     
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -329,7 +388,7 @@ export default function ForexGuideRegistrationScreen() {
             <Text style={styles.labelAr}>{idPassportAr}</Text>
             <TouchableOpacity
               style={[styles.uploadButton, documentUploaded && styles.uploadButtonSuccess]}
-              onPress={pickDocument}
+              onPress={handleUploadPress}
               disabled={isUploading}
               activeOpacity={0.7}
             >
@@ -444,6 +503,83 @@ export default function ForexGuideRegistrationScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Picker Options Modal */}
+      <RNModal
+        visible={pickerModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setPickerModalVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.pickerModalOverlay}
+          activeOpacity={1}
+          onPress={() => setPickerModalVisible(false)}
+        >
+          <View style={styles.pickerModalContent}>
+            <View style={styles.pickerModalHeader}>
+              <Text style={styles.pickerModalTitle}>Choose Upload Method</Text>
+              <Text style={styles.pickerModalTitleAr}>اختر طريقة التحميل</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.pickerOption}
+              onPress={pickFromPhotos}
+              activeOpacity={0.7}
+            >
+              <IconSymbol 
+                ios_icon_name="photo.fill" 
+                android_material_icon_name="photo" 
+                size={28} 
+                color={colors.highlight} 
+              />
+              <View style={styles.pickerOptionTextContainer}>
+                <Text style={styles.pickerOptionText}>Choose from Photos</Text>
+                <Text style={styles.pickerOptionTextAr}>اختر من الصور</Text>
+              </View>
+              <IconSymbol 
+                ios_icon_name="chevron.right" 
+                android_material_icon_name="arrow-forward" 
+                size={20} 
+                color={colors.textSecondary} 
+              />
+            </TouchableOpacity>
+
+            <View style={styles.pickerDivider} />
+
+            <TouchableOpacity
+              style={styles.pickerOption}
+              onPress={pickFromFiles}
+              activeOpacity={0.7}
+            >
+              <IconSymbol 
+                ios_icon_name="doc.fill" 
+                android_material_icon_name="description" 
+                size={28} 
+                color={colors.highlight} 
+              />
+              <View style={styles.pickerOptionTextContainer}>
+                <Text style={styles.pickerOptionText}>Choose from Files</Text>
+                <Text style={styles.pickerOptionTextAr}>اختر من الملفات</Text>
+              </View>
+              <IconSymbol 
+                ios_icon_name="chevron.right" 
+                android_material_icon_name="arrow-forward" 
+                size={20} 
+                color={colors.textSecondary} 
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.pickerCancelButton}
+              onPress={() => setPickerModalVisible(false)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.pickerCancelText}>Cancel / إلغاء</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </RNModal>
 
       {/* Custom Modal for feedback */}
       <Modal
@@ -669,7 +805,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 2,
   },
-  summaryValuePriceAar: {
+  summaryValuePriceAr: {
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.highlight,
@@ -709,5 +845,70 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     color: '#1A1A2E',
+  },
+  pickerModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  pickerModalContent: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 400,
+    overflow: 'hidden',
+  },
+  pickerModalHeader: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  pickerModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  pickerModalTitleAr: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textSecondary,
+  },
+  pickerOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+  },
+  pickerOptionTextContainer: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  pickerOptionText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  pickerOptionTextAr: {
+    fontSize: 15,
+    color: colors.textSecondary,
+  },
+  pickerDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: 20,
+  },
+  pickerCancelButton: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    alignItems: 'center',
+  },
+  pickerCancelText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textSecondary,
   },
 });
