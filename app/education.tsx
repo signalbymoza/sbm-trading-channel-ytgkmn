@@ -253,6 +253,7 @@ export default function EducationScreen() {
       overflow: 'hidden',
       borderWidth: 2,
       borderColor: colors.border,
+      backgroundColor: colors.card,
     },
     programCardSelected: {
       borderColor: colors.highlight,
@@ -713,12 +714,7 @@ export default function EducationScreen() {
                 onPress={() => handleProgramSelect(program.id)}
                 activeOpacity={0.8}
               >
-                <LinearGradient
-                  colors={isSelected ? [program.color, colors.highlight] : [colors.card, colors.card]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.programGradient}
-                >
+                <View style={styles.programGradient}>
                   <View style={styles.programHeader}>
                     <IconSymbol 
                       ios_icon_name={program.icon} 
@@ -826,7 +822,7 @@ export default function EducationScreen() {
                       </View>
                     ))}
                   </View>
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
             );
           })}

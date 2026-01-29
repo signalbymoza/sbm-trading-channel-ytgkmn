@@ -181,24 +181,24 @@ export default function SubscriptionScreen() {
     channelTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 2,
     },
     channelTitleAr: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 8,
     },
     channelDescription: {
       fontSize: 15,
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 4,
       opacity: 0.9,
     },
     channelDescriptionAr: {
       fontSize: 14,
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 16,
       opacity: 0.85,
     },
@@ -212,7 +212,7 @@ export default function SubscriptionScreen() {
     },
     featureText: {
       fontSize: 14,
-      color: colors.text,
+      color: '#FFFFFF',
       marginRight: 4,
       opacity: 0.9,
     },
