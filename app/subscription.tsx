@@ -87,7 +87,7 @@ export default function SubscriptionScreen() {
       paddingTop: topPaddingTop,
       paddingHorizontal: 16,
       paddingBottom: 16,
-      backgroundColor: colors.card,
+      backgroundColor: colors.background,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       flexDirection: 'row',
@@ -123,6 +123,7 @@ export default function SubscriptionScreen() {
       paddingHorizontal: 24,
       paddingTop: 24,
       paddingBottom: 16,
+      backgroundColor: colors.background,
     },
     sectionTitle: {
       fontSize: 24,
@@ -264,13 +265,13 @@ export default function SubscriptionScreen() {
     continueButtonText: {
       fontSize: 17,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginRight: 4,
     },
     continueButtonTextAr: {
       fontSize: 15,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginRight: 8,
     },
   });
@@ -282,8 +283,8 @@ export default function SubscriptionScreen() {
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => {
-            console.log('User tapped back button on subscription page');
-            router.back();
+            console.log('User tapped back button on subscription page - navigating to home');
+            router.push('/(tabs)/(home)/');
           }}
           activeOpacity={0.7}
         >
@@ -520,7 +521,7 @@ export default function SubscriptionScreen() {
             ios_icon_name="arrow.right" 
             android_material_icon_name="arrow-forward" 
             size={20} 
-            color={colors.text} 
+            color="#FFFFFF" 
           />
         </TouchableOpacity>
       </View>

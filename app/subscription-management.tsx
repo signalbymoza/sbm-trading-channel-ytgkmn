@@ -96,7 +96,6 @@ export default function SubscriptionManagementScreen() {
     try {
       console.log('Fetching from backend URL:', backendUrl);
       
-      // Fetch stats
       const statsResponse = await fetch(`${backendUrl}/api/subscriptions/stats`);
       console.log('Stats response status:', statsResponse.status);
       
@@ -122,7 +121,6 @@ export default function SubscriptionManagementScreen() {
       console.log('Stats loaded successfully:', statsData);
       setStats(statsData);
 
-      // Fetch subscribers
       const subscribersResponse = await fetch(`${backendUrl}/api/subscriptions/list`);
       console.log('Subscribers response status:', subscribersResponse.status);
       
@@ -136,7 +134,6 @@ export default function SubscriptionManagementScreen() {
       console.log('Subscribers loaded successfully:', subscribersData.length);
       setSubscribers(subscribersData);
 
-      // Fetch broker subscribers
       const brokersResponse = await fetch(`${backendUrl}/api/broker-subscribers`);
       console.log('Broker subscribers response status:', brokersResponse.status);
       
@@ -265,7 +262,7 @@ export default function SubscriptionManagementScreen() {
       paddingBottom: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      backgroundColor: colors.card,
+      backgroundColor: colors.background,
     },
     backButton: {
       padding: 8,
@@ -281,7 +278,7 @@ export default function SubscriptionManagementScreen() {
     },
     tabBar: {
       flexDirection: 'row',
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.background,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -308,6 +305,7 @@ export default function SubscriptionManagementScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       gap: 16,
+      backgroundColor: colors.background,
     },
     loadingText: {
       fontSize: 16,
@@ -319,6 +317,7 @@ export default function SubscriptionManagementScreen() {
       justifyContent: 'center',
       padding: 32,
       gap: 16,
+      backgroundColor: colors.background,
     },
     errorTitle: {
       fontSize: 24,
@@ -350,6 +349,7 @@ export default function SubscriptionManagementScreen() {
     content: {
       flex: 1,
       padding: 16,
+      backgroundColor: colors.background,
     },
     sectionTitle: {
       fontSize: 20,
@@ -405,7 +405,7 @@ export default function SubscriptionManagementScreen() {
       gap: 12,
     },
     subscriberCard: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.card,
       borderRadius: 12,
       padding: 16,
       borderWidth: 1,
@@ -460,7 +460,7 @@ export default function SubscriptionManagementScreen() {
       flexWrap: 'wrap',
     },
     brokerFilterButton: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.card,
       borderRadius: 8,
       paddingVertical: 8,
       paddingHorizontal: 16,
@@ -480,7 +480,7 @@ export default function SubscriptionManagementScreen() {
       color: '#FFFFFF',
     },
     brokerCard: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.card,
       borderRadius: 12,
       padding: 16,
       borderWidth: 1,
@@ -530,7 +530,7 @@ export default function SubscriptionManagementScreen() {
       marginLeft: 12,
     },
     emptyCard: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.card,
       borderRadius: 16,
       padding: 40,
       alignItems: 'center',
@@ -551,8 +551,8 @@ export default function SubscriptionManagementScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
-            console.log('User tapped back button on subscription management page');
-            router.back();
+            console.log('User tapped back button on subscription management page - navigating to home');
+            router.push('/(tabs)/(home)/');
           }}
           activeOpacity={0.7}
         >
@@ -890,7 +890,6 @@ export default function SubscriptionManagementScreen() {
         </ScrollView>
       )}
 
-      {/* Custom Modal for feedback */}
       <Modal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}

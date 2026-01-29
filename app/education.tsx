@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
-import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -156,7 +155,7 @@ export default function EducationScreen() {
       paddingTop: topPaddingTop,
       paddingHorizontal: 16,
       paddingBottom: 16,
-      backgroundColor: colors.card,
+      backgroundColor: colors.background,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       flexDirection: 'row',
@@ -192,6 +191,7 @@ export default function EducationScreen() {
       alignItems: 'center',
       padding: 24,
       paddingTop: 32,
+      backgroundColor: colors.background,
     },
     headerTop: {
       flexDirection: 'row',
@@ -203,7 +203,7 @@ export default function EducationScreen() {
     currencyButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.highlight,
+      backgroundColor: colors.card,
       paddingHorizontal: 16,
       paddingVertical: 10,
       borderRadius: 12,
@@ -246,6 +246,7 @@ export default function EducationScreen() {
     },
     programsSection: {
       paddingHorizontal: 24,
+      backgroundColor: colors.background,
     },
     programCard: {
       marginBottom: 20,
@@ -260,6 +261,7 @@ export default function EducationScreen() {
     },
     programGradient: {
       padding: 20,
+      backgroundColor: colors.card,
     },
     programHeader: {
       flexDirection: 'row',
@@ -441,6 +443,7 @@ export default function EducationScreen() {
     benefitsSection: {
       paddingHorizontal: 24,
       paddingTop: 24,
+      backgroundColor: colors.background,
     },
     benefitsTitle: {
       fontSize: 20,
@@ -502,13 +505,13 @@ export default function EducationScreen() {
     enrollButtonText: {
       fontSize: 17,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginRight: 4,
     },
     enrollButtonTextAr: {
       fontSize: 15,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginRight: 8,
     },
     modalOverlay: {
@@ -633,8 +636,8 @@ export default function EducationScreen() {
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => {
-            console.log('User tapped back button on education page');
-            router.back();
+            console.log('User tapped back button on education page - navigating to home');
+            router.push('/(tabs)/(home)/');
           }}
           activeOpacity={0.7}
         >
@@ -780,22 +783,6 @@ export default function EducationScreen() {
                     </View>
                   </View>
 
-                  {program.installmentInfo && (
-                    <View style={styles.installmentContainer}>
-                      <Text style={[styles.installmentText, isSelected && styles.installmentTextSelected]}>
-                        {program.installmentInfo.en}
-                      </Text>
-                      <Text style={[styles.installmentTextAr, isSelected && styles.installmentTextArSelected]}>
-                        {program.installmentInfo.ar}
-                      </Text>
-                      <View style={styles.tamaraContainer}>
-                        <Text style={[styles.tamaraText, isSelected && styles.tamaraTextSelected]}>
-                          Tamara
-                        </Text>
-                      </View>
-                    </View>
-                  )}
-
                   <View style={styles.featuresSection}>
                     <Text style={[styles.featuresTitle, isSelected && styles.featuresTitleSelected]}>
                       {program.featuresTitleEn}
@@ -889,7 +876,7 @@ export default function EducationScreen() {
             ios_icon_name="arrow.right" 
             android_material_icon_name="arrow-forward" 
             size={20} 
-            color={colors.text} 
+            color="#FFFFFF" 
           />
         </TouchableOpacity>
       </View>
