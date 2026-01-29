@@ -4,7 +4,7 @@ import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platfo
 import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
-import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
 
@@ -22,6 +22,7 @@ export default function RegistrationScreen() {
   const [selectedTrainer, setSelectedTrainer] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [idDocument, setIdDocument] = useState<string | null>(null);
+  const [documentFileName, setDocumentFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -75,34 +76,40 @@ export default function RegistrationScreen() {
   const pickDocument = async () => {
     console.log('User tapped upload ID document button');
     
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (permissionResult.granted === false) {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['image/*', 'application/pdf'],
+        copyToCacheDirectory: true,
+      });
+
+      console.log('Document picker result:', result);
+
+      if (result.canceled) {
+        console.log('User cancelled document picker');
+        return;
+      }
+
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log('User selected document:', asset.uri, 'Name:', asset.name, 'Type:', asset.mimeType);
+        setDocumentFileName(asset.name);
+        await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
+      }
+    } catch (error) {
+      console.error('Error picking document:', error);
       showModal(
-        'warning',
-        'Permission Required',
-        'الإذن مطلوب',
-        'Permission to access camera roll is required!',
-        'الإذن للوصول إلى معرض الصور مطلوب!'
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to pick document. Please try again.',
+        'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
       );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      console.log('User selected document:', result.assets[0].uri);
-      await uploadDocument(result.assets[0].uri);
     }
   };
 
-  const uploadDocument = async (uri: string) => {
+  const uploadDocument = async (uri: string, fileName: string, mimeType: string) => {
     setIsUploading(true);
-    console.log('Uploading document to backend...');
+    console.log('Uploading document to backend...', { uri, fileName, mimeType });
 
     try {
       const data = await uploadFile<{ url: string; filename: string }>(
@@ -415,14 +422,21 @@ export default function RegistrationScreen() {
                     size={24} 
                     color={documentUploaded ? colors.success : colors.text} 
                   />
-                  <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
-                    {documentUploaded ? 'Document Uploaded' : 'Upload ID/Passport'}
-                  </Text>
+                  <View style={styles.uploadTextContainer}>
+                    <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
+                      {documentUploaded ? 'Document Uploaded' : 'Upload ID/Passport'}
+                    </Text>
+                    {documentFileName && (
+                      <Text style={styles.fileNameText} numberOfLines={1}>
+                        {documentFileName}
+                      </Text>
+                    )}
+                  </View>
                 </>
               )}
             </TouchableOpacity>
             <Text style={styles.helperText}>
-              Please upload a clear photo of your ID or passport
+              Please upload a clear photo or PDF of your ID or passport
             </Text>
           </View>
 
@@ -652,14 +666,22 @@ const styles = StyleSheet.create({
     borderColor: colors.success,
     backgroundColor: colors.accent,
   },
+  uploadTextContainer: {
+    marginLeft: 12,
+    flex: 1,
+  },
   uploadButtonText: {
     fontSize: 16,
     color: colors.text,
-    marginLeft: 12,
     fontWeight: '600',
   },
   uploadButtonTextSuccess: {
     color: colors.success,
+  },
+  fileNameText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 4,
   },
   helperText: {
     fontSize: 13,
