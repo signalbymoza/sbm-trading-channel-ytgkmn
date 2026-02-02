@@ -726,6 +726,78 @@ export function register(app: App, fastify: FastifyInstance) {
     }
   });
 
+  // GET /api/subscriptions/:id/document-url - Generate fresh signed URL for ID document
+  fastify.get('/api/subscriptions/:id/document-url', {
+    schema: {
+      description: 'Generate fresh signed URL for ID document (valid for 15 minutes)',
+      tags: ['subscriptions'],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            url: { type: 'string' },
+          },
+        },
+      },
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+
+    app.logger.info({ subscriptionId: id }, 'Generating fresh signed URL for ID document');
+
+    try {
+      // Fetch the subscription to get the id_document_url
+      const subscription = await app.db.query.subscriptions.findFirst({
+        where: eq(schema.subscriptions.id, id),
+      });
+
+      if (!subscription) {
+        app.logger.warn({ subscriptionId: id }, 'Subscription not found');
+        return reply.status(404).send({ error: 'Subscription not found' });
+      }
+
+      if (!subscription.id_document_url) {
+        app.logger.warn({ subscriptionId: id }, 'No ID document URL found for subscription');
+        return reply.status(404).send({ error: 'No ID document found for this subscription' });
+      }
+
+      // The id_document_url should be stored as the S3 key/path
+      // If it's a full signed URL, extract the key portion
+      let documentKey = subscription.id_document_url;
+
+      // Check if it looks like a full signed URL (contains http or query parameters)
+      if (documentKey.includes('http') || documentKey.includes('?')) {
+        app.logger.debug({ subscriptionId: id, url: documentKey }, 'Document URL appears to be a full signed URL, attempting to extract key');
+
+        // Try to extract the key from the path
+        try {
+          const url = new URL(documentKey);
+          documentKey = decodeURIComponent(url.pathname).replace(/^\//, '');
+          app.logger.debug({ subscriptionId: id, extractedKey: documentKey }, 'Extracted key from signed URL');
+        } catch (parseError) {
+          app.logger.warn({ subscriptionId: id, err: parseError }, 'Failed to parse document URL, using as-is');
+        }
+      }
+
+      // Generate a fresh signed URL (valid for 15 minutes)
+      const { url } = await app.storage.getSignedUrl(documentKey);
+
+      app.logger.info({ subscriptionId: id, documentKey }, 'Fresh signed URL generated successfully');
+
+      return { url };
+    } catch (error) {
+      app.logger.error({ err: error, subscriptionId: id }, 'Failed to generate signed URL for ID document');
+      return reply.status(500).send({ error: 'Failed to generate document URL' });
+    }
+  });
+
   // PUT /api/subscriptions/:id/extend - Extend an existing subscription
   fastify.put('/api/subscriptions/:id/extend', {
     schema: {
