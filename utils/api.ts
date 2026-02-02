@@ -53,6 +53,8 @@ export async function apiCall<T = any>(
  * @param fileUri - Local file URI
  * @param fieldName - Form field name (default: 'file')
  * @returns Promise with the upload response
+ * 
+ * Note: The /api/upload/id-document endpoint supports files up to 10MB
  */
 export async function uploadFile<T = any>(
   endpoint: string,

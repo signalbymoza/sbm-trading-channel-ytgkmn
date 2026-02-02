@@ -109,9 +109,10 @@ export default function RegistrationScreen() {
       
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: false,
-        quality: 0.8,
+        allowsEditing: true, // Allow user to crop/edit the image
+        quality: 0.8, // Good quality for ID documents (backend supports up to 10MB)
         exif: false,
+        aspect: [4, 3], // Suggested aspect ratio for ID documents
       });
 
       console.log('Image picker result:', JSON.stringify(result, null, 2));
@@ -176,6 +177,18 @@ export default function RegistrationScreen() {
       console.error('Error uploading document:', error);
       if (error instanceof Error) {
         console.error('Error message:', error.message);
+        
+        // Check if it's a file size error (413 Payload Too Large)
+        if (error.message.includes('413')) {
+          showModal(
+            'error',
+            'File Too Large',
+            'الملف كبير جداً',
+            'The image file exceeds the 10MB limit. Please try selecting a different photo or use the crop tool to reduce the file size.',
+            'حجم الصورة يتجاوز حد 10 ميجابايت. يرجى اختيار صورة أخرى أو استخدام أداة الاقتصاص لتقليل حجم الملف.'
+          );
+          return;
+        }
       }
       showModal(
         'error',
@@ -485,7 +498,10 @@ export default function RegistrationScreen() {
               )}
             </TouchableOpacity>
             <Text style={styles.helperText}>
-              Please upload a clear photo of your ID or passport from your photo album
+              Please upload a clear photo of your ID or passport (max 10MB). JPG, PNG, or PDF formats accepted.
+            </Text>
+            <Text style={styles.helperTextAr}>
+              يرجى رفع صورة واضحة للهوية أو جواز السفر (حد أقصى 10 ميجابايت). يتم قبول صيغ JPG و PNG و PDF.
             </Text>
           </View>
 
@@ -735,6 +751,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 6,
+  },
+  helperTextAr: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
   },
   checkboxContainer: {
     flexDirection: 'row',

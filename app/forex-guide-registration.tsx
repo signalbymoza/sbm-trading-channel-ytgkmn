@@ -85,9 +85,10 @@ export default function ForexGuideRegistrationScreen() {
       
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: false,
-        quality: 0.8,
+        allowsEditing: true, // Allow user to crop/edit the image
+        quality: 0.5, // Reduced quality to compress file size (was 0.8)
         exif: false,
+        aspect: [4, 3], // Suggested aspect ratio for ID documents
       });
 
       console.log('Image picker result:', JSON.stringify(result, null, 2));
@@ -151,6 +152,18 @@ export default function ForexGuideRegistrationScreen() {
       console.error('Error uploading document:', error);
       if (error instanceof Error) {
         console.error('Error message:', error.message);
+        
+        // Check if it's a file size error (413 Payload Too Large)
+        if (error.message.includes('413')) {
+          showModal(
+            'error',
+            'File Too Large',
+            'الملف كبير جداً',
+            'The image file is too large. Please try selecting a different photo or use the crop tool to reduce the file size.',
+            'حجم الصورة كبير جداً. يرجى اختيار صورة أخرى أو استخدام أداة الاقتصاص لتقليل حجم الملف.'
+          );
+          return;
+        }
       }
       showModal(
         'error',
