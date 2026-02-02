@@ -67,8 +67,8 @@ export default function ForexGuideRegistrationScreen() {
     console.log('User chose to pick from photos');
     setPickerModalVisible(false);
     
-    // Small delay to allow modal to close
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Longer delay to ensure modal is fully closed before opening picker
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     isPickingRef.current = true;
     
@@ -87,6 +87,7 @@ export default function ForexGuideRegistrationScreen() {
           'Please allow access to your photo library in Settings to upload images.',
           'يرجى السماح بالوصول إلى مكتبة الصور في الإعدادات لتحميل الصور.'
         );
+        isPickingRef.current = false;
         return;
       }
 
@@ -96,12 +97,14 @@ export default function ForexGuideRegistrationScreen() {
         allowsEditing: false,
         quality: 0.8,
         allowsMultipleSelection: false,
+        presentationStyle: 'fullScreen',
       });
 
       console.log('Image picker result:', JSON.stringify(result, null, 2));
 
       if (result.canceled) {
         console.log('User cancelled image picker');
+        isPickingRef.current = false;
         return;
       }
 
@@ -143,8 +146,8 @@ export default function ForexGuideRegistrationScreen() {
     console.log('User chose to pick from files');
     setPickerModalVisible(false);
     
-    // Small delay to allow modal to close
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Longer delay to ensure modal is fully closed before opening picker
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     isPickingRef.current = true;
     
@@ -160,6 +163,7 @@ export default function ForexGuideRegistrationScreen() {
 
       if (result.canceled) {
         console.log('User cancelled document picker');
+        isPickingRef.current = false;
         return;
       }
 
@@ -565,14 +569,16 @@ export default function ForexGuideRegistrationScreen() {
       <RNModal
         visible={pickerModalVisible}
         transparent={true}
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setPickerModalVisible(false)}
+        statusBarTranslucent={true}
       >
-        <TouchableOpacity 
-          style={styles.pickerModalOverlay}
-          activeOpacity={1}
-          onPress={() => setPickerModalVisible(false)}
-        >
+        <View style={styles.pickerModalOverlay}>
+          <TouchableOpacity 
+            style={styles.pickerModalBackdrop}
+            activeOpacity={1}
+            onPress={() => setPickerModalVisible(false)}
+          />
           <View style={styles.pickerModalContent}>
             <View style={styles.pickerModalHeader}>
               <Text style={styles.pickerModalTitle}>Choose Upload Method</Text>
@@ -635,7 +641,7 @@ export default function ForexGuideRegistrationScreen() {
               <Text style={styles.pickerCancelText}>Cancel / إلغاء</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </RNModal>
 
       <Modal
@@ -904,20 +910,30 @@ const styles = StyleSheet.create({
   },
   pickerModalOverlay: {
     flex: 1,
+    justifyContent: 'flex-end',
+  },
+  pickerModalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
   },
   pickerModalContent: {
     backgroundColor: colors.card,
-    borderRadius: 16,
-    width: '100%',
-    maxWidth: 400,
-    overflow: 'hidden',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
   },
   pickerModalHeader: {
-    padding: 20,
+    padding: 24,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -926,16 +942,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 4,
+    textAlign: 'center',
   },
   pickerModalTitleAr: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.textSecondary,
+    textAlign: 'center',
   },
   pickerOption: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
+    paddingHorizontal: 24,
   },
   pickerOptionTextContainer: {
     flex: 1,
@@ -954,13 +973,15 @@ const styles = StyleSheet.create({
   pickerDivider: {
     height: 1,
     backgroundColor: colors.border,
-    marginHorizontal: 20,
+    marginHorizontal: 24,
   },
   pickerCancelButton: {
     padding: 20,
+    paddingHorizontal: 24,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     alignItems: 'center',
+    marginTop: 8,
   },
   pickerCancelText: {
     fontSize: 16,

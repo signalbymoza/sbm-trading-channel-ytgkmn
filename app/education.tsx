@@ -141,10 +141,16 @@ export default function EducationScreen() {
     }
   };
 
+  const handleBackPress = () => {
+    console.log('User tapped back button on education page - navigating to home');
+    router.back();
+  };
+
   const isCurrencySelected = (code: string) => selectedCurrency === code;
   const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code}`;
 
-  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+  // Ensure adequate padding for clickable area - increased for better accessibility
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top + 8, 56) : insets.top + 8;
 
   // Determine text color based on theme - ensure it's always clearly visible
   const cardTextColor = theme === 'light' ? '#0F172A' : '#FFFFFF';
@@ -164,9 +170,11 @@ export default function EducationScreen() {
       borderBottomColor: colors.border,
       flexDirection: 'row',
       alignItems: 'center',
+      zIndex: 10,
     },
     backButton: {
-      padding: 8,
+      padding: 12,
+      marginLeft: -8,
     },
     headerTitleContainer: {
       flex: 1,
@@ -592,11 +600,9 @@ export default function EducationScreen() {
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={() => {
-            console.log('User tapped back button on education page - navigating to home');
-            router.push('/(tabs)/(home)/');
-          }}
+          onPress={handleBackPress}
           activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <IconSymbol 
             ios_icon_name="chevron.left" 
@@ -632,6 +638,7 @@ export default function EducationScreen() {
                 setShowCurrencyModal(true);
               }}
               activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <IconSymbol 
                 ios_icon_name="dollarsign.circle.fill" 
