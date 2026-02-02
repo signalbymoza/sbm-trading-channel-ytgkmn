@@ -68,8 +68,8 @@ export default function ForexGuideRegistrationScreen() {
     isPickingRef.current = true;
     setPickerModalVisible(false);
     
-    // Small delay to ensure modal closes smoothly
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Longer delay to ensure modal fully closes before opening picker
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
       console.log('Requesting photo library permissions...');
@@ -90,12 +90,14 @@ export default function ForexGuideRegistrationScreen() {
         return;
       }
 
-      console.log('Permission granted - opening image picker with old reliable settings...');
+      console.log('Permission granted - opening image picker with simplified settings...');
+      
+      // Use the new API format without deprecated MediaTypeOptions
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 0.8,
+        exif: false,
       });
 
       console.log('Image picker result:', JSON.stringify(result, null, 2));
@@ -111,7 +113,7 @@ export default function ForexGuideRegistrationScreen() {
         console.log('User selected image:', asset.uri);
         console.log('Image file name:', asset.fileName);
         
-        const fileName = asset.fileName || `image_${Date.now()}.jpg`;
+        const fileName = asset.fileName || `id_document_${Date.now()}.jpg`;
         setDocumentFileName(fileName);
         await uploadDocument(asset.uri, fileName, 'image/jpeg');
       } else {
@@ -145,8 +147,8 @@ export default function ForexGuideRegistrationScreen() {
     isPickingRef.current = true;
     setPickerModalVisible(false);
     
-    // Small delay to ensure modal closes smoothly
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Longer delay to ensure modal fully closes before opening picker
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
       console.log('Opening document picker...');
