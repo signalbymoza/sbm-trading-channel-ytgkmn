@@ -13,6 +13,20 @@ export async function downloadAndOpenFile(fileUrl: string, fileName?: string): P
   console.log('downloadAndOpenFile called with URL:', fileUrl);
   
   try {
+    // Validate URL
+    if (!fileUrl || fileUrl.trim() === '') {
+      console.error('Invalid file URL: empty or null');
+      throw new Error('رابط الملف غير صالح');
+    }
+    
+    // Check if URL is valid
+    try {
+      new URL(fileUrl);
+    } catch (urlError) {
+      console.error('Invalid URL format:', fileUrl);
+      throw new Error('رابط الملف غير صالح');
+    }
+    
     // On web, just open the URL in a new tab
     if (Platform.OS === 'web') {
       console.log('Web platform detected - opening URL in new tab');
@@ -22,6 +36,7 @@ export async function downloadAndOpenFile(fileUrl: string, fileName?: string): P
 
     // For native platforms (iOS/Android), download the file first
     console.log('Native platform detected - starting download process');
+    console.log('Platform:', Platform.OS);
     
     // Determine file extension from URL or use provided fileName
     let fileExtension = 'pdf';
@@ -44,19 +59,24 @@ export async function downloadAndOpenFile(fileUrl: string, fileName?: string): P
     
     console.log('Downloading file to:', fileUri);
     console.log('File extension detected:', fileExtension);
+    console.log('Document directory:', FileSystem.documentDirectory);
     
     // Download the file
+    console.log('Starting download from:', fileUrl);
     const downloadResult = await FileSystem.downloadAsync(fileUrl, fileUri);
     
     console.log('Download completed with status:', downloadResult.status);
     console.log('File saved to:', downloadResult.uri);
+    console.log('Download result:', JSON.stringify(downloadResult, null, 2));
     
     if (downloadResult.status !== 200) {
+      console.error('Download failed with status:', downloadResult.status);
       throw new Error(`فشل التنزيل مع الحالة: ${downloadResult.status}`);
     }
     
     // Check if sharing is available
     const isSharingAvailable = await Sharing.isAvailableAsync();
+    console.log('Sharing available:', isSharingAvailable);
     
     if (!isSharingAvailable) {
       console.error('Sharing is not available on this device');
@@ -93,7 +113,13 @@ export async function downloadAndOpenFile(fileUrl: string, fileName?: string): P
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
-    throw error;
+    
+    // Re-throw with more context
+    if (error instanceof Error) {
+      throw new Error(`فشل فتح الملف: ${error.message}`);
+    } else {
+      throw new Error('فشل فتح الملف: خطأ غير معروف');
+    }
   }
 }
 

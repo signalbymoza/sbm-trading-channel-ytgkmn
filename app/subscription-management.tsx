@@ -80,6 +80,7 @@ export default function SubscriptionManagementScreen() {
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState<string | null>(null);
   const [documentLoading, setDocumentLoading] = useState(false);
   const [downloadingDocument, setDownloadingDocument] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
@@ -136,19 +137,26 @@ export default function SubscriptionManagementScreen() {
       
       const subscribersData = await subscribersResponse.json();
       console.log('Subscribers loaded successfully:', subscribersData.length);
+      console.log('Sample subscriber data:', subscribersData[0]);
       
-      const formattedSubscribers = subscribersData.map((sub: any) => ({
-        id: sub.id,
-        name: sub.name,
-        email: sub.email,
-        telegramUsername: sub.telegram_username,
-        channelType: sub.channel_type,
-        subscriptionEndDate: sub.subscription_end_date,
-        status: sub.status,
-        daysRemaining: calculateDaysRemaining(sub.subscription_end_date),
-        idDocumentUrl: sub.id_document_url,
-      }));
+      const formattedSubscribers = subscribersData.map((sub: any) => {
+        const idDocUrl = sub.id_document_url || sub.idDocumentUrl;
+        console.log('Subscriber:', sub.name, 'ID Document URL:', idDocUrl);
+        
+        return {
+          id: sub.id,
+          name: sub.name,
+          email: sub.email,
+          telegramUsername: sub.telegram_username,
+          channelType: sub.channel_type,
+          subscriptionEndDate: sub.subscription_end_date,
+          status: sub.status,
+          daysRemaining: calculateDaysRemaining(sub.subscription_end_date),
+          idDocumentUrl: idDocUrl,
+        };
+      });
       
+      console.log('Formatted subscribers with document URLs:', formattedSubscribers.filter(s => s.idDocumentUrl).length);
       setSubscribers(formattedSubscribers);
 
       const brokersResponse = await fetch(`${backendUrl}/api/broker-subscribers`);
@@ -230,6 +238,22 @@ export default function SubscriptionManagementScreen() {
 
   const handleViewDocument = (documentUrl: string) => {
     console.log('User tapped view document button, URL:', documentUrl);
+    
+    // Validate URL
+    if (!documentUrl || documentUrl.trim() === '') {
+      console.error('Invalid document URL: empty or null');
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Invalid document URL. Please contact support.',
+        'رابط المستند غير صالح. يرجى الاتصال بالدعم.'
+      );
+      return;
+    }
+    
+    // Reset error state
+    setImageLoadError(false);
     setSelectedDocumentUrl(documentUrl);
     
     // If it's an image, show in modal. If it's a PDF, download and open directly
@@ -699,6 +723,32 @@ export default function SubscriptionManagementScreen() {
       fontWeight: '600',
       color: '#FFFFFF',
     },
+    documentErrorContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 12,
+      padding: 20,
+    },
+    documentErrorTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: '#EF4444',
+      textAlign: 'center',
+    },
+    documentErrorMessage: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    documentErrorUrl: {
+      fontSize: 11,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+      marginTop: 8,
+      paddingHorizontal: 12,
+    },
   });
 
   return (
@@ -932,10 +982,14 @@ export default function SubscriptionManagementScreen() {
                         </React.Fragment>
                       )}
 
-                      {subscriber.idDocumentUrl && (
+                      {subscriber.idDocumentUrl && subscriber.idDocumentUrl.trim() !== '' && (
                         <TouchableOpacity
                           style={styles.viewDocumentButton}
-                          onPress={() => handleViewDocument(subscriber.idDocumentUrl!)}
+                          onPress={() => {
+                            console.log('View document button pressed for subscriber:', subscriber.name);
+                            console.log('Document URL:', subscriber.idDocumentUrl);
+                            handleViewDocument(subscriber.idDocumentUrl!);
+                          }}
                           disabled={downloadingDocument}
                           activeOpacity={0.7}
                         >
@@ -1099,6 +1153,8 @@ export default function SubscriptionManagementScreen() {
                   console.log('User closed document modal');
                   setDocumentModalVisible(false);
                   setSelectedDocumentUrl(null);
+                  setImageLoadError(false);
+                  setDocumentLoading(false);
                 }}
                 activeOpacity={0.7}
               >
@@ -1112,54 +1168,97 @@ export default function SubscriptionManagementScreen() {
             </View>
 
             <View style={styles.documentImageContainer}>
-              {selectedDocumentUrl ? (
+              {selectedDocumentUrl && !imageLoadError ? (
                 <Image
                   source={{ uri: selectedDocumentUrl }}
                   style={styles.documentImage}
                   onLoadStart={() => {
-                    console.log('Document image loading started');
+                    console.log('Document image loading started for URL:', selectedDocumentUrl);
                     setDocumentLoading(true);
+                    setImageLoadError(false);
                   }}
                   onLoadEnd={() => {
-                    console.log('Document image loading completed');
+                    console.log('Document image loading completed successfully');
                     setDocumentLoading(false);
                   }}
                   onError={(error) => {
-                    console.error('Document image loading error:', error);
+                    console.error('Document image loading error:', error.nativeEvent);
+                    console.error('Failed URL:', selectedDocumentUrl);
                     setDocumentLoading(false);
+                    setImageLoadError(true);
                   }}
                 />
               ) : null}
               
-              {documentLoading && (
+              {documentLoading && !imageLoadError && (
                 <View style={[styles.documentLoadingContainer, { position: 'absolute' }]}>
                   <ActivityIndicator size="large" color={colors.primary} />
                   <Text style={styles.documentLoadingText}>جاري تحميل الصورة...</Text>
                 </View>
               )}
+              
+              {imageLoadError && (
+                <View style={styles.documentErrorContainer}>
+                  <IconSymbol
+                    ios_icon_name="exclamationmark.triangle.fill"
+                    android_material_icon_name="error"
+                    size={48}
+                    color="#EF4444"
+                  />
+                  <Text style={styles.documentErrorTitle}>فشل تحميل الصورة</Text>
+                  <Text style={styles.documentErrorMessage}>
+                    لا يمكن عرض الصورة. يرجى تنزيل الملف للعرض.
+                  </Text>
+                  <Text style={styles.documentErrorUrl} numberOfLines={2}>
+                    {selectedDocumentUrl}
+                  </Text>
+                </View>
+              )}
             </View>
 
             {selectedDocumentUrl && (
-              <TouchableOpacity
-                style={styles.downloadDocumentButton}
-                onPress={() => handleDownloadDocument(selectedDocumentUrl)}
-                disabled={downloadingDocument}
-                activeOpacity={0.7}
-              >
-                {downloadingDocument ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <React.Fragment>
+              <View style={{ gap: 12 }}>
+                <TouchableOpacity
+                  style={styles.downloadDocumentButton}
+                  onPress={() => handleDownloadDocument(selectedDocumentUrl)}
+                  disabled={downloadingDocument}
+                  activeOpacity={0.7}
+                >
+                  {downloadingDocument ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <React.Fragment>
+                      <IconSymbol
+                        ios_icon_name="arrow.down.circle.fill"
+                        android_material_icon_name="download"
+                        size={20}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.downloadDocumentButtonText}>تنزيل الملف</Text>
+                    </React.Fragment>
+                  )}
+                </TouchableOpacity>
+                
+                {imageLoadError && (
+                  <TouchableOpacity
+                    style={[styles.downloadDocumentButton, { backgroundColor: '#6B7280' }]}
+                    onPress={() => {
+                      console.log('Retry loading image');
+                      setImageLoadError(false);
+                      setDocumentLoading(true);
+                    }}
+                    activeOpacity={0.7}
+                  >
                     <IconSymbol
-                      ios_icon_name="arrow.down.circle.fill"
-                      android_material_icon_name="download"
+                      ios_icon_name="arrow.clockwise"
+                      android_material_icon_name="refresh"
                       size={20}
                       color="#FFFFFF"
                     />
-                    <Text style={styles.downloadDocumentButtonText}>تنزيل الملف</Text>
-                  </React.Fragment>
+                    <Text style={styles.downloadDocumentButtonText}>إعادة المحاولة</Text>
+                  </TouchableOpacity>
                 )}
-              </TouchableOpacity>
+              </View>
             )}
           </View>
         </View>
