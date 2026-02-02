@@ -5,9 +5,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function IntroScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   console.log('IntroScreen: Displaying introduction about Moza Al-Balushi');
 
@@ -16,8 +18,32 @@ export default function IntroScreen() {
     router.replace('/(tabs)/(home)');
   };
 
+  const handleBackPress = () => {
+    console.log('User tapped back button on intro page - navigating back');
+    router.back();
+  };
+
+  const topPaddingTop = insets.top;
+
   return (
     <View style={styles.container}>
+      {/* Header with Back Button Only */}
+      <View style={[styles.header, { paddingTop: topPaddingTop }]}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={handleBackPress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -252,7 +278,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: Platform.OS === 'android' ? 48 : 0,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  backButton: {
+    padding: 12,
+    marginLeft: -8,
   },
   scrollView: {
     flex: 1,
