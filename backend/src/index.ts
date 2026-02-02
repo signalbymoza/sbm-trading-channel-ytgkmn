@@ -10,6 +10,20 @@ export const app = await createApplication(schema);
 // Enable storage for file uploads
 app.withStorage();
 
+// Configure multipart upload limits for file uploads
+// This allows files up to 10MB for ID documents and other uploads
+try {
+  await app.fastify.register(require('@fastify/multipart'), {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB file size limit
+    },
+  });
+} catch (error) {
+  // Multipart plugin may already be registered by the framework
+  // This is not a critical error
+  app.logger.debug({ err: error }, 'Multipart plugin registration (may already be registered)');
+}
+
 // Export App type for use in route files
 export type App = typeof app;
 

@@ -81,7 +81,21 @@ function calculateEndDate(startDate: Date, months: number): Date {
 
 export function register(app: App, fastify: FastifyInstance) {
   // POST /api/upload/id-document - Upload ID document
-  fastify.post('/api/upload/id-document', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/api/upload/id-document', {
+    schema: {
+      description: 'Upload ID document (accepts PDF, JPG, PNG - max 10MB)',
+      tags: ['subscriptions'],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            url: { type: 'string' },
+            filename: { type: 'string' },
+          },
+        },
+      },
+    },
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
     app.logger.info({
       method: 'POST',
       path: '/api/upload/id-document',
