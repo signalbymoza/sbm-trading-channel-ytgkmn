@@ -5,11 +5,13 @@ import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import Modal from "@/components/ui/Modal";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfitPlanSuccessScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const planAmount = params.plan_amount as string || '250';
+  const insets = useSafeAreaInsets();
   const [isDownloading, setIsDownloading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
@@ -99,11 +101,13 @@ export default function ProfitPlanSuccessScreen() {
   const downloadingText = 'جاري الفتح...';
   const backToHomeText = 'العودة إلى الصفحة الرئيسية';
 
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
   return (
     <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: topPaddingTop + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Success Icon */}
@@ -262,7 +266,6 @@ const styles = StyleSheet.create({
   },
   successIconContainer: {
     alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? 60 : 40,
     paddingBottom: 24,
   },
   successIconCircle: {

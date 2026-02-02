@@ -1,17 +1,21 @@
 
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, Image, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, Platform } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AboutScreen() {
+  const insets = useSafeAreaInsets();
   console.log('AboutScreen: Rendering about page');
+
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
   return (
     <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: topPaddingTop + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Owner Section */}
@@ -194,7 +198,6 @@ const styles = StyleSheet.create({
   ownerSection: {
     alignItems: 'center',
     padding: 24,
-    paddingTop: Platform.OS === 'android' ? 24 : 16,
     backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,

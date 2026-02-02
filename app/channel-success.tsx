@@ -5,12 +5,14 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import Modal from "@/components/ui/Modal";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ChannelSuccessScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams();
   const channelType = params.channel as string;
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
@@ -108,11 +110,13 @@ export default function ChannelSuccessScreen() {
   const channelNameEn = channelType === 'gold' ? 'Gold Channel' : channelType === 'forex' ? 'Forex Channel' : 'Analysis Channel';
   const channelNameAr = channelType === 'gold' ? 'قناة الذهب' : channelType === 'forex' ? 'قناة الفوركس' : 'قناة التحليل';
 
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: topPaddingTop + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Success Icon */}
@@ -309,7 +313,6 @@ const styles = StyleSheet.create({
   },
   successIconContainer: {
     alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? 60 : 40,
     paddingBottom: 24,
   },
   successIconCircle: {
