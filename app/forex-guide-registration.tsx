@@ -65,12 +65,11 @@ export default function ForexGuideRegistrationScreen() {
     }
 
     console.log('User chose to pick from photos');
+    isPickingRef.current = true;
     setPickerModalVisible(false);
     
-    // Longer delay to ensure modal is fully closed before opening picker
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    isPickingRef.current = true;
+    // Small delay to ensure modal closes smoothly
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     try {
       console.log('Requesting photo library permissions...');
@@ -91,13 +90,12 @@ export default function ForexGuideRegistrationScreen() {
         return;
       }
 
-      console.log('Permission granted - opening image picker...');
+      console.log('Permission granted - opening image picker with old reliable settings...');
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: false,
-        quality: 0.8,
-        allowsMultipleSelection: false,
-        presentationStyle: 'fullScreen',
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       });
 
       console.log('Image picker result:', JSON.stringify(result, null, 2));
@@ -144,12 +142,11 @@ export default function ForexGuideRegistrationScreen() {
     }
 
     console.log('User chose to pick from files');
+    isPickingRef.current = true;
     setPickerModalVisible(false);
     
-    // Longer delay to ensure modal is fully closed before opening picker
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    isPickingRef.current = true;
+    // Small delay to ensure modal closes smoothly
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     try {
       console.log('Opening document picker...');
