@@ -10,6 +10,8 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
+  Image,
+  Modal as RNModal,
 } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,6 +37,7 @@ interface Subscriber {
   subscriptionEndDate: string;
   status: string;
   daysRemaining: number;
+  idDocumentUrl?: string;
 }
 
 interface BrokerSubscriber {
@@ -72,6 +75,9 @@ export default function SubscriptionManagementScreen() {
     message: '',
     messageAr: '',
   });
+  const [documentModalVisible, setDocumentModalVisible] = useState(false);
+  const [selectedDocumentUrl, setSelectedDocumentUrl] = useState<string | null>(null);
+  const [documentLoading, setDocumentLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -121,7 +127,7 @@ export default function SubscriptionManagementScreen() {
       console.log('Stats loaded successfully:', statsData);
       setStats(statsData);
 
-      const subscribersResponse = await fetch(`${backendUrl}/api/subscriptions/list`);
+      const subscribersResponse = await fetch(`${backendUrl}/api/subscriptions`);
       console.log('Subscribers response status:', subscribersResponse.status);
       
       if (!subscribersResponse.ok) {
@@ -132,7 +138,20 @@ export default function SubscriptionManagementScreen() {
       
       const subscribersData = await subscribersResponse.json();
       console.log('Subscribers loaded successfully:', subscribersData.length);
-      setSubscribers(subscribersData);
+      
+      const formattedSubscribers = subscribersData.map((sub: any) => ({
+        id: sub.id,
+        name: sub.name,
+        email: sub.email,
+        telegramUsername: sub.telegram_username,
+        channelType: sub.channel_type,
+        subscriptionEndDate: sub.subscription_end_date,
+        status: sub.status,
+        daysRemaining: calculateDaysRemaining(sub.subscription_end_date),
+        idDocumentUrl: sub.id_document_url,
+      }));
+      
+      setSubscribers(formattedSubscribers);
 
       const brokersResponse = await fetch(`${backendUrl}/api/broker-subscribers`);
       console.log('Broker subscribers response status:', brokersResponse.status);
@@ -154,6 +173,15 @@ export default function SubscriptionManagementScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateDaysRemaining = (endDateString: string | null): number => {
+    if (!endDateString) return 0;
+    const endDate = new Date(endDateString);
+    const now = new Date();
+    const diffTime = endDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   const handleExportSubscriptions = async () => {
@@ -198,6 +226,12 @@ export default function SubscriptionManagementScreen() {
     }
   };
 
+  const handleViewDocument = (documentUrl: string) => {
+    console.log('User tapped view document button, URL:', documentUrl);
+    setSelectedDocumentUrl(documentUrl);
+    setDocumentModalVisible(true);
+  };
+
   const formatDateGregorian = (dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -215,7 +249,7 @@ export default function SubscriptionManagementScreen() {
       forex: 'قناة الفوركس',
       analysis: 'قناة التحليل',
     };
-    return channelMap[channelType.toLowerCase()] || channelType;
+    return channelMap[channelType?.toLowerCase()] || channelType;
   };
 
   const getStatusColor = (status: string) => {
@@ -453,6 +487,22 @@ export default function SubscriptionManagementScreen() {
       flex: 1,
       marginLeft: 12,
     },
+    viewDocumentButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      marginTop: 8,
+    },
+    viewDocumentButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
     brokerFilterContainer: {
       flexDirection: 'row',
       gap: 8,
@@ -542,6 +592,56 @@ export default function SubscriptionManagementScreen() {
       fontSize: 16,
       color: colors.textSecondary,
       textAlign: 'center',
+    },
+    documentModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.9)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    documentModalContent: {
+      width: '90%',
+      maxHeight: '80%',
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 16,
+      gap: 16,
+    },
+    documentModalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    documentModalTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    documentModalCloseButton: {
+      padding: 8,
+    },
+    documentImageContainer: {
+      width: '100%',
+      height: 400,
+      borderRadius: 12,
+      overflow: 'hidden',
+      backgroundColor: colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    documentImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'contain',
+    },
+    documentLoadingContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 12,
+    },
+    documentLoadingText: {
+      fontSize: 14,
+      color: colors.textSecondary,
     },
   });
 
@@ -751,26 +851,46 @@ export default function SubscriptionManagementScreen() {
                         </Text>
                       </View>
 
-                      <View style={styles.subscriberRow}>
-                        <Text style={styles.subscriberLabel}>تاريخ الانتهاء:</Text>
-                        <Text style={styles.subscriberValue}>
-                          {formatDateGregorian(subscriber.subscriptionEndDate)}
-                        </Text>
-                      </View>
+                      {subscriber.subscriptionEndDate && (
+                        <React.Fragment>
+                          <View style={styles.subscriberRow}>
+                            <Text style={styles.subscriberLabel}>تاريخ الانتهاء:</Text>
+                            <Text style={styles.subscriberValue}>
+                              {formatDateGregorian(subscriber.subscriptionEndDate)}
+                            </Text>
+                          </View>
 
-                      <View style={styles.subscriberRow}>
-                        <Text style={styles.subscriberLabel}>الأيام المتبقية:</Text>
-                        <Text
-                          style={[
-                            styles.subscriberValue,
-                            { color: getStatusColor(subscriber.status) },
-                          ]}
+                          <View style={styles.subscriberRow}>
+                            <Text style={styles.subscriberLabel}>الأيام المتبقية:</Text>
+                            <Text
+                              style={[
+                                styles.subscriberValue,
+                                { color: getStatusColor(subscriber.status) },
+                              ]}
+                            >
+                              {subscriber.daysRemaining >= 0
+                                ? `${subscriber.daysRemaining} يوم`
+                                : 'منتهي'}
+                            </Text>
+                          </View>
+                        </React.Fragment>
+                      )}
+
+                      {subscriber.idDocumentUrl && (
+                        <TouchableOpacity
+                          style={styles.viewDocumentButton}
+                          onPress={() => handleViewDocument(subscriber.idDocumentUrl!)}
+                          activeOpacity={0.7}
                         >
-                          {subscriber.daysRemaining >= 0
-                            ? `${subscriber.daysRemaining} يوم`
-                            : 'منتهي'}
-                        </Text>
-                      </View>
+                          <IconSymbol
+                            ios_icon_name="doc.text.fill"
+                            android_material_icon_name="description"
+                            size={20}
+                            color="#FFFFFF"
+                          />
+                          <Text style={styles.viewDocumentButtonText}>عرض الهوية / الجواز</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   ))}
                 </View>
@@ -899,6 +1019,65 @@ export default function SubscriptionManagementScreen() {
         message={modalConfig.message}
         messageAr={modalConfig.messageAr}
       />
+
+      <RNModal
+        visible={documentModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setDocumentModalVisible(false)}
+      >
+        <View style={styles.documentModalOverlay}>
+          <View style={styles.documentModalContent}>
+            <View style={styles.documentModalHeader}>
+              <Text style={styles.documentModalTitle}>صورة الهوية / الجواز</Text>
+              <TouchableOpacity
+                style={styles.documentModalCloseButton}
+                onPress={() => {
+                  console.log('User closed document modal');
+                  setDocumentModalVisible(false);
+                  setSelectedDocumentUrl(null);
+                }}
+                activeOpacity={0.7}
+              >
+                <IconSymbol
+                  ios_icon_name="xmark.circle.fill"
+                  android_material_icon_name="cancel"
+                  size={28}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.documentImageContainer}>
+              {selectedDocumentUrl ? (
+                <Image
+                  source={{ uri: selectedDocumentUrl }}
+                  style={styles.documentImage}
+                  onLoadStart={() => {
+                    console.log('Document image loading started');
+                    setDocumentLoading(true);
+                  }}
+                  onLoadEnd={() => {
+                    console.log('Document image loading completed');
+                    setDocumentLoading(false);
+                  }}
+                  onError={(error) => {
+                    console.error('Document image loading error:', error);
+                    setDocumentLoading(false);
+                  }}
+                />
+              ) : null}
+              
+              {documentLoading && (
+                <View style={[styles.documentLoadingContainer, { position: 'absolute' }]}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text style={styles.documentLoadingText}>جاري تحميل الصورة...</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      </RNModal>
     </View>
   );
 }
