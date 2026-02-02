@@ -7,9 +7,11 @@ import { IconSymbol } from "@/components/IconSymbol";
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ForexGuideRegistrationScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -317,6 +319,8 @@ export default function ForexGuideRegistrationScreen() {
   const submitButtonEn = 'Submit Purchase';
   const submitButtonAr = 'إتمام الشراء';
 
+  const headerPaddingTop = insets.top + 16;
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -324,7 +328,7 @@ export default function ForexGuideRegistrationScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
           <Text style={styles.title}>{titleEn}</Text>
           <Text style={styles.titleAr}>{titleAr}</Text>
           <Text style={styles.subtitle}>{subtitleEn}</Text>
@@ -519,8 +523,8 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   header: {
-    padding: 24,
-    paddingTop: Platform.OS === 'android' ? 60 : 24,
+    paddingHorizontal: 24,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 24,

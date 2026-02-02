@@ -7,10 +7,12 @@ import { IconSymbol } from "@/components/IconSymbol";
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function RegistrationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const channelType = params.channel as string;
   const duration = params.duration as string;
   const program = params.program as string;
@@ -356,6 +358,8 @@ export default function RegistrationScreen() {
   const selectTrainerLabelEn = 'Select Trainer';
   const selectTrainerLabelAr = 'اختر المدرب';
 
+  const headerPaddingTop = insets.top + 16;
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -363,7 +367,7 @@ export default function RegistrationScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
           <Text style={styles.title}>Complete Your Registration</Text>
           <Text style={styles.subtitle}>
             Fill in your details to complete the subscription process
@@ -600,8 +604,8 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   header: {
-    padding: 24,
-    paddingTop: Platform.OS === 'android' ? 24 : 16,
+    paddingHorizontal: 24,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 24,
