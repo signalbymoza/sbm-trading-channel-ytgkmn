@@ -1,15 +1,16 @@
 
 import React from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function EducationIntroScreen() {
   const router = useRouter();
+  const { colors, theme } = useTheme();
 
-  console.log('EducationIntroScreen: Rendering education introduction page');
+  console.log('EducationIntroScreen: Rendering education introduction page, theme:', theme);
 
   const handleLearnMore = () => {
     console.log('User tapped Learn More button - navigating to education programs');
@@ -65,6 +66,310 @@ export default function EducationIntroScreen() {
     },
   ];
 
+  // Dynamic text colors based on theme
+  const heroTextColor = theme === 'light' ? '#FFFFFF' : colors.text;
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    topNav: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      paddingTop: Platform.OS === 'android' ? 60 : 12,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    navButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      marginLeft: 8,
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+    },
+    navButtonActive: {
+      backgroundColor: colors.highlight,
+    },
+    navButtonText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    navButtonTextAr: {
+      fontSize: 11,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 2,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingBottom: 40,
+    },
+    heroSection: {
+      padding: 32,
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    heroTitle: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: heroTextColor,
+      textAlign: 'center',
+      marginTop: 16,
+      marginBottom: 4,
+    },
+    heroTitleAr: {
+      fontSize: 26,
+      fontWeight: 'bold',
+      color: heroTextColor,
+      textAlign: 'center',
+      marginBottom: 16,
+    },
+    heroSubtitle: {
+      fontSize: 16,
+      color: heroTextColor,
+      textAlign: 'center',
+      lineHeight: 24,
+      marginBottom: 4,
+      opacity: 0.9,
+    },
+    heroSubtitleAr: {
+      fontSize: 15,
+      color: heroTextColor,
+      textAlign: 'center',
+      lineHeight: 24,
+      marginBottom: 24,
+      opacity: 0.85,
+    },
+    heroButton: {
+      backgroundColor: theme === 'light' ? '#FFFFFF' : colors.card,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      minWidth: 280,
+    },
+    heroButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: theme === 'light' ? colors.primary : colors.text,
+      marginRight: 4,
+    },
+    heroButtonTextAr: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: theme === 'light' ? colors.primary : colors.text,
+      marginRight: 8,
+    },
+    featuresSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 24,
+      backgroundColor: colors.card,
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    sectionTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 24,
+      textAlign: 'center',
+    },
+    featureItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: 20,
+      paddingHorizontal: 8,
+    },
+    checkmarkContainer: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 12,
+    },
+    featureTextContainer: {
+      flex: 1,
+    },
+    featureText: {
+      fontSize: 16,
+      color: colors.text,
+      fontWeight: '600',
+      marginBottom: 2,
+    },
+    featureTextAr: {
+      fontSize: 15,
+      color: colors.textSecondary,
+    },
+    startButton: {
+      backgroundColor: colors.highlight,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      marginTop: 16,
+    },
+    startButtonText: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 4,
+    },
+    startButtonTextAr: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 8,
+    },
+    trainersSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 24,
+      marginBottom: 24,
+    },
+    trainerCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    trainerHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    trainerAvatar: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
+    },
+    trainerNameContainer: {
+      flex: 1,
+    },
+    trainerName: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    trainerNameAr: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.highlight,
+    },
+    trainerDescription: {
+      fontSize: 15,
+      color: colors.text,
+      lineHeight: 22,
+      marginBottom: 4,
+    },
+    trainerDescriptionAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 22,
+    },
+    paymentSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 24,
+      backgroundColor: colors.card,
+      marginBottom: 24,
+    },
+    paymentCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    paymentIconContainer: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
+    },
+    paymentContent: {
+      flex: 1,
+    },
+    paymentName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    paymentNameAr: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.highlight,
+      marginBottom: 4,
+    },
+    paymentDescription: {
+      fontSize: 14,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    paymentDescriptionAr: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    finalCTA: {
+      paddingHorizontal: 24,
+      paddingVertical: 24,
+      alignItems: 'center',
+    },
+    finalButton: {
+      backgroundColor: colors.highlight,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 18,
+      paddingHorizontal: 32,
+      borderRadius: 12,
+      width: '100%',
+    },
+    finalButtonText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 4,
+    },
+    finalButtonTextAr: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginRight: 8,
+    },
+  });
+
   return (
     <View style={styles.container}>
       {/* Top Navigation */}
@@ -110,7 +415,7 @@ export default function EducationIntroScreen() {
             ios_icon_name="chart.line.uptrend.xyaxis" 
             android_material_icon_name="show-chart" 
             size={64} 
-            color={colors.text} 
+            color={heroTextColor} 
           />
           <Text style={styles.heroTitle}>Trade with Confidence and Professionalism</Text>
           <Text style={styles.heroTitleAr}>تداول بثقة واحترافية</Text>
@@ -131,7 +436,7 @@ export default function EducationIntroScreen() {
               ios_icon_name="arrow.right" 
               android_material_icon_name="arrow-forward" 
               size={20} 
-              color={colors.primary} 
+              color={theme === 'light' ? colors.primary : colors.text} 
             />
           </TouchableOpacity>
         </LinearGradient>
@@ -247,304 +552,3 @@ export default function EducationIntroScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  topNav: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingTop: Platform.OS === 'android' ? 60 : 12,
-    backgroundColor: colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  navButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  navButtonActive: {
-    backgroundColor: colors.highlight,
-  },
-  navButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text,
-    textAlign: 'center',
-  },
-  navButtonTextAr: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  heroSection: {
-    padding: 32,
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  heroTitleAr: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  heroSubtitle: {
-    fontSize: 16,
-    color: colors.text,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 4,
-    opacity: 0.9,
-  },
-  heroSubtitleAr: {
-    fontSize: 15,
-    color: colors.text,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 24,
-    opacity: 0.85,
-  },
-  heroButton: {
-    backgroundColor: colors.text,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    minWidth: 280,
-  },
-  heroButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginRight: 4,
-  },
-  heroButtonTextAr: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginRight: 8,
-  },
-  featuresSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    backgroundColor: colors.card,
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  sectionTitleAr: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 20,
-    paddingHorizontal: 8,
-  },
-  checkmarkContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  featureTextContainer: {
-    flex: 1,
-  },
-  featureText: {
-    fontSize: 16,
-    color: colors.text,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  featureTextAr: {
-    fontSize: 15,
-    color: colors.textSecondary,
-  },
-  startButton: {
-    backgroundColor: colors.highlight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    marginTop: 16,
-  },
-  startButtonText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 4,
-  },
-  startButtonTextAr: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 8,
-  },
-  trainersSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    marginBottom: 24,
-  },
-  trainerCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  trainerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  trainerAvatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  trainerNameContainer: {
-    flex: 1,
-  },
-  trainerName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  trainerNameAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.highlight,
-  },
-  trainerDescription: {
-    fontSize: 15,
-    color: colors.text,
-    lineHeight: 22,
-    marginBottom: 4,
-  },
-  trainerDescriptionAr: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 22,
-  },
-  paymentSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    backgroundColor: colors.card,
-    marginBottom: 24,
-  },
-  paymentCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  paymentIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  paymentContent: {
-    flex: 1,
-  },
-  paymentName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  paymentNameAr: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.highlight,
-    marginBottom: 4,
-  },
-  paymentDescription: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  paymentDescriptionAr: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  finalCTA: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  finalButton: {
-    backgroundColor: colors.highlight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    width: '100%',
-  },
-  finalButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 4,
-  },
-  finalButtonTextAr: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginRight: 8,
-  },
-});
