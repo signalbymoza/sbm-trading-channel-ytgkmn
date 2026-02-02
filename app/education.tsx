@@ -149,8 +149,8 @@ export default function EducationScreen() {
   const isCurrencySelected = (code: string) => selectedCurrency === code;
   const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code}`;
 
-  // Mobile-friendly padding - reduced from 56 to 16 for better fit
-  const topPaddingTop = Platform.OS === 'android' ? insets.top + 16 : insets.top + 8;
+  // iPhone 17 Pro Max compatible padding - use safe area insets directly without extra padding
+  const topPaddingTop = insets.top;
 
   // Determine text color based on theme - ensure it's always clearly visible
   const cardTextColor = theme === 'light' ? '#0F172A' : '#FFFFFF';

@@ -319,7 +319,8 @@ export default function ForexGuideRegistrationScreen() {
   const submitButtonEn = 'Submit Purchase';
   const submitButtonAr = 'إتمام الشراء';
 
-  const headerPaddingTop = insets.top + 16;
+  // iPhone 17 Pro Max compatible padding - use safe area insets directly
+  const headerPaddingTop = insets.top;
 
   return (
     <View style={styles.container}>

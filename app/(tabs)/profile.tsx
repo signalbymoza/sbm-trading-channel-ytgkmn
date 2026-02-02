@@ -23,8 +23,8 @@ export default function ProfileScreen() {
     toggleTheme();
   };
 
-  // Mobile-friendly padding - reduced from 56 to 16 for better fit
-  const topPaddingTop = Platform.OS === 'android' ? insets.top + 16 : insets.top;
+  // iPhone 17 Pro Max compatible padding - use safe area insets directly
+  const topPaddingTop = insets.top;
 
   const themeLabel = theme === 'dark' ? 'خلفية داكنة' : 'خلفية فاتحة';
   const themeDescription = theme === 'dark' 

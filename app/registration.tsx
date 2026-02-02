@@ -358,7 +358,8 @@ export default function RegistrationScreen() {
   const selectTrainerLabelEn = 'Select Trainer';
   const selectTrainerLabelAr = 'اختر المدرب';
 
-  const headerPaddingTop = insets.top + 16;
+  // iPhone 17 Pro Max compatible padding - use safe area insets directly
+  const headerPaddingTop = insets.top;
 
   return (
     <View style={styles.container}>

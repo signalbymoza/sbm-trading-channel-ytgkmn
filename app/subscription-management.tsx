@@ -344,7 +344,8 @@ export default function SubscriptionManagementScreen() {
   const subscribersTitle = 'قاعدة بيانات المشتركين';
   const brokersTitle = 'المشتركين عن طريق البروكر';
 
-  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+  // iPhone 17 Pro Max compatible padding - use safe area insets directly
+  const topPaddingTop = insets.top;
 
   const styles = StyleSheet.create({
     container: {
