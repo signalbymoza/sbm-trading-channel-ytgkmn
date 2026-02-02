@@ -146,6 +146,10 @@ export default function EducationScreen() {
 
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
+  // Determine text color based on theme - ensure it's always clearly visible
+  const cardTextColor = theme === 'light' ? '#0F172A' : '#FFFFFF';
+  const cardTextSecondaryColor = theme === 'light' ? '#475569' : '#CBD5E1';
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -278,13 +282,13 @@ export default function EducationScreen() {
     programTitle: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: colors.text,
+      color: cardTextColor,
       marginBottom: 2,
     },
     programTitleAr: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: colors.text,
+      color: cardTextColor,
       marginBottom: 12,
     },
     descriptionContainer: {
@@ -292,12 +296,12 @@ export default function EducationScreen() {
     },
     descriptionText: {
       fontSize: 14,
-      color: colors.textSecondary,
+      color: cardTextSecondaryColor,
       marginBottom: 2,
     },
     descriptionTextAr: {
       fontSize: 13,
-      color: colors.textSecondary,
+      color: cardTextSecondaryColor,
     },
     programInfo: {
       flexDirection: 'row',
@@ -316,12 +320,12 @@ export default function EducationScreen() {
     },
     infoText: {
       fontSize: 14,
-      color: colors.text,
+      color: cardTextColor,
       fontWeight: '600',
     },
     infoTextAr: {
       fontSize: 12,
-      color: colors.textSecondary,
+      color: cardTextSecondaryColor,
     },
     priceText: {
       fontSize: 18,
@@ -337,13 +341,13 @@ export default function EducationScreen() {
     },
     installmentText: {
       fontSize: 13,
-      color: colors.textSecondary,
+      color: cardTextSecondaryColor,
       marginBottom: 2,
       lineHeight: 18,
     },
     installmentTextAr: {
       fontSize: 12,
-      color: colors.textSecondary,
+      color: cardTextSecondaryColor,
       marginBottom: 8,
       lineHeight: 18,
     },
@@ -366,13 +370,13 @@ export default function EducationScreen() {
     featuresTitle: {
       fontSize: 16,
       fontWeight: '600',
-      color: colors.text,
+      color: cardTextColor,
       marginBottom: 2,
     },
     featuresTitleAr: {
       fontSize: 14,
       fontWeight: '600',
-      color: colors.text,
+      color: cardTextColor,
       marginBottom: 12,
     },
     featureItem: {
@@ -386,12 +390,12 @@ export default function EducationScreen() {
     },
     featureText: {
       fontSize: 14,
-      color: colors.text,
+      color: cardTextColor,
       marginBottom: 2,
     },
     featureTextAr: {
       fontSize: 13,
-      color: colors.textSecondary,
+      color: cardTextSecondaryColor,
     },
     benefitsSection: {
       paddingHorizontal: 24,
