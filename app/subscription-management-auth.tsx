@@ -11,13 +11,14 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
-import { colors } from '@/styles/commonStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/ThemeContext';
 import Modal from '@/components/ui/Modal';
 
 const ADMIN_PASSWORD = 'admin123';
 
 export default function SubscriptionManagementAuthScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [password, setPassword] = useState('');
@@ -46,10 +47,13 @@ export default function SubscriptionManagementAuthScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: Platform.OS === 'android' ? 48 : insets.top }]}
+      style={[styles.container, { 
+        backgroundColor: colors.background,
+        paddingTop: Platform.OS === 'android' ? 48 : insets.top 
+      }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -62,7 +66,7 @@ export default function SubscriptionManagementAuthScreen() {
             color={colors.text}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{titleText}</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{titleText}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -76,14 +80,17 @@ export default function SubscriptionManagementAuthScreen() {
           />
         </View>
 
-        <Text style={styles.title}>{titleText}</Text>
-        <Text style={styles.subtitle}>{subtitleText}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{titleText}</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitleText}</Text>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>{passwordLabel}</Text>
-          <View style={styles.passwordInputWrapper}>
+          <Text style={[styles.label, { color: colors.text }]}>{passwordLabel}</Text>
+          <View style={[styles.passwordInputWrapper, { 
+            backgroundColor: colors.card,
+            borderColor: colors.border 
+          }]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text }]}
               value={password}
               onChangeText={setPassword}
               placeholder="أدخل كلمة المرور"
@@ -110,11 +117,11 @@ export default function SubscriptionManagementAuthScreen() {
         </View>
 
         <TouchableOpacity
-          style={styles.submitButton}
+          style={[styles.submitButton, { backgroundColor: colors.primary }]}
           onPress={handleSubmit}
           activeOpacity={0.8}
         >
-          <Text style={styles.submitButtonText}>{submitButtonText}</Text>
+          <Text style={[styles.submitButtonText, { color: '#FFFFFF' }]}>{submitButtonText}</Text>
         </TouchableOpacity>
       </View>
 
@@ -135,7 +142,6 @@ export default function SubscriptionManagementAuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -144,7 +150,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -152,7 +157,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.text,
     textAlign: 'center',
   },
   placeholder: {
@@ -170,13 +174,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: colors.textSecondary,
     marginBottom: 40,
     textAlign: 'center',
   },
@@ -187,24 +189,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 8,
     textAlign: 'right',
   },
   passwordInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.cardBackground,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   input: {
     flex: 1,
     height: 56,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: colors.text,
     textAlign: 'right',
   },
   eyeButton: {
@@ -212,7 +210,6 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     width: '100%',
-    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -221,6 +218,5 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
   },
 });
