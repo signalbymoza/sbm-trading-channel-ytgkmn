@@ -8,13 +8,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function EducationScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, theme } = useTheme();
   const insets = useSafeAreaInsets();
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 
-  console.log('EducationScreen: Rendering education programs page, currency:', selectedCurrency);
+  console.log('EducationScreen: Rendering education programs page, theme:', theme, 'currency:', selectedCurrency);
 
   const currencies = [
     { code: 'USD', symbol: '$', nameEn: 'US Dollar', nameAr: 'دولار أمريكي', rate: 1, flag: '🇺🇸' },
@@ -258,10 +258,11 @@ export default function EducationScreen() {
     },
     programCardSelected: {
       borderColor: colors.highlight,
+      backgroundColor: theme === 'light' ? colors.accent : colors.card,
     },
     programGradient: {
       padding: 20,
-      backgroundColor: colors.card,
+      backgroundColor: 'transparent',
     },
     programHeader: {
       flexDirection: 'row',
@@ -280,17 +281,11 @@ export default function EducationScreen() {
       color: colors.text,
       marginBottom: 2,
     },
-    programTitleSelected: {
-      color: colors.text,
-    },
     programTitleAr: {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.text,
       marginBottom: 12,
-    },
-    programTitleArSelected: {
-      color: colors.text,
     },
     descriptionContainer: {
       marginBottom: 12,
@@ -300,17 +295,9 @@ export default function EducationScreen() {
       color: colors.textSecondary,
       marginBottom: 2,
     },
-    descriptionTextSelected: {
-      color: colors.text,
-      opacity: 0.9,
-    },
     descriptionTextAr: {
       fontSize: 13,
       color: colors.textSecondary,
-    },
-    descriptionTextArSelected: {
-      color: colors.text,
-      opacity: 0.85,
     },
     programInfo: {
       flexDirection: 'row',
@@ -329,28 +316,18 @@ export default function EducationScreen() {
     },
     infoText: {
       fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: '600',
-    },
-    infoTextSelected: {
       color: colors.text,
+      fontWeight: '600',
     },
     infoTextAr: {
       fontSize: 12,
       color: colors.textSecondary,
-    },
-    infoTextArSelected: {
-      color: colors.text,
-      opacity: 0.8,
     },
     priceText: {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.highlight,
       marginLeft: 8,
-    },
-    priceTextSelected: {
-      color: colors.text,
     },
     installmentContainer: {
       marginBottom: 16,
@@ -364,19 +341,11 @@ export default function EducationScreen() {
       marginBottom: 2,
       lineHeight: 18,
     },
-    installmentTextSelected: {
-      color: colors.text,
-      opacity: 0.9,
-    },
     installmentTextAr: {
       fontSize: 12,
       color: colors.textSecondary,
       marginBottom: 8,
       lineHeight: 18,
-    },
-    installmentTextArSelected: {
-      color: colors.text,
-      opacity: 0.85,
     },
     tamaraContainer: {
       alignSelf: 'flex-start',
@@ -389,10 +358,7 @@ export default function EducationScreen() {
     tamaraText: {
       fontSize: 13,
       fontWeight: 'bold',
-      color: colors.background,
-    },
-    tamaraTextSelected: {
-      color: colors.background,
+      color: '#FFFFFF',
     },
     featuresSection: {
       marginTop: 8,
@@ -403,17 +369,11 @@ export default function EducationScreen() {
       color: colors.text,
       marginBottom: 2,
     },
-    featuresTitleSelected: {
-      color: colors.text,
-    },
     featuresTitleAr: {
       fontSize: 14,
       fontWeight: '600',
       color: colors.text,
       marginBottom: 12,
-    },
-    featuresTitleArSelected: {
-      color: colors.text,
     },
     featureItem: {
       flexDirection: 'row',
@@ -429,16 +389,9 @@ export default function EducationScreen() {
       color: colors.text,
       marginBottom: 2,
     },
-    featureTextSelected: {
-      color: colors.text,
-    },
     featureTextAr: {
       fontSize: 13,
       color: colors.textSecondary,
-    },
-    featureTextArSelected: {
-      color: colors.text,
-      opacity: 0.85,
     },
     benefitsSection: {
       paddingHorizontal: 24,
@@ -723,7 +676,7 @@ export default function EducationScreen() {
                       ios_icon_name={program.icon} 
                       android_material_icon_name={program.icon} 
                       size={40} 
-                      color={isSelected ? colors.text : colors.highlight} 
+                      color={colors.highlight} 
                     />
                     {isSelected && (
                       <View style={styles.selectedBadge}>
@@ -737,18 +690,18 @@ export default function EducationScreen() {
                     )}
                   </View>
 
-                  <Text style={[styles.programTitle, isSelected && styles.programTitleSelected]}>
+                  <Text style={styles.programTitle}>
                     {program.titleEn}
                   </Text>
-                  <Text style={[styles.programTitleAr, isSelected && styles.programTitleArSelected]}>
+                  <Text style={styles.programTitleAr}>
                     {program.titleAr}
                   </Text>
 
                   <View style={styles.descriptionContainer}>
-                    <Text style={[styles.descriptionText, isSelected && styles.descriptionTextSelected]}>
+                    <Text style={styles.descriptionText}>
                       {program.descriptionEn}
                     </Text>
-                    <Text style={[styles.descriptionTextAr, isSelected && styles.descriptionTextArSelected]}>
+                    <Text style={styles.descriptionTextAr}>
                       {program.descriptionAr}
                     </Text>
                   </View>
@@ -759,13 +712,13 @@ export default function EducationScreen() {
                         ios_icon_name="clock.fill" 
                         android_material_icon_name="access-time" 
                         size={20} 
-                        color={isSelected ? colors.text : colors.highlight} 
+                        color={colors.highlight} 
                       />
                       <View style={styles.infoTextContainer}>
-                        <Text style={[styles.infoText, isSelected && styles.infoTextSelected]}>
+                        <Text style={styles.infoText}>
                           {program.duration}
                         </Text>
-                        <Text style={[styles.infoTextAr, isSelected && styles.infoTextArSelected]}>
+                        <Text style={styles.infoTextAr}>
                           {program.durationAr}
                         </Text>
                       </View>
@@ -775,19 +728,19 @@ export default function EducationScreen() {
                         ios_icon_name="tag.fill" 
                         android_material_icon_name="local-offer" 
                         size={20} 
-                        color={isSelected ? colors.text : colors.highlight} 
+                        color={colors.highlight} 
                       />
-                      <Text style={[styles.priceText, isSelected && styles.priceTextSelected]}>
+                      <Text style={styles.priceText}>
                         {priceDisplay}
                       </Text>
                     </View>
                   </View>
 
                   <View style={styles.featuresSection}>
-                    <Text style={[styles.featuresTitle, isSelected && styles.featuresTitleSelected]}>
+                    <Text style={styles.featuresTitle}>
                       {program.featuresTitleEn}
                     </Text>
-                    <Text style={[styles.featuresTitleAr, isSelected && styles.featuresTitleArSelected]}>
+                    <Text style={styles.featuresTitleAr}>
                       {program.featuresTitleAr}
                     </Text>
                     {program.features.map((feature, featureIndex) => (
@@ -796,13 +749,13 @@ export default function EducationScreen() {
                           ios_icon_name="checkmark.circle" 
                           android_material_icon_name="check-circle" 
                           size={18} 
-                          color={isSelected ? colors.text : colors.success} 
+                          color={colors.success} 
                         />
                         <View style={styles.featureTextContainer}>
-                          <Text style={[styles.featureText, isSelected && styles.featureTextSelected]}>
+                          <Text style={styles.featureText}>
                             {feature.en}
                           </Text>
-                          <Text style={[styles.featureTextAr, isSelected && styles.featureTextArSelected]}>
+                          <Text style={styles.featureTextAr}>
                             {feature.ar}
                           </Text>
                         </View>
