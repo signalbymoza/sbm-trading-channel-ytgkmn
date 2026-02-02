@@ -23,8 +23,8 @@ export default function ProfileScreen() {
     toggleTheme();
   };
 
-  // Reduced padding for mobile-friendly layout
-  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top + 8, 56) : insets.top;
+  // Mobile-friendly padding - reduced from 56 to 16 for better fit
+  const topPaddingTop = Platform.OS === 'android' ? insets.top + 16 : insets.top;
 
   const themeLabel = theme === 'dark' ? 'خلفية داكنة' : 'خلفية فاتحة';
   const themeDescription = theme === 'dark' 
