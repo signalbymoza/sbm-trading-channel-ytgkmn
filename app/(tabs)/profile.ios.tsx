@@ -42,7 +42,7 @@ export default function ProfileScreen() {
     },
     section: {
       paddingHorizontal: 24,
-      paddingTop: 24,
+      paddingTop: 16,
     },
     sectionTitle: {
       fontSize: 18,
@@ -112,7 +112,7 @@ export default function ProfileScreen() {
     },
     infoSection: {
       paddingHorizontal: 24,
-      paddingTop: 24,
+      paddingTop: 16,
       paddingBottom: 40,
     },
     infoCard: {

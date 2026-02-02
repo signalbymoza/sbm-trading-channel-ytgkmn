@@ -149,7 +149,7 @@ export default function EducationScreen() {
   const isCurrencySelected = (code: string) => selectedCurrency === code;
   const currencyDisplayText = `${selectedCurrencyData?.flag} ${selectedCurrencyData?.code}`;
 
-  // Ensure adequate padding for clickable area - increased for better accessibility
+  // Reduced padding for mobile-friendly layout
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top + 8, 56) : insets.top + 8;
 
   // Determine text color based on theme - ensure it's always clearly visible
@@ -202,7 +202,7 @@ export default function EducationScreen() {
     headerSection: {
       alignItems: 'center',
       padding: 24,
-      paddingTop: 32,
+      paddingTop: 16,
       backgroundColor: colors.background,
     },
     headerTop: {

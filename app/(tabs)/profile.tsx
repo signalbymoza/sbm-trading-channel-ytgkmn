@@ -23,7 +23,8 @@ export default function ProfileScreen() {
     toggleTheme();
   };
 
-  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+  // Reduced padding for mobile-friendly layout
+  const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top + 8, 56) : insets.top;
 
   const themeLabel = theme === 'dark' ? 'خلفية داكنة' : 'خلفية فاتحة';
   const themeDescription = theme === 'dark' 
@@ -62,7 +63,7 @@ export default function ProfileScreen() {
     },
     section: {
       paddingHorizontal: 24,
-      paddingTop: 24,
+      paddingTop: 16,
     },
     sectionTitle: {
       fontSize: 18,
@@ -132,7 +133,7 @@ export default function ProfileScreen() {
     },
     infoSection: {
       paddingHorizontal: 24,
-      paddingTop: 24,
+      paddingTop: 16,
       paddingBottom: 40,
     },
     infoCard: {
