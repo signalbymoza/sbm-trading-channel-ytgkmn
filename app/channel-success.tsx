@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Linking } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import Modal from "@/components/ui/Modal";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ChannelSuccessScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams();
   const channelType = params.channel as string;
@@ -108,7 +109,7 @@ export default function ChannelSuccessScreen() {
   const channelNameAr = channelType === 'gold' ? 'قناة الذهب' : channelType === 'forex' ? 'قناة الفوركس' : 'قناة التحليل';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -116,7 +117,7 @@ export default function ChannelSuccessScreen() {
       >
         {/* Success Icon */}
         <View style={styles.successIconContainer}>
-          <View style={styles.successIconCircle}>
+          <View style={[styles.successIconCircle, { backgroundColor: colors.accent, borderColor: colors.success }]}>
             <IconSymbol 
               ios_icon_name="checkmark" 
               android_material_icon_name="check" 
@@ -128,36 +129,36 @@ export default function ChannelSuccessScreen() {
 
         {/* Success Message */}
         <View style={styles.messageSection}>
-          <Text style={styles.successTitle}>{successTitleEn}</Text>
-          <Text style={styles.successTitleAr}>{successTitleAr}</Text>
-          <Text style={styles.successMessage}>{successMessageEn}</Text>
-          <Text style={styles.successMessageAr}>{successMessageAr}</Text>
+          <Text style={[styles.successTitle, { color: colors.text }]}>{successTitleEn}</Text>
+          <Text style={[styles.successTitleAr, { color: colors.text }]}>{successTitleAr}</Text>
+          <Text style={[styles.successMessage, { color: colors.textSecondary }]}>{successMessageEn}</Text>
+          <Text style={[styles.successMessageAr, { color: colors.textSecondary }]}>{successMessageAr}</Text>
         </View>
 
         {/* Channel Info */}
         <View style={styles.channelInfoSection}>
-          <View style={styles.channelBadge}>
+          <View style={[styles.channelBadge, { backgroundColor: colors.accent, borderColor: colors.primary }]}>
             <IconSymbol 
               ios_icon_name="star.fill" 
               android_material_icon_name="star" 
               size={20} 
               color={colors.primary} 
             />
-            <Text style={styles.channelBadgeText}>{channelNameEn}</Text>
+            <Text style={[styles.channelBadgeText, { color: colors.text }]}>{channelNameEn}</Text>
           </View>
-          <View style={styles.channelBadge}>
+          <View style={[styles.channelBadge, { backgroundColor: colors.accent, borderColor: colors.primary }]}>
             <IconSymbol 
               ios_icon_name="star.fill" 
               android_material_icon_name="star" 
               size={20} 
               color={colors.primary} 
             />
-            <Text style={styles.channelBadgeText}>{channelNameAr}</Text>
+            <Text style={[styles.channelBadgeText, { color: colors.text }]}>{channelNameAr}</Text>
           </View>
         </View>
 
         {/* Telegram Channel Access Section */}
-        <View style={styles.telegramSection}>
+        <View style={[styles.telegramSection, { backgroundColor: colors.card, borderColor: colors.highlight }]}>
           <View style={styles.telegramHeader}>
             <IconSymbol 
               ios_icon_name="paperplane.fill" 
@@ -166,17 +167,17 @@ export default function ChannelSuccessScreen() {
               color={colors.highlight} 
             />
             <View style={styles.telegramHeaderText}>
-              <Text style={styles.telegramTitle}>{channelAccessTitleEn}</Text>
-              <Text style={styles.telegramTitleAr}>{channelAccessTitleAr}</Text>
+              <Text style={[styles.telegramTitle, { color: colors.text }]}>{channelAccessTitleEn}</Text>
+              <Text style={[styles.telegramTitleAr, { color: colors.text }]}>{channelAccessTitleAr}</Text>
             </View>
           </View>
 
-          <Text style={styles.telegramDescription}>{channelAccessDescriptionEn}</Text>
-          <Text style={styles.telegramDescriptionAr}>{channelAccessDescriptionAr}</Text>
+          <Text style={[styles.telegramDescription, { color: colors.textSecondary }]}>{channelAccessDescriptionEn}</Text>
+          <Text style={[styles.telegramDescriptionAr, { color: colors.textSecondary }]}>{channelAccessDescriptionAr}</Text>
 
           {/* Join Channel Button - Only button, no URL display or copy button */}
           <TouchableOpacity
-            style={styles.joinButton}
+            style={[styles.joinButton, { backgroundColor: colors.primary }]}
             onPress={handleJoinChannel}
             activeOpacity={0.8}
           >
@@ -192,7 +193,7 @@ export default function ChannelSuccessScreen() {
 
         {/* Features List */}
         <View style={styles.featuresSection}>
-          <View style={styles.featureItem}>
+          <View style={[styles.featureItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <IconSymbol 
               ios_icon_name="checkmark.circle.fill" 
               android_material_icon_name="check-circle" 
@@ -200,12 +201,12 @@ export default function ChannelSuccessScreen() {
               color={colors.success} 
             />
             <View style={styles.featureTextContainer}>
-              <Text style={styles.featureText}>Real-time trading signals</Text>
-              <Text style={styles.featureTextAr}>إشارات التداول في الوقت الفعلي</Text>
+              <Text style={[styles.featureText, { color: colors.text }]}>Real-time trading signals</Text>
+              <Text style={[styles.featureTextAr, { color: colors.textSecondary }]}>إشارات التداول في الوقت الفعلي</Text>
             </View>
           </View>
 
-          <View style={styles.featureItem}>
+          <View style={[styles.featureItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <IconSymbol 
               ios_icon_name="checkmark.circle.fill" 
               android_material_icon_name="check-circle" 
@@ -213,12 +214,12 @@ export default function ChannelSuccessScreen() {
               color={colors.success} 
             />
             <View style={styles.featureTextContainer}>
-              <Text style={styles.featureText}>Expert market analysis</Text>
-              <Text style={styles.featureTextAr}>تحليل السوق من الخبراء</Text>
+              <Text style={[styles.featureText, { color: colors.text }]}>Expert market analysis</Text>
+              <Text style={[styles.featureTextAr, { color: colors.textSecondary }]}>تحليل السوق من الخبراء</Text>
             </View>
           </View>
 
-          <View style={styles.featureItem}>
+          <View style={[styles.featureItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <IconSymbol 
               ios_icon_name="checkmark.circle.fill" 
               android_material_icon_name="check-circle" 
@@ -226,12 +227,12 @@ export default function ChannelSuccessScreen() {
               color={colors.success} 
             />
             <View style={styles.featureTextContainer}>
-              <Text style={styles.featureText}>Daily market updates</Text>
-              <Text style={styles.featureTextAr}>تحديثات السوق اليومية</Text>
+              <Text style={[styles.featureText, { color: colors.text }]}>Daily market updates</Text>
+              <Text style={[styles.featureTextAr, { color: colors.textSecondary }]}>تحديثات السوق اليومية</Text>
             </View>
           </View>
 
-          <View style={styles.featureItem}>
+          <View style={[styles.featureItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <IconSymbol 
               ios_icon_name="checkmark.circle.fill" 
               android_material_icon_name="check-circle" 
@@ -239,14 +240,14 @@ export default function ChannelSuccessScreen() {
               color={colors.success} 
             />
             <View style={styles.featureTextContainer}>
-              <Text style={styles.featureText}>Direct support from experts</Text>
-              <Text style={styles.featureTextAr}>دعم مباشر من الخبراء</Text>
+              <Text style={[styles.featureText, { color: colors.text }]}>Direct support from experts</Text>
+              <Text style={[styles.featureTextAr, { color: colors.textSecondary }]}>دعم مباشر من الخبراء</Text>
             </View>
           </View>
         </View>
 
         {/* Important Note */}
-        <View style={styles.noteSection}>
+        <View style={[styles.noteSection, { backgroundColor: colors.accent, borderColor: colors.highlight }]}>
           <View style={styles.noteHeader}>
             <IconSymbol 
               ios_icon_name="info.circle.fill" 
@@ -254,21 +255,21 @@ export default function ChannelSuccessScreen() {
               size={24} 
               color={colors.highlight} 
             />
-            <Text style={styles.noteTitle}>Important Note</Text>
+            <Text style={[styles.noteTitle, { color: colors.text }]}>Important Note</Text>
           </View>
-          <Text style={styles.noteText}>
+          <Text style={[styles.noteText, { color: colors.text }]}>
             Please make sure you have Telegram installed on your device. If you don&apos;t have it, download it from your app store before joining the channel.
           </Text>
-          <Text style={styles.noteTextAr}>
+          <Text style={[styles.noteTextAr, { color: colors.text }]}>
             يرجى التأكد من تثبيت تيليجرام على جهازك. إذا لم يكن لديك، قم بتنزيله من متجر التطبيقات قبل الانضمام إلى القناة.
           </Text>
         </View>
       </ScrollView>
 
       {/* Bottom Button */}
-      <View style={styles.bottomButtonContainer}>
+      <View style={[styles.bottomButtonContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: colors.highlight }]}
           onPress={handleBackToHome}
           activeOpacity={0.8}
         >
@@ -299,7 +300,6 @@ export default function ChannelSuccessScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -316,11 +316,9 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 4,
-    borderColor: colors.success,
   },
   messageSection: {
     paddingHorizontal: 24,
@@ -329,27 +327,23 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: colors.text,
     textAlign: 'center',
     marginBottom: 4,
   },
   successTitleAr: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: colors.text,
     textAlign: 'center',
     marginBottom: 16,
   },
   successMessage: {
     fontSize: 16,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 4,
   },
   successMessageAr: {
     fontSize: 15,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -363,26 +357,21 @@ const styles = StyleSheet.create({
   channelBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.accent,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.primary,
   },
   channelBadgeText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.text,
     marginLeft: 6,
   },
   telegramSection: {
     marginHorizontal: 24,
     padding: 24,
-    backgroundColor: colors.card,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: colors.highlight,
     marginBottom: 24,
   },
   telegramHeader: {
@@ -397,28 +386,23 @@ const styles = StyleSheet.create({
   telegramTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.text,
     marginBottom: 2,
   },
   telegramTitleAr: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
   },
   telegramDescription: {
     fontSize: 14,
-    color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: 4,
   },
   telegramDescriptionAr: {
     fontSize: 13,
-    color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: 20,
   },
   joinButton: {
-    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -439,11 +423,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: 16,
-    backgroundColor: colors.card,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   featureTextContainer: {
     flex: 1,
@@ -451,21 +433,17 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 15,
-    color: colors.text,
     fontWeight: '600',
     marginBottom: 2,
   },
   featureTextAr: {
     fontSize: 14,
-    color: colors.textSecondary,
   },
   noteSection: {
     marginHorizontal: 24,
     padding: 20,
-    backgroundColor: colors.accent,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.highlight,
     marginBottom: 24,
   },
   noteHeader: {
@@ -476,18 +454,15 @@ const styles = StyleSheet.create({
   noteTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
     marginLeft: 8,
   },
   noteText: {
     fontSize: 14,
-    color: colors.text,
     lineHeight: 20,
     marginBottom: 4,
   },
   noteTextAr: {
     fontSize: 13,
-    color: colors.text,
     lineHeight: 20,
   },
   bottomButtonContainer: {
@@ -496,12 +471,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 24,
-    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   backButton: {
-    backgroundColor: colors.highlight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

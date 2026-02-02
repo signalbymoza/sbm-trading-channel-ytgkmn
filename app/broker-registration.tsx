@@ -1,14 +1,15 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function BrokerRegistrationScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
@@ -182,11 +183,12 @@ export default function BrokerRegistrationScreen() {
   };
 
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+  const isButtonDisabled = !termsAccepted || isSubmitting;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: topPaddingTop }]}>
+      <View style={[styles.header, { paddingTop: topPaddingTop, backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity 
           style={styles.backButton}
           onPress={handleBackPress}
@@ -200,8 +202,8 @@ export default function BrokerRegistrationScreen() {
           />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Broker Registration</Text>
-          <Text style={styles.headerTitleAr}>تسجيل البروكر</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Broker Registration</Text>
+          <Text style={[styles.headerTitleAr, { color: colors.textSecondary }]}>تسجيل البروكر</Text>
         </View>
         <View style={styles.headerSpacer} />
       </View>
@@ -213,8 +215,8 @@ export default function BrokerRegistrationScreen() {
       >
         {/* Broker Info */}
         <View style={styles.brokerInfoSection}>
-          <Text style={styles.brokerInfoTitle}>تسجيل حساب البروكر</Text>
-          <Text style={styles.brokerInfoText}>
+          <Text style={[styles.brokerInfoTitle, { color: colors.text }]}>تسجيل حساب البروكر</Text>
+          <Text style={[styles.brokerInfoText, { color: colors.textSecondary }]}>
             يرجى ملء البيانات التالية لتسجيل حسابك في بروكر {brokerName}
           </Text>
         </View>
@@ -223,10 +225,10 @@ export default function BrokerRegistrationScreen() {
         <View style={styles.formSection}>
           {/* Full Name */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>الاسم الكامل</Text>
-            <Text style={styles.inputLabelEn}>Full Name</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>الاسم الكامل</Text>
+            <Text style={[styles.inputLabelEn, { color: colors.textSecondary }]}>Full Name</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="أدخل اسمك الكامل"
               placeholderTextColor={colors.textSecondary}
               value={fullName}
@@ -237,10 +239,10 @@ export default function BrokerRegistrationScreen() {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>البريد الإلكتروني</Text>
-            <Text style={styles.inputLabelEn}>Email</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>البريد الإلكتروني</Text>
+            <Text style={[styles.inputLabelEn, { color: colors.textSecondary }]}>Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="example@email.com"
               placeholderTextColor={colors.textSecondary}
               value={email}
@@ -252,10 +254,10 @@ export default function BrokerRegistrationScreen() {
 
           {/* Telegram Username */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>يوزر التلقرام</Text>
-            <Text style={styles.inputLabelEn}>Telegram Username</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>يوزر التلقرام</Text>
+            <Text style={[styles.inputLabelEn, { color: colors.textSecondary }]}>Telegram Username</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="@username"
               placeholderTextColor={colors.textSecondary}
               value={telegramUsername}
@@ -266,10 +268,10 @@ export default function BrokerRegistrationScreen() {
 
           {/* Broker Account Number */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>رقم حساب البروكر</Text>
-            <Text style={styles.inputLabelEn}>Broker Account Number</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>رقم حساب البروكر</Text>
+            <Text style={[styles.inputLabelEn, { color: colors.textSecondary }]}>Broker Account Number</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="أدخل رقم حسابك في البروكر"
               placeholderTextColor={colors.textSecondary}
               value={brokerAccountNumber}
@@ -284,38 +286,38 @@ export default function BrokerRegistrationScreen() {
             onPress={() => setTermsAccepted(!termsAccepted)}
             activeOpacity={0.7}
           >
-            <View style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>
+            <View style={[styles.checkbox, { borderColor: colors.border }, termsAccepted && { backgroundColor: colors.highlight, borderColor: colors.highlight }]}>
               {termsAccepted && (
                 <IconSymbol 
                   ios_icon_name="checkmark" 
                   android_material_icon_name="check" 
                   size={18} 
-                  color={colors.text} 
+                  color="#FFFFFF" 
                 />
               )}
             </View>
             <View style={styles.checkboxTextContainer}>
-              <Text style={styles.checkboxText}>أوافق على الشروط والأحكام</Text>
-              <Text style={styles.checkboxTextEn}>I agree to the terms and conditions</Text>
+              <Text style={[styles.checkboxText, { color: colors.text }]}>أوافق على الشروط والأحكام</Text>
+              <Text style={[styles.checkboxTextEn, { color: colors.textSecondary }]}>I agree to the terms and conditions</Text>
             </View>
           </TouchableOpacity>
 
           {/* Submit Button */}
           <TouchableOpacity 
-            style={[styles.submitButton, (!termsAccepted || isSubmitting) && styles.submitButtonDisabled]}
+            style={[styles.submitButton, { backgroundColor: isButtonDisabled ? colors.border : colors.highlight }]}
             onPress={handleSubmit}
             activeOpacity={0.8}
-            disabled={!termsAccepted || isSubmitting}
+            disabled={isButtonDisabled}
           >
             {isSubmitting ? (
-              <ActivityIndicator color={colors.text} />
+              <ActivityIndicator color="#FFFFFF" />
             ) : (
               <>
                 <IconSymbol 
                   ios_icon_name="checkmark.circle.fill" 
                   android_material_icon_name="check-circle" 
                   size={24} 
-                  color={colors.text} 
+                  color="#FFFFFF" 
                 />
                 <Text style={styles.submitButtonText}>تسجيل</Text>
               </>
@@ -324,14 +326,14 @@ export default function BrokerRegistrationScreen() {
         </View>
 
         {/* Info Note */}
-        <View style={styles.infoNote}>
+        <View style={[styles.infoNote, { backgroundColor: colors.accent }]}>
           <IconSymbol 
             ios_icon_name="info.circle" 
             android_material_icon_name="info" 
             size={20} 
             color={colors.textSecondary} 
           />
-          <Text style={styles.infoNoteText}>
+          <Text style={[styles.infoNoteText, { color: colors.textSecondary }]}>
             سيتم مراجعة بياناتك والتواصل معك عبر التلقرام خلال 24 ساعة.
           </Text>
         </View>
@@ -355,16 +357,13 @@ export default function BrokerRegistrationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -376,11 +375,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
   },
   headerTitleAr: {
     fontSize: 16,
-    color: colors.textSecondary,
     marginTop: 2,
   },
   headerSpacer: {
@@ -400,13 +397,11 @@ const styles = StyleSheet.create({
   brokerInfoTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: colors.text,
     marginBottom: 12,
     textAlign: 'center',
   },
   brokerInfoText: {
     fontSize: 15,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -419,24 +414,19 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 2,
     textAlign: 'right',
   },
   inputLabelEn: {
     fontSize: 13,
-    color: colors.textSecondary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: colors.text,
     textAlign: 'right',
   },
   checkboxContainer: {
@@ -449,31 +439,23 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderWidth: 2,
-    borderColor: colors.border,
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 12,
-  },
-  checkboxChecked: {
-    backgroundColor: colors.highlight,
-    borderColor: colors.highlight,
   },
   checkboxTextContainer: {
     flex: 1,
   },
   checkboxText: {
     fontSize: 15,
-    color: colors.text,
     textAlign: 'right',
   },
   checkboxTextEn: {
     fontSize: 13,
-    color: colors.textSecondary,
     marginTop: 2,
   },
   submitButton: {
-    backgroundColor: colors.highlight,
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -482,19 +464,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
   },
-  submitButtonDisabled: {
-    backgroundColor: colors.border,
-    opacity: 0.5,
-  },
   submitButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
+    color: '#FFFFFF',
     marginRight: 8,
   },
   infoNote: {
     flexDirection: 'row',
-    backgroundColor: colors.accent,
     padding: 16,
     borderRadius: 12,
     marginHorizontal: 24,
@@ -502,7 +479,6 @@ const styles = StyleSheet.create({
   },
   infoNoteText: {
     fontSize: 13,
-    color: colors.textSecondary,
     marginLeft: 12,
     flex: 1,
     lineHeight: 20,

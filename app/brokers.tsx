@@ -1,11 +1,11 @@
 
 import React from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType, Linking } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -23,6 +23,7 @@ interface Broker {
 }
 
 export default function BrokersScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -107,9 +108,9 @@ export default function BrokersScreen() {
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: topPaddingTop }]}>
+      <View style={[styles.header, { paddingTop: topPaddingTop, backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity 
           style={styles.backButton}
           onPress={handleBackPress}
@@ -123,8 +124,8 @@ export default function BrokersScreen() {
           />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Approved Brokers</Text>
-          <Text style={styles.headerTitleAr}>البروكرات المعتمدة</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Approved Brokers</Text>
+          <Text style={[styles.headerTitleAr, { color: colors.textSecondary }]}>البروكرات المعتمدة</Text>
         </View>
         <View style={styles.headerSpacer} />
       </View>
@@ -136,8 +137,8 @@ export default function BrokersScreen() {
       >
         {/* Introduction */}
         <View style={styles.introSection}>
-          <Text style={styles.introTitle}>البروكرات المعتمدة لدى القناة</Text>
-          <Text style={styles.introText}>
+          <Text style={[styles.introTitle, { color: colors.text }]}>البروكرات المعتمدة لدى القناة</Text>
+          <Text style={[styles.introText, { color: colors.textSecondary }]}>
             نقدم لكم قائمة بأفضل البروكرات المعتمدة والموثوقة للتداول. جميع البروكرات المدرجة مرخصة ومنظمة من هيئات عالمية.
           </Text>
         </View>
@@ -198,7 +199,7 @@ export default function BrokersScreen() {
               <View style={styles.actionButtonsContainer}>
                 {/* Register with Broker Button */}
                 <TouchableOpacity 
-                  style={styles.registerButton}
+                  style={[styles.registerButton, { backgroundColor: colors.highlight }]}
                   onPress={() => handleRegisterWithBroker(broker)}
                   activeOpacity={0.8}
                 >
@@ -206,14 +207,14 @@ export default function BrokersScreen() {
                     ios_icon_name="link" 
                     android_material_icon_name="open-in-new" 
                     size={20} 
-                    color={colors.text} 
+                    color="#FFFFFF" 
                   />
                   <Text style={styles.registerButtonText}>التسجيل في البروكر</Text>
                 </TouchableOpacity>
 
                 {/* Already Registered Button */}
                 <TouchableOpacity 
-                  style={styles.alreadyRegisteredButton}
+                  style={[styles.alreadyRegisteredButton, { borderColor: colors.highlight }]}
                   onPress={() => handleAlreadyRegistered(broker.id, broker.name)}
                   activeOpacity={0.8}
                 >
@@ -223,7 +224,7 @@ export default function BrokersScreen() {
                     size={20} 
                     color={colors.highlight} 
                   />
-                  <Text style={styles.alreadyRegisteredButtonText}>تم التسجيل</Text>
+                  <Text style={[styles.alreadyRegisteredButtonText, { color: colors.highlight }]}>تم التسجيل</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -231,14 +232,14 @@ export default function BrokersScreen() {
         ))}
 
         {/* Footer Note */}
-        <View style={styles.footerNote}>
+        <View style={[styles.footerNote, { backgroundColor: colors.accent }]}>
           <IconSymbol 
             ios_icon_name="info.circle" 
             android_material_icon_name="info" 
             size={20} 
             color={colors.textSecondary} 
           />
-          <Text style={styles.footerNoteText}>
+          <Text style={[styles.footerNoteText, { color: colors.textSecondary }]}>
             جميع البروكرات المذكورة أعلاه مرخصة ومنظمة من هيئات عالمية موثوقة. يرجى التأكد من قراءة الشروط والأحكام قبل التسجيل.
           </Text>
         </View>
@@ -250,16 +251,13 @@ export default function BrokersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -271,11 +269,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
   },
   headerTitleAr: {
     fontSize: 16,
-    color: colors.textSecondary,
     marginTop: 2,
   },
   headerSpacer: {
@@ -295,13 +291,11 @@ const styles = StyleSheet.create({
   introTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: colors.text,
     marginBottom: 12,
     textAlign: 'center',
   },
   introText: {
     fontSize: 15,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -353,11 +347,11 @@ const styles = StyleSheet.create({
   brokerName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: colors.text,
+    color: '#FFFFFF',
   },
   brokerNameAr: {
     fontSize: 20,
-    color: colors.text,
+    color: '#FFFFFF',
     marginTop: 4,
     opacity: 0.9,
   },
@@ -370,7 +364,7 @@ const styles = StyleSheet.create({
   featuresTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
+    color: '#FFFFFF',
     marginRight: 8,
   },
   featuresList: {
@@ -383,7 +377,7 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 15,
-    color: colors.text,
+    color: '#FFFFFF',
     marginLeft: 12,
     flex: 1,
     textAlign: 'right',
@@ -394,7 +388,6 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
   registerButton: {
-    backgroundColor: colors.highlight,
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -405,7 +398,7 @@ const styles = StyleSheet.create({
   registerButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
+    color: '#FFFFFF',
     marginRight: 8,
   },
   alreadyRegisteredButton: {
@@ -417,17 +410,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.highlight,
   },
   alreadyRegisteredButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.highlight,
     marginRight: 8,
   },
   footerNote: {
     flexDirection: 'row',
-    backgroundColor: colors.accent,
     padding: 16,
     borderRadius: 12,
     marginHorizontal: 24,
@@ -435,7 +425,6 @@ const styles = StyleSheet.create({
   },
   footerNoteText: {
     fontSize: 13,
-    color: colors.textSecondary,
     marginLeft: 12,
     flex: 1,
     lineHeight: 20,
