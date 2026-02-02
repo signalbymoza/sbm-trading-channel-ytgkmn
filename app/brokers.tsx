@@ -27,7 +27,7 @@ export default function BrokersScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  console.log('BrokersScreen: Rendering approved brokers page');
+  console.log('BrokersScreen: Rendering approved brokers page, isDarkMode:', isDarkMode);
 
   const brokers: Broker[] = [
     {
@@ -108,10 +108,13 @@ export default function BrokersScreen() {
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
   // Dynamic text color for broker card content based on theme
+  // When dark mode is active, use white text for better readability
   const brokerTextColor = isDarkMode ? '#FFFFFF' : '#000000';
   const brokerTextSecondaryColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)';
   const brokerBorderColor = isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)';
   const alreadyRegisteredBgColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+
+  console.log('BrokersScreen: Text colors - brokerTextColor:', brokerTextColor, 'isDarkMode:', isDarkMode);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
