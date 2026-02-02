@@ -236,8 +236,9 @@ export default function SubscriptionManagementScreen() {
     }
   };
 
-  const handleViewDocument = (documentUrl: string) => {
-    console.log('User tapped view document button, URL:', documentUrl);
+  const handleViewDocument = async (subscriberId: string, documentUrl: string) => {
+    console.log('User tapped view document button for subscriber ID:', subscriberId);
+    console.log('Original document URL:', documentUrl);
     
     // Validate URL
     if (!documentUrl || documentUrl.trim() === '') {
@@ -254,15 +255,50 @@ export default function SubscriptionManagementScreen() {
     
     // Reset error state
     setImageLoadError(false);
-    setSelectedDocumentUrl(documentUrl);
+    setDocumentLoading(true);
     
-    // If it's an image, show in modal. If it's a PDF, download and open directly
-    if (isImageUrl(documentUrl)) {
-      console.log('Document is an image - showing in modal');
-      setDocumentModalVisible(true);
-    } else {
-      console.log('Document is a PDF - downloading and opening');
-      handleDownloadDocument(documentUrl);
+    try {
+      // Fetch a fresh signed URL from the backend
+      console.log('Fetching fresh signed URL from backend for subscriber:', subscriberId);
+      const response = await fetch(`${backendUrl}/api/subscriptions/${subscriberId}/document-url`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to fetch fresh document URL:', response.status, errorText);
+        throw new Error(`فشل تحميل رابط المستند (${response.status})`);
+      }
+      
+      const data = await response.json();
+      const freshUrl = data.url;
+      
+      console.log('Received fresh signed URL from backend');
+      console.log('Fresh URL:', freshUrl);
+      
+      // Set the fresh URL
+      setSelectedDocumentUrl(freshUrl);
+      
+      // If it's an image, show in modal. If it's a PDF, download and open directly
+      if (isImageUrl(freshUrl)) {
+        console.log('Document is an image - showing in modal');
+        setDocumentModalVisible(true);
+        setDocumentLoading(false);
+      } else {
+        console.log('Document is a PDF - downloading and opening');
+        setDocumentModalVisible(false);
+        setDocumentLoading(false);
+        handleDownloadDocument(freshUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching fresh document URL:', error);
+      setDocumentLoading(false);
+      
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to load document. Please try again.',
+        'فشل تحميل المستند. يرجى المحاولة مرة أخرى.'
+      );
     }
   };
 
@@ -988,13 +1024,14 @@ export default function SubscriptionManagementScreen() {
                           style={styles.viewDocumentButton}
                           onPress={() => {
                             console.log('View document button pressed for subscriber:', subscriber.name);
+                            console.log('Subscriber ID:', subscriber.id);
                             console.log('Document URL:', subscriber.idDocumentUrl);
-                            handleViewDocument(subscriber.idDocumentUrl!);
+                            handleViewDocument(subscriber.id, subscriber.idDocumentUrl!);
                           }}
-                          disabled={downloadingDocument}
+                          disabled={downloadingDocument || documentLoading}
                           activeOpacity={0.7}
                         >
-                          {downloadingDocument ? (
+                          {(downloadingDocument || documentLoading) ? (
                             <ActivityIndicator size="small" color="#FFFFFF" />
                           ) : (
                             <React.Fragment>
@@ -1221,7 +1258,11 @@ export default function SubscriptionManagementScreen() {
               <View style={{ gap: 12 }}>
                 <TouchableOpacity
                   style={styles.downloadDocumentButton}
-                  onPress={() => handleDownloadDocument(selectedDocumentUrl)}
+                  onPress={async () => {
+                    console.log('Download button pressed in modal');
+                    console.log('Current URL:', selectedDocumentUrl);
+                    await handleDownloadDocument(selectedDocumentUrl);
+                  }}
                   disabled={downloadingDocument}
                   activeOpacity={0.7}
                 >
@@ -1244,9 +1285,13 @@ export default function SubscriptionManagementScreen() {
                   <TouchableOpacity
                     style={[styles.downloadDocumentButton, { backgroundColor: '#6B7280' }]}
                     onPress={() => {
-                      console.log('Retry loading image');
+                      console.log('Retry loading image - resetting error state');
                       setImageLoadError(false);
                       setDocumentLoading(true);
+                      // Force re-render by updating the key
+                      const currentUrl = selectedDocumentUrl;
+                      setSelectedDocumentUrl(null);
+                      setTimeout(() => setSelectedDocumentUrl(currentUrl), 100);
                     }}
                     activeOpacity={0.7}
                   >
