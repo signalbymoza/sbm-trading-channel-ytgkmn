@@ -1,10 +1,9 @@
 
 import React, { useState, useRef } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator, Modal as RNModal } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
-import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
@@ -21,7 +20,6 @@ export default function ForexGuideRegistrationScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [pickerModalVisible, setPickerModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
     title: string;
@@ -53,23 +51,14 @@ export default function ForexGuideRegistrationScreen() {
     setModalVisible(true);
   };
 
-  const handleUploadPress = () => {
-    console.log('User tapped upload ID document button - showing picker options');
-    setPickerModalVisible(true);
-  };
-
-  const pickFromPhotos = async () => {
+  const handleUploadPress = async () => {
     if (isPickingRef.current) {
       console.log('Already picking a file, ignoring duplicate request');
       return;
     }
 
-    console.log('User chose to pick from photos');
+    console.log('User tapped upload ID document button - opening photo library');
     isPickingRef.current = true;
-    setPickerModalVisible(false);
-    
-    // Longer delay to ensure modal fully closes before opening picker
-    await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
       console.log('Requesting photo library permissions...');
@@ -90,9 +79,8 @@ export default function ForexGuideRegistrationScreen() {
         return;
       }
 
-      console.log('Permission granted - opening image picker with simplified settings...');
+      console.log('Permission granted - opening image picker...');
       
-      // Use the new API format without deprecated MediaTypeOptions
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: false,
@@ -137,66 +125,6 @@ export default function ForexGuideRegistrationScreen() {
     }
   };
 
-  const pickFromFiles = async () => {
-    if (isPickingRef.current) {
-      console.log('Already picking a file, ignoring duplicate request');
-      return;
-    }
-
-    console.log('User chose to pick from files');
-    isPickingRef.current = true;
-    setPickerModalVisible(false);
-    
-    // Longer delay to ensure modal fully closes before opening picker
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    try {
-      console.log('Opening document picker...');
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ['image/*', 'application/pdf'],
-        copyToCacheDirectory: true,
-        multiple: false,
-      });
-
-      console.log('Document picker result:', JSON.stringify(result, null, 2));
-
-      if (result.canceled) {
-        console.log('User cancelled document picker');
-        isPickingRef.current = false;
-        return;
-      }
-
-      if (result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        console.log('User selected document:', asset.uri);
-        console.log('Document name:', asset.name);
-        console.log('Document type:', asset.mimeType);
-        
-        setDocumentFileName(asset.name);
-        await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
-      } else {
-        console.log('No assets in result');
-      }
-    } catch (error: any) {
-      console.error('Error picking document:', error);
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
-      if (error.code !== 'ERR_CANCELED' && error.code !== 'DOCUMENT_PICKER_CANCELED') {
-        showModal(
-          'error',
-          'Error',
-          'خطأ',
-          'Failed to pick document. Please try again.',
-          'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
-        );
-      }
-    } finally {
-      isPickingRef.current = false;
-    }
-  };
-
   const uploadDocument = async (uri: string, fileName: string, mimeType: string) => {
     setIsUploading(true);
     console.log('Uploading document to backend...', { uri, fileName, mimeType });
@@ -214,8 +142,8 @@ export default function ForexGuideRegistrationScreen() {
         'success',
         'Success',
         'نجح',
-        'Document uploaded successfully!',
-        'تم تحميل المستند بنجاح!'
+        'Image uploaded successfully!',
+        'تم تحميل الصورة بنجاح!'
       );
     } catch (error) {
       console.error('Error uploading document:', error);
@@ -226,8 +154,8 @@ export default function ForexGuideRegistrationScreen() {
         'error',
         'Error',
         'خطأ',
-        'Failed to upload document. Please try again.',
-        'فشل تحميل المستند. يرجى المحاولة مرة أخرى.'
+        'Failed to upload image. Please try again.',
+        'فشل تحميل الصورة. يرجى المحاولة مرة أخرى.'
       );
     } finally {
       setIsUploading(false);
@@ -366,14 +294,14 @@ export default function ForexGuideRegistrationScreen() {
   const emailAr = 'البريد الإلكتروني';
   const telegramEn = 'Telegram Username';
   const telegramAr = 'اسم المستخدم في تيليجرام';
-  const idPassportEn = 'ID or Passport';
-  const idPassportAr = 'الهوية أو جواز السفر';
-  const uploadButtonEn = 'Upload ID/Passport';
-  const uploadButtonAr = 'رفع الهوية/جواز السفر';
-  const documentUploadedEn = 'Document Uploaded';
-  const documentUploadedAr = 'تم رفع المستند';
-  const helperTextEn = 'Please upload a clear photo or PDF of your ID or passport';
-  const helperTextAr = 'يرجى رفع صورة واضحة أو ملف PDF للهوية أو جواز السفر';
+  const idPassportEn = 'ID or Passport Photo';
+  const idPassportAr = 'صورة الهوية أو جواز السفر';
+  const uploadButtonEn = 'Upload Photo from Album';
+  const uploadButtonAr = 'رفع صورة من الألبوم';
+  const imageUploadedEn = 'Image Uploaded';
+  const imageUploadedAr = 'تم رفع الصورة';
+  const helperTextEn = 'Please upload a clear photo of your ID or passport from your photo album';
+  const helperTextAr = 'يرجى رفع صورة واضحة للهوية أو جواز السفر من ألبوم الصور';
   const agreeTermsEn = 'I agree to the terms and conditions';
   const agreeTermsAr = 'أوافق على الشروط والأحكام';
   const summaryTitleEn = 'Purchase Summary';
@@ -458,17 +386,17 @@ export default function ForexGuideRegistrationScreen() {
               ) : (
                 <>
                   <IconSymbol 
-                    ios_icon_name={documentUploaded ? "checkmark.circle.fill" : "doc.fill"} 
-                    android_material_icon_name={documentUploaded ? "check-circle" : "description"} 
+                    ios_icon_name={documentUploaded ? "checkmark.circle.fill" : "photo.fill"} 
+                    android_material_icon_name={documentUploaded ? "check-circle" : "photo"} 
                     size={24} 
                     color={documentUploaded ? colors.success : colors.text} 
                   />
                   <View style={styles.uploadTextContainer}>
                     <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
-                      {documentUploaded ? documentUploadedEn : uploadButtonEn}
+                      {documentUploaded ? imageUploadedEn : uploadButtonEn}
                     </Text>
                     <Text style={[styles.uploadButtonTextAr, documentUploaded && styles.uploadButtonTextSuccess]}>
-                      {documentUploaded ? documentUploadedAr : uploadButtonAr}
+                      {documentUploaded ? imageUploadedAr : uploadButtonAr}
                     </Text>
                     {documentFileName && (
                       <Text style={styles.fileNameText} numberOfLines={1}>
@@ -564,84 +492,6 @@ export default function ForexGuideRegistrationScreen() {
           )}
         </TouchableOpacity>
       </View>
-
-      <RNModal
-        visible={pickerModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setPickerModalVisible(false)}
-        statusBarTranslucent={true}
-      >
-        <View style={styles.pickerModalOverlay}>
-          <TouchableOpacity 
-            style={styles.pickerModalBackdrop}
-            activeOpacity={1}
-            onPress={() => setPickerModalVisible(false)}
-          />
-          <View style={styles.pickerModalContent}>
-            <View style={styles.pickerModalHeader}>
-              <Text style={styles.pickerModalTitle}>Choose Upload Method</Text>
-              <Text style={styles.pickerModalTitleAr}>اختر طريقة التحميل</Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.pickerOption}
-              onPress={pickFromPhotos}
-              activeOpacity={0.7}
-            >
-              <IconSymbol 
-                ios_icon_name="photo.fill" 
-                android_material_icon_name="photo" 
-                size={28} 
-                color={colors.highlight} 
-              />
-              <View style={styles.pickerOptionTextContainer}>
-                <Text style={styles.pickerOptionText}>Choose from Photos</Text>
-                <Text style={styles.pickerOptionTextAr}>اختر من الصور</Text>
-              </View>
-              <IconSymbol 
-                ios_icon_name="chevron.right" 
-                android_material_icon_name="arrow-forward" 
-                size={20} 
-                color={colors.textSecondary} 
-              />
-            </TouchableOpacity>
-
-            <View style={styles.pickerDivider} />
-
-            <TouchableOpacity
-              style={styles.pickerOption}
-              onPress={pickFromFiles}
-              activeOpacity={0.7}
-            >
-              <IconSymbol 
-                ios_icon_name="doc.fill" 
-                android_material_icon_name="description" 
-                size={28} 
-                color={colors.highlight} 
-              />
-              <View style={styles.pickerOptionTextContainer}>
-                <Text style={styles.pickerOptionText}>Choose from Files</Text>
-                <Text style={styles.pickerOptionTextAr}>اختر من الملفات</Text>
-              </View>
-              <IconSymbol 
-                ios_icon_name="chevron.right" 
-                android_material_icon_name="arrow-forward" 
-                size={20} 
-                color={colors.textSecondary} 
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.pickerCancelButton}
-              onPress={() => setPickerModalVisible(false)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.pickerCancelText}>Cancel / إلغاء</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </RNModal>
 
       <Modal
         visible={modalVisible}
@@ -906,85 +756,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     color: '#1A1A2E',
-  },
-  pickerModalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  pickerModalBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  pickerModalContent: {
-    backgroundColor: colors.card,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-  },
-  pickerModalHeader: {
-    padding: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  pickerModalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  pickerModalTitleAr: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  pickerOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    paddingHorizontal: 24,
-  },
-  pickerOptionTextContainer: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  pickerOptionText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  pickerOptionTextAr: {
-    fontSize: 15,
-    color: colors.textSecondary,
-  },
-  pickerDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: 24,
-  },
-  pickerCancelButton: {
-    padding: 20,
-    paddingHorizontal: 24,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  pickerCancelText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textSecondary,
   },
 });
