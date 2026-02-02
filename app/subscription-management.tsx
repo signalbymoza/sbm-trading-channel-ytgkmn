@@ -36,9 +36,11 @@ interface Subscriber {
   telegramUsername: string;
   channelType: string;
   subscriptionEndDate: string;
+  subscriptionStartDate: string;
   status: string;
   daysRemaining: number;
   idDocumentUrl?: string;
+  createdAt: string;
 }
 
 interface BrokerSubscriber {
@@ -49,6 +51,8 @@ interface BrokerSubscriber {
   brokerName: string;
   createdAt: string;
 }
+
+type SortOrder = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
 export default function SubscriptionManagementScreen() {
   const router = useRouter();
@@ -81,6 +85,7 @@ export default function SubscriptionManagementScreen() {
   const [documentLoading, setDocumentLoading] = useState(false);
   const [downloadingDocument, setDownloadingDocument] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
 
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
@@ -140,7 +145,7 @@ export default function SubscriptionManagementScreen() {
       console.log('Sample subscriber data:', subscribersData[0]);
       
       const formattedSubscribers = subscribersData.map((sub: any) => {
-        const idDocUrl = sub.id_document_url || sub.idDocumentUrl;
+        const idDocUrl = sub.id_document_url;
         console.log('Subscriber:', sub.name, 'ID Document URL:', idDocUrl);
         
         return {
@@ -150,13 +155,15 @@ export default function SubscriptionManagementScreen() {
           telegramUsername: sub.telegram_username,
           channelType: sub.channel_type,
           subscriptionEndDate: sub.subscription_end_date,
+          subscriptionStartDate: sub.subscription_start_date,
           status: sub.status,
           daysRemaining: calculateDaysRemaining(sub.subscription_end_date),
           idDocumentUrl: idDocUrl,
+          createdAt: sub.created_at,
         };
       });
       
-      console.log('Formatted subscribers with document URLs:', formattedSubscribers.filter(s => s.idDocumentUrl).length);
+      console.log('Formatted subscribers with document URLs:', formattedSubscribers.filter((s: Subscriber) => s.idDocumentUrl).length);
       setSubscribers(formattedSubscribers);
 
       const brokersResponse = await fetch(`${backendUrl}/api/broker-subscribers`);
@@ -240,7 +247,6 @@ export default function SubscriptionManagementScreen() {
     console.log('User tapped view document button for subscriber ID:', subscriberId);
     console.log('Original document URL:', documentUrl);
     
-    // Validate URL
     if (!documentUrl || documentUrl.trim() === '') {
       console.error('Invalid document URL: empty or null');
       showModal(
@@ -253,12 +259,10 @@ export default function SubscriptionManagementScreen() {
       return;
     }
     
-    // Reset error state
     setImageLoadError(false);
     setDocumentLoading(true);
     
     try {
-      // Fetch a fresh signed URL from the backend
       console.log('Fetching fresh signed URL from backend for subscriber:', subscriberId);
       const response = await fetch(`${backendUrl}/api/subscriptions/${subscriberId}/document-url`);
       
@@ -274,10 +278,8 @@ export default function SubscriptionManagementScreen() {
       console.log('Received fresh signed URL from backend');
       console.log('Fresh URL:', freshUrl);
       
-      // Set the fresh URL
       setSelectedDocumentUrl(freshUrl);
       
-      // If it's an image, show in modal. If it's a PDF, download and open directly
       if (isImageUrl(freshUrl)) {
         console.log('Document is an image - showing in modal');
         setDocumentModalVisible(true);
@@ -333,6 +335,7 @@ export default function SubscriptionManagementScreen() {
   };
 
   const formatDateGregorian = (dateString: string) => {
+    if (!dateString) return 'غير متوفر';
     const date = new Date(dateString);
     const day = date.getDate();
     const month = date.getMonth() + 1;
@@ -344,6 +347,7 @@ export default function SubscriptionManagementScreen() {
   };
 
   const getChannelNameArabic = (channelType: string) => {
+    if (!channelType) return 'غير محدد';
     const channelMap: Record<string, string> = {
       gold: 'قناة الذهب',
       forex: 'قناة الفوركس',
@@ -370,6 +374,35 @@ export default function SubscriptionManagementScreen() {
     return statusMap[status] || status;
   };
 
+  const getSortedSubscribers = () => {
+    const sorted = [...subscribers];
+    
+    switch (sortOrder) {
+      case 'newest':
+        sorted.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+        break;
+      case 'oldest':
+        sorted.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateA - dateB;
+        });
+        break;
+      case 'name-asc':
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+        break;
+      case 'name-desc':
+        sorted.sort((a, b) => b.name.localeCompare(a.name, 'ar'));
+        break;
+    }
+    
+    return sorted;
+  };
+
   const filteredBrokerSubscribers = selectedBroker === 'all'
     ? brokerSubscribers
     : brokerSubscribers.filter(sub => sub.brokerName === selectedBroker);
@@ -380,8 +413,9 @@ export default function SubscriptionManagementScreen() {
   const subscribersTitle = 'قاعدة بيانات المشتركين';
   const brokersTitle = 'المشتركين عن طريق البروكر';
 
-  // iPhone 17 Pro Max compatible padding - use safe area insets directly
   const topPaddingTop = insets.top;
+
+  const sortedSubscribers = getSortedSubscribers();
 
   const styles = StyleSheet.create({
     container: {
@@ -511,6 +545,35 @@ export default function SubscriptionManagementScreen() {
     exportButtonText: {
       fontSize: 13,
       fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    sortContainer: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 16,
+      flexWrap: 'wrap',
+    },
+    sortButton: {
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    sortButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    sortButtonText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    sortButtonTextActive: {
       color: '#FFFFFF',
     },
     statsGrid: {
@@ -949,7 +1012,85 @@ export default function SubscriptionManagementScreen() {
                 </TouchableOpacity>
               </View>
 
-              {subscribers.length === 0 ? (
+              <View style={styles.sortContainer}>
+                <TouchableOpacity
+                  style={[styles.sortButton, sortOrder === 'newest' && styles.sortButtonActive]}
+                  onPress={() => {
+                    console.log('User selected sort order: newest');
+                    setSortOrder('newest');
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <IconSymbol
+                    ios_icon_name="arrow.down"
+                    android_material_icon_name="arrow-downward"
+                    size={16}
+                    color={sortOrder === 'newest' ? '#FFFFFF' : colors.text}
+                  />
+                  <Text style={[styles.sortButtonText, sortOrder === 'newest' && styles.sortButtonTextActive]}>
+                    الأحدث
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.sortButton, sortOrder === 'oldest' && styles.sortButtonActive]}
+                  onPress={() => {
+                    console.log('User selected sort order: oldest');
+                    setSortOrder('oldest');
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <IconSymbol
+                    ios_icon_name="arrow.up"
+                    android_material_icon_name="arrow-upward"
+                    size={16}
+                    color={sortOrder === 'oldest' ? '#FFFFFF' : colors.text}
+                  />
+                  <Text style={[styles.sortButtonText, sortOrder === 'oldest' && styles.sortButtonTextActive]}>
+                    الأقدم
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.sortButton, sortOrder === 'name-asc' && styles.sortButtonActive]}
+                  onPress={() => {
+                    console.log('User selected sort order: name ascending');
+                    setSortOrder('name-asc');
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <IconSymbol
+                    ios_icon_name="textformat"
+                    android_material_icon_name="sort-by-alpha"
+                    size={16}
+                    color={sortOrder === 'name-asc' ? '#FFFFFF' : colors.text}
+                  />
+                  <Text style={[styles.sortButtonText, sortOrder === 'name-asc' && styles.sortButtonTextActive]}>
+                    الاسم (أ-ي)
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.sortButton, sortOrder === 'name-desc' && styles.sortButtonActive]}
+                  onPress={() => {
+                    console.log('User selected sort order: name descending');
+                    setSortOrder('name-desc');
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <IconSymbol
+                    ios_icon_name="textformat"
+                    android_material_icon_name="sort-by-alpha"
+                    size={16}
+                    color={sortOrder === 'name-desc' ? '#FFFFFF' : colors.text}
+                  />
+                  <Text style={[styles.sortButtonText, sortOrder === 'name-desc' && styles.sortButtonTextActive]}>
+                    الاسم (ي-أ)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {sortedSubscribers.length === 0 ? (
                 <View style={styles.emptyCard}>
                   <IconSymbol
                     ios_icon_name="person.slash"
@@ -961,7 +1102,7 @@ export default function SubscriptionManagementScreen() {
                 </View>
               ) : (
                 <View style={styles.tableContainer}>
-                  {subscribers.map((subscriber, index) => (
+                  {sortedSubscribers.map((subscriber, index) => (
                     <View key={index} style={styles.subscriberCard}>
                       <View style={styles.subscriberHeader}>
                         <Text style={styles.subscriberName}>{subscriber.name}</Text>
@@ -991,6 +1132,13 @@ export default function SubscriptionManagementScreen() {
                         <Text style={styles.subscriberLabel}>القناة:</Text>
                         <Text style={styles.subscriberValue}>
                           {getChannelNameArabic(subscriber.channelType)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.subscriberRow}>
+                        <Text style={styles.subscriberLabel}>تاريخ الاشتراك:</Text>
+                        <Text style={styles.subscriberValue}>
+                          {formatDateGregorian(subscriber.createdAt)}
                         </Text>
                       </View>
 
@@ -1288,7 +1436,6 @@ export default function SubscriptionManagementScreen() {
                       console.log('Retry loading image - resetting error state');
                       setImageLoadError(false);
                       setDocumentLoading(true);
-                      // Force re-render by updating the key
                       const currentUrl = selectedDocumentUrl;
                       setSelectedDocumentUrl(null);
                       setTimeout(() => setSelectedDocumentUrl(currentUrl), 100);
