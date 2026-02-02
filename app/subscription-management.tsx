@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import {
   StyleSheet,
@@ -81,10 +81,6 @@ export default function SubscriptionManagementScreen() {
   const [documentLoading, setDocumentLoading] = useState(false);
   const [downloadingDocument, setDownloadingDocument] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
     title: string,
@@ -96,7 +92,7 @@ export default function SubscriptionManagementScreen() {
     setModalVisible(true);
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     console.log('Loading subscription management data');
     setLoading(true);
     setError(null);
@@ -175,7 +171,11 @@ export default function SubscriptionManagementScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const calculateDaysRemaining = (endDateString: string | null): number => {
     if (!endDateString) return 0;

@@ -20,8 +20,6 @@ import { downloadAndOpenFile } from '@/utils/fileDownload';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
-const DEFAULT_PROFIT_PLAN_URL = 'https://drive.google.com/file/d/1eCQ007FTirGiNHIo5GERDNUejlh1DlsM/view?usp=share_link';
-
 interface ProfitPlan {
   hasPlan: boolean;
   planAmount: string | null;
@@ -45,60 +43,137 @@ interface SubscriptionData {
   profitPlan?: ProfitPlan;
 }
 
+const DEFAULT_PROFIT_PLAN_URL = 'https://example.com/default-profit-plan.pdf';
+
 export default function SubscriptionLookupScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  const [searchValue, setSearchValue] = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
-  const [notFound, setNotFound] = useState(false);
-  const [downloadingPlan, setDownloadingPlan] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalConfig, setModalConfig] = useState({
-    type: 'info' as 'success' | 'error' | 'warning' | 'info',
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    titleEn: string;
+    titleAr: string;
+    messageEn: string;
+    messageAr: string;
+  }>({
+    type: 'info',
     titleEn: '',
     titleAr: '',
     messageEn: '',
     messageAr: '',
   });
+  const [downloadingPlan, setDownloadingPlan] = useState(false);
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    titleEn: string,
+    titleAr: string,
+    messageEn: string,
+    messageAr: string
+  ) => {
+    setModalConfig({ type, titleEn, titleAr, messageEn, messageAr });
+    setModalVisible(true);
+  };
 
   const handleSearch = async () => {
-    if (!searchValue.trim()) {
+    console.log('User tapped search button with email:', email);
+    
+    if (!email.trim()) {
+      console.log('Email is empty - showing error');
+      showModal(
+        'warning',
+        'Email Required',
+        'البريد الإلكتروني مطلوب',
+        'Please enter your email address.',
+        'يرجى إدخال عنوان البريد الإلكتروني.'
+      );
       return;
     }
 
-    console.log('Searching for subscription with query:', searchValue);
     setLoading(true);
-    setNotFound(false);
+    setError(null);
     setSubscription(null);
 
     try {
-      const body = { query: searchValue.trim() };
+      console.log('Fetching subscription data from backend');
+      const response = await fetch(`${backendUrl}/api/subscriptions/lookup?email=${encodeURIComponent(email)}`);
+      console.log('Response status:', response.status);
 
-      console.log('Sending lookup request to backend:', body);
-
-      const response = await fetch(`${backendUrl}/api/subscriptions/lookup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        
+        if (response.status === 404) {
+          showModal(
+            'error',
+            'Not Found',
+            'غير موجود',
+            'No subscription found for this email address.',
+            'لم يتم العثور على اشتراك لهذا البريد الإلكتروني.'
+          );
+        } else {
+          showModal(
+            'error',
+            'Error',
+            'خطأ',
+            'Failed to fetch subscription data. Please try again.',
+            'فشل جلب بيانات الاشتراك. يرجى المحاولة مرة أخرى.'
+          );
+        }
+        return;
+      }
 
       const data = await response.json();
-      console.log('Lookup response:', data);
+      console.log('Subscription data received:', data);
 
-      if (data.found && data.subscription) {
-        setSubscription(data.subscription);
-        setNotFound(false);
-      } else {
-        setSubscription(null);
-        setNotFound(true);
-      }
+      const now = new Date();
+      const endDate = new Date(data.subscription_end_date);
+      const diffTime = endDate.getTime() - now.getTime();
+      const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      const subscriptionData: SubscriptionData = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        telegramUsername: data.telegram_username,
+        channelType: data.channel_type,
+        subscriptionDuration: data.subscription_duration,
+        subscriptionStartDate: data.subscription_start_date,
+        subscriptionEndDate: data.subscription_end_date,
+        totalMonths: data.total_months,
+        daysRemaining: daysRemaining,
+        status: daysRemaining > 0 ? 'active' : 'expired',
+        createdAt: data.created_at,
+        profitPlan: data.profit_plan ? {
+          hasPlan: true,
+          planAmount: data.profit_plan.plan_amount,
+          fileUrl: data.profit_plan.file_url,
+          fileName: data.profit_plan.file_name,
+        } : {
+          hasPlan: false,
+          planAmount: null,
+          fileUrl: null,
+          fileName: null,
+        },
+      };
+
+      console.log('Formatted subscription data:', subscriptionData);
+      setSubscription(subscriptionData);
+
     } catch (error) {
-      console.error('Error looking up subscription:', error);
-      setNotFound(true);
+      console.error('Error fetching subscription:', error);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'An error occurred while fetching subscription data.',
+        'حدث خطأ أثناء جلب بيانات الاشتراك.'
+      );
     } finally {
       setLoading(false);
     }
@@ -110,16 +185,16 @@ export default function SubscriptionLookupScreen() {
       forex: 'قناة الفوركس',
       analysis: 'قناة التحليل',
     };
-    return channelMap[channelType.toLowerCase()] || channelType;
+    return channelMap[channelType?.toLowerCase()] || channelType;
   };
 
   const getDurationArabic = (duration: string) => {
     const durationMap: Record<string, string> = {
       monthly: 'شهري',
-      quarterly: 'ربع سنوي (3 أشهر)',
-      yearly: 'سنوي',
+      quarterly: 'ربع سنوي',
+      annual: 'سنوي',
     };
-    return durationMap[duration.toLowerCase()] || duration;
+    return durationMap[duration?.toLowerCase()] || duration;
   };
 
   const formatDateGregorian = (dateString: string) => {
@@ -134,74 +209,64 @@ export default function SubscriptionLookupScreen() {
   };
 
   const getStatusColor = (daysRemaining: number) => {
-    if (daysRemaining < 0) {
-      return '#EF4444';
-    }
-    if (daysRemaining <= 7) {
-      return '#F59E0B';
-    }
+    if (daysRemaining <= 0) return '#EF4444';
+    if (daysRemaining <= 7) return '#F59E0B';
     return '#10B981';
   };
 
   const getStatusText = (daysRemaining: number) => {
-    if (daysRemaining < 0) {
-      return 'منتهي';
-    }
-    if (daysRemaining === 0) {
-      return 'ينتهي اليوم';
-    }
-    return 'نشط';
-  };
-
-  const showModal = (
-    type: 'success' | 'error' | 'warning' | 'info',
-    titleEn: string,
-    titleAr: string,
-    messageEn: string,
-    messageAr: string
-  ) => {
-    console.log('Showing modal:', type, titleAr, messageAr);
-    setModalConfig({ type, titleEn, titleAr, messageEn, messageAr });
-    setModalVisible(true);
+    if (daysRemaining <= 0) return 'منتهي';
+    if (daysRemaining === 1) return 'ينتهي اليوم';
+    return `${daysRemaining} يوم متبقي`;
   };
 
   const handleDownloadProfitPlan = async () => {
-    const fileUrl = subscription?.profitPlan?.fileUrl || DEFAULT_PROFIT_PLAN_URL;
+    console.log('User tapped download profit plan button');
+    
+    if (!subscription?.profitPlan?.fileUrl) {
+      console.log('No profit plan file URL available');
+      showModal(
+        'warning',
+        'No Plan Available',
+        'لا توجد خطة متاحة',
+        'No profit plan is available for your subscription.',
+        'لا توجد خطة أرباح متاحة لاشتراكك.'
+      );
+      return;
+    }
 
-    console.log('Downloading profit plan from URL:', fileUrl);
     setDownloadingPlan(true);
-
+    
     try {
-      await downloadAndOpenFile(fileUrl, subscription?.profitPlan?.fileName || 'profit_plan.pdf');
+      console.log('Downloading profit plan from URL:', subscription.profitPlan.fileUrl);
+      await downloadAndOpenFile(
+        subscription.profitPlan.fileUrl,
+        subscription.profitPlan.fileName || 'profit-plan.pdf'
+      );
       
-      console.log('Profit plan opened successfully');
+      console.log('Profit plan downloaded and opened successfully');
       
       showModal(
         'success',
-        'File Opened',
-        'تم فتح الملف',
-        'The profit plan file has been opened successfully.',
-        'تم فتح ملف خطة الربح بنجاح.'
+        'Success',
+        'نجح',
+        'Profit plan opened successfully.',
+        'تم فتح خطة الأرباح بنجاح.'
       );
     } catch (error) {
-      console.error('Error opening profit plan:', error);
+      console.error('Error downloading profit plan:', error);
       
       showModal(
         'error',
-        'Failed to Open',
-        'فشل الفتح',
-        'Failed to open the profit plan file. Please try again.',
-        'فشل فتح ملف خطة الربح. يرجى المحاولة مرة أخرى.'
+        'Error',
+        'خطأ',
+        'Failed to open profit plan. Please try again.',
+        'فشل فتح خطة الأرباح. يرجى المحاولة مرة أخرى.'
       );
     } finally {
       setDownloadingPlan(false);
     }
   };
-
-  const cardDescriptionText = 'أدخل البريد الإلكتروني أو يوزر تلقرام للاستعلام عن حالة الاشتراك';
-  const inputLabelText = 'البريد الإلكتروني أو يوزر تلقرام';
-  const inputPlaceholderText = 'أدخل البريد الإلكتروني أو يوزر تلقرام';
-  const notFoundDescriptionText = 'لا يوجد اشتراك مسجل بهذا البريد الإلكتروني أو يوزر تلقرام';
 
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
@@ -219,7 +284,7 @@ export default function SubscriptionLookupScreen() {
       paddingBottom: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      backgroundColor: colors.card,
+      backgroundColor: colors.background,
     },
     backButton: {
       padding: 8,
@@ -237,121 +302,107 @@ export default function SubscriptionLookupScreen() {
       flex: 1,
       padding: 16,
     },
-    card: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: 16,
-      padding: 20,
-      marginBottom: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
+    searchSection: {
+      gap: 16,
+      marginBottom: 24,
     },
-    cardTitle: {
+    sectionTitle: {
       fontSize: 20,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 8,
       textAlign: 'right',
+      marginBottom: 8,
     },
-    cardDescription: {
+    sectionDescription: {
       fontSize: 14,
       color: colors.textSecondary,
-      marginBottom: 20,
       textAlign: 'right',
       lineHeight: 20,
+      marginBottom: 16,
     },
     inputContainer: {
-      marginBottom: 20,
+      gap: 8,
     },
     inputLabel: {
       fontSize: 14,
       fontWeight: '600',
       color: colors.text,
-      marginBottom: 8,
       textAlign: 'right',
     },
     input: {
-      backgroundColor: colors.background,
-      borderWidth: 1,
-      borderColor: colors.border,
+      backgroundColor: colors.card,
       borderRadius: 12,
       paddingHorizontal: 16,
       paddingVertical: 14,
       fontSize: 16,
       color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
       textAlign: 'right',
     },
     searchButton: {
       backgroundColor: colors.primary,
       borderRadius: 12,
-      paddingVertical: 16,
+      paddingVertical: 14,
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    searchButtonDisabled: {
-      opacity: 0.5,
+      gap: 8,
+      marginTop: 8,
     },
     searchButtonText: {
       fontSize: 16,
-      fontWeight: '700',
+      fontWeight: '600',
       color: '#FFFFFF',
     },
-    notFoundCard: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: 16,
-      padding: 32,
+    loadingContainer: {
       alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
+      justifyContent: 'center',
+      paddingVertical: 40,
+      gap: 16,
     },
-    notFoundTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: colors.text,
-      marginTop: 16,
-      marginBottom: 8,
-      textAlign: 'center',
-    },
-    notFoundDescription: {
-      fontSize: 14,
+    loadingText: {
+      fontSize: 16,
       color: colors.textSecondary,
-      textAlign: 'center',
-      lineHeight: 20,
     },
     resultCard: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.card,
       borderRadius: 16,
       padding: 20,
       borderWidth: 1,
       borderColor: colors.border,
+      gap: 16,
     },
     resultHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 20,
+      paddingBottom: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
     },
-    resultTitle: {
+    resultName: {
       fontSize: 20,
       fontWeight: '700',
       color: colors.text,
+      textAlign: 'right',
+      flex: 1,
     },
     statusBadge: {
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 8,
     },
-    statusBadgeText: {
+    statusText: {
       fontSize: 12,
       fontWeight: '700',
       color: '#FFFFFF',
-    },
-    resultSection: {
-      gap: 16,
     },
     resultRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+      paddingVertical: 8,
     },
     resultLabel: {
       fontSize: 14,
@@ -364,89 +415,71 @@ export default function SubscriptionLookupScreen() {
       fontWeight: '600',
       textAlign: 'right',
       flex: 1,
-      marginLeft: 16,
+      marginLeft: 12,
     },
-    daysRemainingText: {
-      fontSize: 16,
-      fontWeight: '700',
-    },
-    divider: {
-      height: 1,
-      backgroundColor: colors.border,
-      marginVertical: 20,
-    },
-    profitPlanSection: {
-      marginTop: 8,
-    },
-    profitPlanHeader: {
-      flexDirection: 'row',
+    daysRemainingContainer: {
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      padding: 16,
       alignItems: 'center',
       gap: 8,
-      marginBottom: 16,
+      marginTop: 8,
+    },
+    daysRemainingNumber: {
+      fontSize: 36,
+      fontWeight: '700',
+    },
+    daysRemainingLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    profitPlanSection: {
+      marginTop: 16,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 12,
     },
     profitPlanTitle: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: '700',
       color: colors.text,
+      textAlign: 'right',
     },
     profitPlanCard: {
       backgroundColor: colors.background,
       borderRadius: 12,
       padding: 16,
-      borderWidth: 2,
-      borderColor: colors.primary,
+      gap: 12,
     },
-    profitPlanInfoRow: {
-      marginBottom: 16,
-    },
-    profitPlanAmountContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
-    profitPlanLabel: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: '500',
-    },
-    profitPlanValue: {
-      fontSize: 20,
-      color: colors.primary,
+    profitPlanAmount: {
+      fontSize: 24,
       fontWeight: '700',
-      textAlign: 'right',
-    },
-    profitPlanFileContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-      backgroundColor: colors.cardBackground,
-      padding: 8,
-      borderRadius: 8,
-    },
-    profitPlanFileName: {
-      fontSize: 12,
-      color: colors.textSecondary,
-      fontWeight: '500',
-      flex: 1,
+      color: colors.primary,
+      textAlign: 'center',
     },
     downloadButton: {
       backgroundColor: colors.primary,
-      borderRadius: 10,
-      paddingVertical: 14,
+      borderRadius: 8,
+      paddingVertical: 12,
       paddingHorizontal: 16,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: 8,
-    },
-    downloadButtonDisabled: {
-      opacity: 0.5,
+      marginTop: 8,
     },
     downloadButtonText: {
-      fontSize: 15,
-      fontWeight: '700',
+      fontSize: 14,
+      fontWeight: '600',
       color: '#FFFFFF',
+    },
+    noPlanText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontStyle: 'italic',
     },
   });
 
@@ -456,8 +489,8 @@ export default function SubscriptionLookupScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
-            console.log('User tapped back button on subscription lookup page');
-            router.back();
+            console.log('User tapped back button - navigating to home');
+            router.push('/(tabs)/(home)/');
           }}
           activeOpacity={0.7}
         >
@@ -473,208 +506,134 @@ export default function SubscriptionLookupScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>البحث عن الاشتراك</Text>
-          <Text style={styles.cardDescription}>
-            {cardDescriptionText}
+        <View style={styles.searchSection}>
+          <Text style={styles.sectionTitle}>ابحث عن اشتراكك</Text>
+          <Text style={styles.sectionDescription}>
+            أدخل عنوان بريدك الإلكتروني للاستعلام عن تفاصيل اشتراكك وخطة الأرباح الخاصة بك.
           </Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{inputLabelText}</Text>
+            <Text style={styles.inputLabel}>البريد الإلكتروني</Text>
             <TextInput
               style={styles.input}
-              placeholder={inputPlaceholderText}
+              placeholder="example@email.com"
               placeholderTextColor={colors.textSecondary}
-              value={searchValue}
-              onChangeText={setSearchValue}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
               autoCapitalize="none"
-              keyboardType="default"
+              autoCorrect={false}
             />
           </View>
 
           <TouchableOpacity
-            style={[styles.searchButton, loading && styles.searchButtonDisabled]}
+            style={styles.searchButton}
             onPress={handleSearch}
-            disabled={loading || !searchValue.trim()}
+            disabled={loading}
             activeOpacity={0.7}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <Text style={styles.searchButtonText}>بحث</Text>
+              <React.Fragment>
+                <IconSymbol
+                  ios_icon_name="magnifyingglass"
+                  android_material_icon_name="search"
+                  size={20}
+                  color="#FFFFFF"
+                />
+                <Text style={styles.searchButtonText}>بحث</Text>
+              </React.Fragment>
             )}
           </TouchableOpacity>
         </View>
 
-        {notFound && (
-          <View style={styles.notFoundCard}>
-            <IconSymbol
-              ios_icon_name="exclamationmark.circle"
-              android_material_icon_name="error"
-              size={48}
-              color="#EF4444"
-            />
-            <Text style={styles.notFoundTitle}>لم يتم العثور على اشتراك</Text>
-            <Text style={styles.notFoundDescription}>
-              {notFoundDescriptionText}
-            </Text>
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>جاري البحث...</Text>
           </View>
         )}
 
         {subscription && (
           <View style={styles.resultCard}>
             <View style={styles.resultHeader}>
-              <Text style={styles.resultTitle}>معلومات الاشتراك</Text>
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: getStatusColor(subscription.daysRemaining) },
-                ]}
-              >
-                <Text style={styles.statusBadgeText}>
-                  {getStatusText(subscription.daysRemaining)}
-                </Text>
+              <Text style={styles.resultName}>{subscription.name}</Text>
+              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(subscription.daysRemaining) }]}>
+                <Text style={styles.statusText}>{subscription.status === 'active' ? 'نشط' : 'منتهي'}</Text>
               </View>
             </View>
 
-            <View style={styles.resultSection}>
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>الاسم</Text>
-                <Text style={styles.resultValue}>{subscription.name}</Text>
-              </View>
-
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>البريد الإلكتروني</Text>
-                <Text style={styles.resultValue}>{subscription.email}</Text>
-              </View>
-
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>يوزر تلقرام</Text>
-                <Text style={styles.resultValue}>{subscription.telegramUsername}</Text>
-              </View>
+            <View style={styles.resultRow}>
+              <Text style={styles.resultLabel}>البريد الإلكتروني:</Text>
+              <Text style={styles.resultValue}>{subscription.email}</Text>
             </View>
 
-            <View style={styles.divider} />
-
-            <View style={styles.resultSection}>
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>نوع القناة</Text>
-                <Text style={styles.resultValue}>
-                  {getChannelNameArabic(subscription.channelType)}
-                </Text>
-              </View>
-
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>مدة الاشتراك</Text>
-                <Text style={styles.resultValue}>
-                  {getDurationArabic(subscription.subscriptionDuration)}
-                </Text>
-              </View>
-
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>إجمالي الأشهر</Text>
-                <Text style={styles.resultValue}>{subscription.totalMonths} شهر</Text>
-              </View>
+            <View style={styles.resultRow}>
+              <Text style={styles.resultLabel}>يوزر تلقرام:</Text>
+              <Text style={styles.resultValue}>{subscription.telegramUsername}</Text>
             </View>
 
-            <View style={styles.divider} />
-
-            <View style={styles.resultSection}>
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>تاريخ البداية</Text>
-                <Text style={styles.resultValue}>
-                  {formatDateGregorian(subscription.subscriptionStartDate)}
-                </Text>
-              </View>
-
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>تاريخ الانتهاء</Text>
-                <Text style={styles.resultValue}>
-                  {formatDateGregorian(subscription.subscriptionEndDate)}
-                </Text>
-              </View>
-
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>الأيام المتبقية</Text>
-                <Text
-                  style={[
-                    styles.resultValue,
-                    styles.daysRemainingText,
-                    { color: getStatusColor(subscription.daysRemaining) },
-                  ]}
-                >
-                  {subscription.daysRemaining >= 0
-                    ? `${subscription.daysRemaining} يوم`
-                    : 'منتهي'}
-                </Text>
-              </View>
+            <View style={styles.resultRow}>
+              <Text style={styles.resultLabel}>القناة:</Text>
+              <Text style={styles.resultValue}>{getChannelNameArabic(subscription.channelType)}</Text>
             </View>
 
-            {subscription.profitPlan?.hasPlan && (
-              <React.Fragment>
-                <View style={styles.divider} />
+            <View style={styles.resultRow}>
+              <Text style={styles.resultLabel}>مدة الاشتراك:</Text>
+              <Text style={styles.resultValue}>{getDurationArabic(subscription.subscriptionDuration)}</Text>
+            </View>
 
-                <View style={styles.profitPlanSection}>
-                  <View style={styles.profitPlanHeader}>
-                    <IconSymbol
-                      ios_icon_name="chart.bar.fill"
-                      android_material_icon_name="assessment"
-                      size={24}
-                      color={colors.primary}
-                    />
-                    <Text style={styles.profitPlanTitle}>خطة الربح التراكمية</Text>
-                  </View>
+            <View style={styles.resultRow}>
+              <Text style={styles.resultLabel}>تاريخ البداية:</Text>
+              <Text style={styles.resultValue}>{formatDateGregorian(subscription.subscriptionStartDate)}</Text>
+            </View>
 
+            <View style={styles.resultRow}>
+              <Text style={styles.resultLabel}>تاريخ الانتهاء:</Text>
+              <Text style={styles.resultValue}>{formatDateGregorian(subscription.subscriptionEndDate)}</Text>
+            </View>
+
+            <View style={styles.daysRemainingContainer}>
+              <Text style={[styles.daysRemainingNumber, { color: getStatusColor(subscription.daysRemaining) }]}>
+                {subscription.daysRemaining >= 0 ? subscription.daysRemaining : 0}
+              </Text>
+              <Text style={styles.daysRemainingLabel}>{getStatusText(subscription.daysRemaining)}</Text>
+            </View>
+
+            {subscription.profitPlan && (
+              <View style={styles.profitPlanSection}>
+                <Text style={styles.profitPlanTitle}>خطة الأرباح</Text>
+                {subscription.profitPlan.hasPlan ? (
                   <View style={styles.profitPlanCard}>
-                    <View style={styles.profitPlanInfoRow}>
-                      <View style={styles.profitPlanAmountContainer}>
-                        <Text style={styles.profitPlanLabel}>قيمة الخطة</Text>
-                        <Text style={styles.profitPlanValue}>
-                          ${subscription.profitPlan.planAmount}
-                        </Text>
-                      </View>
-
-                      {subscription.profitPlan.fileName && (
-                        <View style={styles.profitPlanFileContainer}>
-                          <IconSymbol
-                            ios_icon_name="doc.fill"
-                            android_material_icon_name="description"
-                            size={16}
-                            color={colors.textSecondary}
-                          />
-                          <Text style={styles.profitPlanFileName} numberOfLines={1}>
-                            {subscription.profitPlan.fileName}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-
+                    <Text style={styles.profitPlanAmount}>
+                      {subscription.profitPlan.planAmount}
+                    </Text>
                     <TouchableOpacity
-                      style={[
-                        styles.downloadButton,
-                        downloadingPlan && styles.downloadButtonDisabled,
-                      ]}
+                      style={styles.downloadButton}
                       onPress={handleDownloadProfitPlan}
                       disabled={downloadingPlan}
                       activeOpacity={0.7}
                     >
                       {downloadingPlan ? (
-                        <ActivityIndicator color="#FFFFFF" size="small" />
+                        <ActivityIndicator size="small" color="#FFFFFF" />
                       ) : (
                         <React.Fragment>
                           <IconSymbol
-                            ios_icon_name="arrow.down.circle.fill"
+                            ios_icon_name="arrow.down.doc.fill"
                             android_material_icon_name="download"
                             size={20}
                             color="#FFFFFF"
                           />
-                          <Text style={styles.downloadButtonText}>تنزيل جدول الربح</Text>
+                          <Text style={styles.downloadButtonText}>تنزيل خطة الأرباح</Text>
                         </React.Fragment>
                       )}
                     </TouchableOpacity>
                   </View>
-                </View>
-              </React.Fragment>
+                ) : (
+                  <Text style={styles.noPlanText}>لا توجد خطة أرباح متاحة حالياً</Text>
+                )}
+              </View>
             )}
           </View>
         )}
@@ -682,12 +641,12 @@ export default function SubscriptionLookupScreen() {
 
       <Modal
         visible={modalVisible}
-        type={modalConfig.type}
-        titleEn={modalConfig.titleEn}
-        titleAr={modalConfig.titleAr}
-        messageEn={modalConfig.messageEn}
-        messageAr={modalConfig.messageAr}
         onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.titleEn}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.messageEn}
+        messageAr={modalConfig.messageAr}
       />
     </View>
   );

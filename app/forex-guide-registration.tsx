@@ -37,7 +37,7 @@ export default function ForexGuideRegistrationScreen() {
     messageAr: '',
   });
 
-  const isPickerOpenRef = useRef(false);
+  const isPickingRef = useRef(false);
 
   console.log('ForexGuideRegistrationScreen: Rendering registration form for Forex Guide');
 
@@ -59,118 +59,139 @@ export default function ForexGuideRegistrationScreen() {
   };
 
   const pickFromPhotos = async () => {
-    if (isPickerOpenRef.current) {
-      console.log('Picker already open, ignoring request');
+    if (isPickingRef.current) {
+      console.log('Already picking a file, ignoring duplicate request');
       return;
     }
 
     console.log('User chose to pick from photos');
     setPickerModalVisible(false);
-    isPickerOpenRef.current = true;
     
-    setTimeout(async () => {
-      try {
-        console.log('Requesting photo library permissions...');
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        
-        if (!permissionResult.granted) {
-          console.log('Photo library permission denied');
-          isPickerOpenRef.current = false;
-          showModal(
-            'warning',
-            'Permission Required',
-            'الإذن مطلوب',
-            'Please allow access to your photo library to upload images.',
-            'يرجى السماح بالوصول إلى مكتبة الصور لتحميل الصور.'
-          );
-          return;
-        }
-
-        console.log('Opening image picker...');
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          allowsEditing: false,
-          quality: 0.8,
-        });
-
-        console.log('Image picker result:', result);
-
-        if (result.canceled) {
-          console.log('User cancelled image picker');
-          isPickerOpenRef.current = false;
-          return;
-        }
-
-        if (result.assets && result.assets.length > 0) {
-          const asset = result.assets[0];
-          console.log('User selected image:', asset.uri, 'Name:', asset.fileName);
-          const fileName = asset.fileName || `image_${Date.now()}.jpg`;
-          setDocumentFileName(fileName);
-          await uploadDocument(asset.uri, fileName, 'image/jpeg');
-        }
-      } catch (error) {
-        console.error('Error picking image:', error);
+    // Small delay to allow modal to close
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    isPickingRef.current = true;
+    
+    try {
+      console.log('Requesting photo library permissions...');
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      console.log('Permission result:', permissionResult);
+      
+      if (!permissionResult.granted) {
+        console.log('Photo library permission denied');
         showModal(
-          'error',
-          'Error',
-          'خطأ',
-          'Failed to pick image. Please try again.',
-          'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
+          'warning',
+          'Permission Required',
+          'الإذن مطلوب',
+          'Please allow access to your photo library in Settings to upload images.',
+          'يرجى السماح بالوصول إلى مكتبة الصور في الإعدادات لتحميل الصور.'
         );
-      } finally {
-        isPickerOpenRef.current = false;
+        return;
       }
-    }, 500);
+
+      console.log('Permission granted - opening image picker...');
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 0.8,
+        allowsMultipleSelection: false,
+      });
+
+      console.log('Image picker result:', JSON.stringify(result, null, 2));
+
+      if (result.canceled) {
+        console.log('User cancelled image picker');
+        return;
+      }
+
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log('User selected image:', asset.uri);
+        console.log('Image file name:', asset.fileName);
+        
+        const fileName = asset.fileName || `image_${Date.now()}.jpg`;
+        setDocumentFileName(fileName);
+        await uploadDocument(asset.uri, fileName, 'image/jpeg');
+      } else {
+        console.log('No assets in result');
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to pick image. Please try again.',
+        'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
+      );
+    } finally {
+      isPickingRef.current = false;
+    }
   };
 
   const pickFromFiles = async () => {
-    if (isPickerOpenRef.current) {
-      console.log('Picker already open, ignoring request');
+    if (isPickingRef.current) {
+      console.log('Already picking a file, ignoring duplicate request');
       return;
     }
 
     console.log('User chose to pick from files');
     setPickerModalVisible(false);
-    isPickerOpenRef.current = true;
     
-    setTimeout(async () => {
-      try {
-        console.log('Opening document picker...');
-        const result = await DocumentPicker.getDocumentAsync({
-          type: ['image/*', 'application/pdf'],
-          copyToCacheDirectory: true,
-          multiple: false,
-        });
+    // Small delay to allow modal to close
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    isPickingRef.current = true;
+    
+    try {
+      console.log('Opening document picker...');
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['image/*', 'application/pdf'],
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
 
-        console.log('Document picker result:', result);
+      console.log('Document picker result:', JSON.stringify(result, null, 2));
 
-        if (result.canceled) {
-          console.log('User cancelled document picker');
-          isPickerOpenRef.current = false;
-          return;
-        }
-
-        if (result.assets && result.assets.length > 0) {
-          const asset = result.assets[0];
-          console.log('User selected document:', asset.uri, 'Name:', asset.name, 'Type:', asset.mimeType);
-          setDocumentFileName(asset.name);
-          await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
-        }
-      } catch (error: any) {
-        console.error('Error picking document:', error);
-        if (error.code !== 'ERR_CANCELED') {
-          showModal(
-            'error',
-            'Error',
-            'خطأ',
-            'Failed to pick document. Please try again.',
-            'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
-          );
-        }
-      } finally {
-        isPickerOpenRef.current = false;
+      if (result.canceled) {
+        console.log('User cancelled document picker');
+        return;
       }
-    }, 500);
+
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log('User selected document:', asset.uri);
+        console.log('Document name:', asset.name);
+        console.log('Document type:', asset.mimeType);
+        
+        setDocumentFileName(asset.name);
+        await uploadDocument(asset.uri, asset.name, asset.mimeType || 'application/pdf');
+      } else {
+        console.log('No assets in result');
+      }
+    } catch (error: any) {
+      console.error('Error picking document:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      if (error.code !== 'ERR_CANCELED' && error.code !== 'DOCUMENT_PICKER_CANCELED') {
+        showModal(
+          'error',
+          'Error',
+          'خطأ',
+          'Failed to pick document. Please try again.',
+          'فشل اختيار المستند. يرجى المحاولة مرة أخرى.'
+        );
+      }
+    } finally {
+      isPickingRef.current = false;
+    }
   };
 
   const uploadDocument = async (uri: string, fileName: string, mimeType: string) => {
@@ -195,6 +216,9 @@ export default function ForexGuideRegistrationScreen() {
       );
     } catch (error) {
       console.error('Error uploading document:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+      }
       showModal(
         'error',
         'Error',
@@ -312,6 +336,9 @@ export default function ForexGuideRegistrationScreen() {
       );
     } catch (error) {
       console.error('Error creating subscription:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+      }
       showModal(
         'error',
         'Error',

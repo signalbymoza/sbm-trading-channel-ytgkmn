@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "SBM Trading Channel",
@@ -16,7 +17,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.Natively",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لتحميل صورة الهوية أو جواز السفر. We need access to your photo library to upload your ID or passport photo.",
+        "NSPhotoLibraryAddUsageDescription": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لحفظ المستندات. We need access to your photo library to save documents.",
+        "NSCameraUsageDescription": "نحتاج إلى الوصول إلى الكاميرا لالتقاط صورة الهوية أو جواز السفر. We need access to your camera to take a photo of your ID or passport."
       }
     },
     "android": {
@@ -25,7 +29,14 @@
         "backgroundColor": "#1a1a2e"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Natively"
+      "package": "com.anonymous.Natively",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
@@ -34,7 +45,20 @@
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لتحميل صورة الهوية أو جواز السفر. We need access to your photo library to upload your ID or passport photo.",
+          "cameraPermission": "نحتاج إلى الوصول إلى الكاميرا لالتقاط صورة الهوية أو جواز السفر. We need access to your camera to take a photo of your ID or passport."
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ]
     ],
     "scheme": "SBM Trading Channel",
     "experiments": {
