@@ -5,10 +5,12 @@ import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function EducationIntroScreen() {
   const router = useRouter();
   const { colors, theme } = useTheme();
+  const insets = useSafeAreaInsets();
 
   console.log('EducationIntroScreen: Rendering education introduction page, theme:', theme);
 
@@ -20,6 +22,11 @@ export default function EducationIntroScreen() {
   const handleStartTraining = () => {
     console.log('User tapped Start Training button - navigating to education programs');
     router.push('/education');
+  };
+
+  const handleBackPress = () => {
+    console.log('User tapped back button on education intro page - navigating back');
+    router.back();
   };
 
   const features = [
@@ -69,42 +76,27 @@ export default function EducationIntroScreen() {
   // Dynamic text colors based on theme
   const heroTextColor = theme === 'light' ? '#FFFFFF' : colors.text;
 
+  // iPhone 17 Pro Max compatible padding - use safe area insets directly
+  const topPaddingTop = insets.top;
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background,
     },
-    topNav: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
+    header: {
+      paddingTop: topPaddingTop,
       paddingHorizontal: 16,
-      paddingVertical: 12,
-      paddingTop: Platform.OS === 'android' ? 60 : 12,
-      backgroundColor: colors.card,
+      paddingBottom: 16,
+      backgroundColor: colors.background,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
     },
-    navButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      marginLeft: 8,
-      backgroundColor: colors.primary,
-      borderRadius: 8,
-    },
-    navButtonActive: {
-      backgroundColor: colors.highlight,
-    },
-    navButtonText: {
-      fontSize: 12,
-      fontWeight: '600',
-      color: colors.text,
-      textAlign: 'center',
-    },
-    navButtonTextAr: {
-      fontSize: 11,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginTop: 2,
+    backButton: {
+      padding: 8,
+      marginLeft: -8,
     },
     scrollView: {
       flex: 1,
@@ -372,30 +364,20 @@ export default function EducationIntroScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Navigation */}
-      <View style={styles.topNav}>
+      {/* Header with Back Button Only */}
+      <View style={styles.header}>
         <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/subscription?channel=gold')}
+          style={styles.backButton}
+          onPress={handleBackPress}
           activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.navButtonText}>Subscriptions</Text>
-          <Text style={styles.navButtonTextAr}>الاشتراكات</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/profit-plans')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Profit Plans</Text>
-          <Text style={styles.navButtonTextAr}>خطط الربح</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.navButton, styles.navButtonActive]}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Education</Text>
-          <Text style={styles.navButtonTextAr}>التعليم</Text>
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
         </TouchableOpacity>
       </View>
 
