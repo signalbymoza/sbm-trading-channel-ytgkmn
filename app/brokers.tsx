@@ -109,10 +109,16 @@ export default function BrokersScreen() {
 
   // Dynamic text color for broker card content based on theme
   // When dark mode is active, use white text for better readability
+  // When light mode is active, use black text
   const brokerTextColor = isDarkMode ? '#FFFFFF' : '#000000';
-  const brokerTextSecondaryColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)';
+  const brokerTextSecondaryColor = isDarkMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.9)';
   const brokerBorderColor = isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)';
   const alreadyRegisteredBgColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+  
+  // Gradient overlay colors - darker for better text contrast
+  const gradientColors = isDarkMode 
+    ? ['rgba(0, 0, 0, 0.75)', 'rgba(30, 58, 138, 0.7)']
+    : ['rgba(255, 255, 255, 0.85)', 'rgba(59, 130, 246, 0.6)'];
 
   console.log('BrokersScreen: Text colors - brokerTextColor:', brokerTextColor, 'isDarkMode:', isDarkMode);
 
@@ -163,7 +169,7 @@ export default function BrokersScreen() {
                 resizeMode="contain"
               />
               <LinearGradient
-                colors={['rgba(30, 58, 138, 0.3)', 'rgba(59, 130, 246, 0.35)']}
+                colors={gradientColors}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.brokerImageOverlay}
@@ -359,6 +365,7 @@ const styles = StyleSheet.create({
   brokerNameAr: {
     fontSize: 20,
     marginTop: 4,
+    fontWeight: '600',
   },
   featuresTitleContainer: {
     flexDirection: 'row',
@@ -385,6 +392,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     lineHeight: 22,
+    fontWeight: '500',
   },
   actionButtonsContainer: {
     gap: 12,
