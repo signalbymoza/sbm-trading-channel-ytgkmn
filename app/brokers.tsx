@@ -23,7 +23,7 @@ interface Broker {
 }
 
 export default function BrokersScreen() {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -107,6 +107,12 @@ export default function BrokersScreen() {
 
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
 
+  // Dynamic text color for broker card content based on theme
+  const brokerTextColor = isDarkMode ? '#FFFFFF' : '#000000';
+  const brokerTextSecondaryColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)';
+  const brokerBorderColor = isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)';
+  const alreadyRegisteredBgColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
@@ -164,9 +170,9 @@ export default function BrokersScreen() {
             {/* Content */}
             <View style={styles.brokerContent}>
               {/* Broker Name */}
-              <View style={styles.brokerNameContainer}>
-                <Text style={styles.brokerName}>{broker.name}</Text>
-                <Text style={styles.brokerNameAr}>{broker.nameAr}</Text>
+              <View style={[styles.brokerNameContainer, { borderBottomColor: brokerBorderColor }]}>
+                <Text style={[styles.brokerName, { color: brokerTextColor }]}>{broker.name}</Text>
+                <Text style={[styles.brokerNameAr, { color: brokerTextSecondaryColor }]}>{broker.nameAr}</Text>
               </View>
 
               {/* Features Title */}
@@ -177,7 +183,7 @@ export default function BrokersScreen() {
                   size={20} 
                   color={colors.highlight} 
                 />
-                <Text style={styles.featuresTitle}>المميزات</Text>
+                <Text style={[styles.featuresTitle, { color: brokerTextColor }]}>المميزات</Text>
               </View>
 
               {/* Features List */}
@@ -190,7 +196,7 @@ export default function BrokersScreen() {
                       size={18} 
                       color={colors.highlight} 
                     />
-                    <Text style={styles.featureText}>{feature}</Text>
+                    <Text style={[styles.featureText, { color: brokerTextColor }]}>{feature}</Text>
                   </View>
                 ))}
               </View>
@@ -214,7 +220,7 @@ export default function BrokersScreen() {
 
                 {/* Already Registered Button */}
                 <TouchableOpacity 
-                  style={[styles.alreadyRegisteredButton, { borderColor: colors.highlight }]}
+                  style={[styles.alreadyRegisteredButton, { borderColor: colors.highlight, backgroundColor: alreadyRegisteredBgColor }]}
                   onPress={() => handleAlreadyRegistered(broker.id, broker.name)}
                   activeOpacity={0.8}
                 >
@@ -342,18 +348,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
   },
   brokerName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
   },
   brokerNameAr: {
     fontSize: 20,
-    color: '#FFFFFF',
     marginTop: 4,
-    opacity: 0.9,
   },
   featuresTitleContainer: {
     flexDirection: 'row',
@@ -364,7 +366,6 @@ const styles = StyleSheet.create({
   featuresTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
     marginRight: 8,
   },
   featuresList: {
@@ -377,7 +378,6 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 15,
-    color: '#FFFFFF',
     marginLeft: 12,
     flex: 1,
     textAlign: 'right',
@@ -402,7 +402,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   alreadyRegisteredButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
