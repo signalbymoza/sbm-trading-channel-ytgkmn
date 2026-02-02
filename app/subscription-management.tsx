@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import Constants from 'expo-constants';
 import Modal from '@/components/ui/Modal';
+import { downloadAndOpenFile, isImageUrl, isPdfUrl } from '@/utils/fileDownload';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
@@ -78,6 +79,7 @@ export default function SubscriptionManagementScreen() {
   const [documentModalVisible, setDocumentModalVisible] = useState(false);
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState<string | null>(null);
   const [documentLoading, setDocumentLoading] = useState(false);
+  const [downloadingDocument, setDownloadingDocument] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -229,7 +231,45 @@ export default function SubscriptionManagementScreen() {
   const handleViewDocument = (documentUrl: string) => {
     console.log('User tapped view document button, URL:', documentUrl);
     setSelectedDocumentUrl(documentUrl);
-    setDocumentModalVisible(true);
+    
+    // If it's an image, show in modal. If it's a PDF, download and open directly
+    if (isImageUrl(documentUrl)) {
+      console.log('Document is an image - showing in modal');
+      setDocumentModalVisible(true);
+    } else {
+      console.log('Document is a PDF - downloading and opening');
+      handleDownloadDocument(documentUrl);
+    }
+  };
+
+  const handleDownloadDocument = async (documentUrl: string) => {
+    console.log('Downloading and opening document:', documentUrl);
+    setDownloadingDocument(true);
+    
+    try {
+      await downloadAndOpenFile(documentUrl);
+      console.log('Document opened successfully');
+      
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Document opened successfully.',
+        'تم فتح المستند بنجاح.'
+      );
+    } catch (error) {
+      console.error('Error opening document:', error);
+      
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to open document. Please try again.',
+        'فشل فتح المستند. يرجى المحاولة مرة أخرى.'
+      );
+    } finally {
+      setDownloadingDocument(false);
+    }
   };
 
   const formatDateGregorian = (dateString: string) => {
@@ -643,6 +683,22 @@ export default function SubscriptionManagementScreen() {
       fontSize: 14,
       color: colors.textSecondary,
     },
+    downloadDocumentButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      marginTop: 8,
+    },
+    downloadDocumentButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
   });
 
   return (
@@ -880,15 +936,22 @@ export default function SubscriptionManagementScreen() {
                         <TouchableOpacity
                           style={styles.viewDocumentButton}
                           onPress={() => handleViewDocument(subscriber.idDocumentUrl!)}
+                          disabled={downloadingDocument}
                           activeOpacity={0.7}
                         >
-                          <IconSymbol
-                            ios_icon_name="doc.text.fill"
-                            android_material_icon_name="description"
-                            size={20}
-                            color="#FFFFFF"
-                          />
-                          <Text style={styles.viewDocumentButtonText}>عرض الهوية / الجواز</Text>
+                          {downloadingDocument ? (
+                            <ActivityIndicator size="small" color="#FFFFFF" />
+                          ) : (
+                            <React.Fragment>
+                              <IconSymbol
+                                ios_icon_name="doc.text.fill"
+                                android_material_icon_name="description"
+                                size={20}
+                                color="#FFFFFF"
+                              />
+                              <Text style={styles.viewDocumentButtonText}>عرض الهوية / الجواز</Text>
+                            </React.Fragment>
+                          )}
                         </TouchableOpacity>
                       )}
                     </View>
@@ -1075,6 +1138,29 @@ export default function SubscriptionManagementScreen() {
                 </View>
               )}
             </View>
+
+            {selectedDocumentUrl && (
+              <TouchableOpacity
+                style={styles.downloadDocumentButton}
+                onPress={() => handleDownloadDocument(selectedDocumentUrl)}
+                disabled={downloadingDocument}
+                activeOpacity={0.7}
+              >
+                {downloadingDocument ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <React.Fragment>
+                    <IconSymbol
+                      ios_icon_name="arrow.down.circle.fill"
+                      android_material_icon_name="download"
+                      size={20}
+                      color="#FFFFFF"
+                    />
+                    <Text style={styles.downloadDocumentButtonText}>تنزيل الملف</Text>
+                  </React.Fragment>
+                )}
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </RNModal>

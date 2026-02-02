@@ -10,17 +10,16 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
-  Linking,
 } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import Constants from 'expo-constants';
 import Modal from '@/components/ui/Modal';
+import { downloadAndOpenFile } from '@/utils/fileDownload';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
-// Default Google Drive link for profit plan file
 const DEFAULT_PROFIT_PLAN_URL = 'https://drive.google.com/file/d/1eCQ007FTirGiNHIo5GERDNUejlh1DlsM/view?usp=share_link';
 
 interface ProfitPlan {
@@ -167,43 +166,32 @@ export default function SubscriptionLookupScreen() {
   };
 
   const handleDownloadProfitPlan = async () => {
-    // Use the file URL from the subscription if available, otherwise use the default Google Drive link
     const fileUrl = subscription?.profitPlan?.fileUrl || DEFAULT_PROFIT_PLAN_URL;
 
-    console.log('Opening profit plan from URL:', fileUrl);
+    console.log('Downloading profit plan from URL:', fileUrl);
     setDownloadingPlan(true);
 
     try {
-      const canOpen = await Linking.canOpenURL(fileUrl);
-
-      if (canOpen) {
-        await Linking.openURL(fileUrl);
-        console.log('Profit plan file opened successfully');
-        showModal(
-          'success',
-          'File Opened',
-          'تم فتح الملف',
-          'The profit plan file has been opened.',
-          'تم فتح ملف خطة الربح.'
-        );
-      } else {
-        console.error('Cannot open URL:', fileUrl);
-        showModal(
-          'error',
-          'Cannot Open File',
-          'لا يمكن فتح الملف',
-          'Unable to open the profit plan file.',
-          'غير قادر على فتح ملف خطة الربح.'
-        );
-      }
+      await downloadAndOpenFile(fileUrl, subscription?.profitPlan?.fileName || 'profit_plan.pdf');
+      
+      console.log('Profit plan opened successfully');
+      
+      showModal(
+        'success',
+        'File Opened',
+        'تم فتح الملف',
+        'The profit plan file has been opened successfully.',
+        'تم فتح ملف خطة الربح بنجاح.'
+      );
     } catch (error) {
       console.error('Error opening profit plan:', error);
+      
       showModal(
         'error',
         'Failed to Open',
         'فشل الفتح',
-        'Failed to open the profit plan file.',
-        'فشل فتح ملف خطة الربح.'
+        'Failed to open the profit plan file. Please try again.',
+        'فشل فتح ملف خطة الربح. يرجى المحاولة مرة أخرى.'
       );
     } finally {
       setDownloadingPlan(false);
