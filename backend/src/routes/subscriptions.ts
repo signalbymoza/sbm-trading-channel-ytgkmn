@@ -783,7 +783,7 @@ export function register(app: App, fastify: FastifyInstance) {
       }
 
       // The id_document_url should be stored as the S3 key/path
-      // If it's a full signed URL, extract the key portion
+      // If it's a full signed URL or contains full S3 path, extract only the relative path
       let documentKey = subscription.id_document_url;
 
       // Check if it looks like a full signed URL (contains http or query parameters)
@@ -793,10 +793,47 @@ export function register(app: App, fastify: FastifyInstance) {
         // Try to extract the key from the path
         try {
           const url = new URL(documentKey);
-          documentKey = decodeURIComponent(url.pathname).replace(/^\//, '');
+          let extractedPath = decodeURIComponent(url.pathname).replace(/^\//, '');
+
+          // If the extracted path contains the full S3 structure (proj_*/branch_*/...), extract only the relative path
+          if (extractedPath.includes('proj_') && extractedPath.includes('branch_')) {
+            const parts = extractedPath.split('/');
+            // Find the index after 'branch_*' to get only the relative path
+            let branchIndex = -1;
+            for (let i = 0; i < parts.length; i++) {
+              if (parts[i].startsWith('branch_')) {
+                branchIndex = i;
+                break;
+              }
+            }
+            if (branchIndex !== -1 && branchIndex + 1 < parts.length) {
+              documentKey = parts.slice(branchIndex + 1).join('/');
+              app.logger.debug({ subscriptionId: id, relativePath: documentKey }, 'Extracted relative path from full S3 path');
+            } else {
+              documentKey = extractedPath;
+            }
+          } else {
+            documentKey = extractedPath;
+          }
           app.logger.debug({ subscriptionId: id, extractedKey: documentKey }, 'Extracted key from signed URL');
         } catch (parseError) {
           app.logger.warn({ subscriptionId: id, err: parseError }, 'Failed to parse document URL, using as-is');
+        }
+      } else if (documentKey.includes('proj_') && documentKey.includes('branch_')) {
+        // The stored key already contains the full S3 path, extract only the relative path
+        app.logger.debug({ subscriptionId: id, fullPath: documentKey }, 'Document key contains full S3 path, extracting relative path');
+
+        const parts = documentKey.split('/');
+        let branchIndex = -1;
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i].startsWith('branch_')) {
+            branchIndex = i;
+            break;
+          }
+        }
+        if (branchIndex !== -1 && branchIndex + 1 < parts.length) {
+          documentKey = parts.slice(branchIndex + 1).join('/');
+          app.logger.debug({ subscriptionId: id, relativePath: documentKey }, 'Extracted relative path from full S3 path');
         }
       }
 
