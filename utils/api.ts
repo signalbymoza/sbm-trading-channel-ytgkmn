@@ -39,9 +39,29 @@ export async function apiCall<T = any>(
     console.log(`[API] Response status: ${response.status}`);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[API] Error response:`, errorText);
-      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+      let errorMessage = `API call failed: ${response.status} ${response.statusText}`;
+      
+      try {
+        const errorText = await response.text();
+        console.error(`[API] Error response:`, errorText);
+        
+        // Try to parse as JSON for more detailed error info
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // Not JSON, use the text as-is if it's meaningful
+          if (errorText && errorText.length < 200) {
+            errorMessage = errorText;
+          }
+        }
+      } catch (e) {
+        console.error('[API] Could not read error response');
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -244,26 +264,70 @@ export async function uploadFile<T = any>(
     console.log(`[API] Upload response status: ${response.status}`);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[API] Upload error response:`, errorText);
+      let errorMessage = `Upload failed: ${response.status}`;
       
-      let errorData;
       try {
-        errorData = JSON.parse(errorText);
-        console.error('[API] Parsed error data:', errorData);
-      } catch (e) {
-        console.error('[API] Could not parse error response as JSON');
+        const errorText = await response.text();
+        console.error(`[API] Upload error response:`, errorText);
+        
+        // Try to parse as JSON for more detailed error info
+        try {
+          const errorData = JSON.parse(errorText);
+          console.log('[API] Parsed error data:', errorData);
+          
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (parseError) {
+          console.log('[API] Could not parse error response as JSON');
+          // Use the raw text if it's short and meaningful
+          if (errorText && errorText.length < 200 && !errorText.includes('<!DOCTYPE')) {
+            errorMessage = errorText;
+          }
+        }
+      } catch (readError) {
+        console.error('[API] Could not read error response');
       }
       
-      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      // Add specific error messages for common HTTP status codes
+      if (response.status === 413) {
+        errorMessage = 'File size exceeds the 10MB limit. Please select a smaller file.';
+      } else if (response.status === 415) {
+        errorMessage = 'Unsupported file type. Please upload a JPG, PNG, or PDF file.';
+      } else if (response.status === 400) {
+        errorMessage = errorMessage || 'Invalid file upload request. Please try again.';
+      } else if (response.status === 500) {
+        errorMessage = 'Server error during upload. Please try again.';
+      }
+      
+      console.error('[API] Upload failed with message:', errorMessage);
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
     console.log(`[API] Upload response data:`, data);
+    console.log('[API] Upload completed successfully');
     
     return data as T;
   } catch (error) {
-    console.error(`[API] Upload failed:`, error);
-    throw error;
+    console.error(`[API] Upload failed with error:`, error);
+    
+    // Re-throw with a more user-friendly message if it's a generic error
+    if (error instanceof Error) {
+      // If the error message is already user-friendly, keep it
+      if (error.message.includes('File size exceeds') || 
+          error.message.includes('Unsupported file') ||
+          error.message.includes('Invalid file') ||
+          error.message.includes('Server error')) {
+        throw error;
+      }
+      
+      // Otherwise, wrap it in a more user-friendly message
+      throw new Error(`Upload failed: ${error.message}`);
+    }
+    
+    throw new Error('Upload failed. Please check your internet connection and try again.');
   }
 }

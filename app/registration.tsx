@@ -155,16 +155,17 @@ export default function RegistrationScreen() {
 
   const uploadDocument = async (uri: string, fileName: string, mimeType: string) => {
     setIsUploading(true);
-    console.log('Uploading document to backend...', { uri, fileName, mimeType });
+    console.log('Starting document upload...', { uri, fileName, mimeType });
 
     try {
+      console.log('Calling uploadFile API...');
       const data = await uploadFile<{ url: string; filename: string }>(
         '/api/upload/id-document',
         uri,
         'document'
       );
 
-      console.log('Document uploaded successfully:', data.url);
+      console.log('Document uploaded successfully! URL:', data.url);
       setIdDocument(data.url);
       showModal(
         'success',
@@ -175,30 +176,36 @@ export default function RegistrationScreen() {
       );
     } catch (error) {
       console.error('Error uploading document:', error);
+      
+      let errorMessageEn = 'Failed to upload image. Please try again.';
+      let errorMessageAr = 'فشل تحميل الصورة. يرجى المحاولة مرة أخرى.';
+      
       if (error instanceof Error) {
         console.error('Error message:', error.message);
         
-        // Check if it's a file size error (413 Payload Too Large)
-        if (error.message.includes('413')) {
-          showModal(
-            'error',
-            'File Too Large',
-            'الملف كبير جداً',
-            'The image file exceeds the 10MB limit. Please try selecting a different photo or use the crop tool to reduce the file size.',
-            'حجم الصورة يتجاوز حد 10 ميجابايت. يرجى اختيار صورة أخرى أو استخدام أداة الاقتصاص لتقليل حجم الملف.'
-          );
-          return;
+        // Check for specific error messages
+        if (error.message.includes('File size exceeds') || error.message.includes('10MB')) {
+          errorMessageEn = 'The image file exceeds the 10MB limit. Please try selecting a different photo or use the crop tool to reduce the file size.';
+          errorMessageAr = 'حجم الصورة يتجاوز حد 10 ميجابايت. يرجى اختيار صورة أخرى أو استخدام أداة الاقتصاص لتقليل حجم الملف.';
+        } else if (error.message.includes('Unsupported file')) {
+          errorMessageEn = 'Unsupported file type. Please upload a JPG or PNG image.';
+          errorMessageAr = 'نوع الملف غير مدعوم. يرجى تحميل صورة JPG أو PNG.';
+        } else if (error.message.includes('network') || error.message.includes('connection')) {
+          errorMessageEn = 'Network error. Please check your internet connection and try again.';
+          errorMessageAr = 'خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
         }
       }
+      
       showModal(
         'error',
-        'Error',
-        'خطأ',
-        'Failed to upload image. Please try again.',
-        'فشل تحميل الصورة. يرجى المحاولة مرة أخرى.'
+        'Upload Error',
+        'خطأ في التحميل',
+        errorMessageEn,
+        errorMessageAr
       );
     } finally {
       setIsUploading(false);
+      console.log('Upload process completed (success or failure)');
     }
   };
 
@@ -331,7 +338,7 @@ export default function RegistrationScreen() {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('Subscription created successfully:', data.id);
+      console.log('Subscription created successfully! ID:', data.id);
 
       // Navigate to payment screen for channel subscriptions
       if (channelType && duration) {
@@ -354,18 +361,33 @@ export default function RegistrationScreen() {
       }
     } catch (error) {
       console.error('Error creating subscription:', error);
+      
+      let errorMessageEn = 'Failed to submit registration. Please try again.';
+      let errorMessageAr = 'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.';
+      
       if (error instanceof Error) {
         console.error('Error message:', error.message);
+        
+        // Check for specific error messages
+        if (error.message.includes('network') || error.message.includes('connection')) {
+          errorMessageEn = 'Network error. Please check your internet connection and try again.';
+          errorMessageAr = 'خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
+        } else if (error.message.includes('email') && error.message.includes('already')) {
+          errorMessageEn = 'This email is already registered. Please use a different email or contact support.';
+          errorMessageAr = 'هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد إلكتروني مختلف أو الاتصال بالدعم.';
+        }
       }
+      
       showModal(
         'error',
-        'Error',
-        'خطأ',
-        'Failed to submit registration. Please try again.',
-        'فشل إرسال التسجيل. يرجى المحاولة مرة أخرى.'
+        'Registration Error',
+        'خطأ في التسجيل',
+        errorMessageEn,
+        errorMessageAr
       );
     } finally {
       setIsSubmitting(false);
+      console.log('Registration submission completed (success or failure)');
     }
   };
 
