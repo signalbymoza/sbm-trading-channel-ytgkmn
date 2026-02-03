@@ -1,5 +1,12 @@
 
 import Constants from 'expo-constants';
+import type { 
+  PaymentIntentRequest, 
+  PaymentIntentResponse, 
+  CheckoutSessionRequest, 
+  CheckoutSessionResponse,
+  PaymentDetails 
+} from './stripe';
 
 // Get backend URL from app.json configuration
 export const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
@@ -45,6 +52,94 @@ export async function apiCall<T = any>(
     console.error(`[API] Request failed:`, error);
     throw error;
   }
+}
+
+/**
+ * Stripe Payment API Functions
+ */
+
+/**
+ * Create a Stripe Payment Intent for mobile payments
+ * @param request - Payment intent request data
+ * @returns Promise with client secret and payment intent ID
+ */
+export async function createPaymentIntent(
+  request: PaymentIntentRequest
+): Promise<PaymentIntentResponse> {
+  console.log('[API] Creating payment intent:', request);
+  
+  return apiCall<PaymentIntentResponse>('/api/stripe/create-payment-intent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+}
+
+/**
+ * Create a Stripe Checkout Session for web payments
+ * @param request - Checkout session request data
+ * @returns Promise with session ID and checkout URL
+ */
+export async function createCheckoutSession(
+  request: CheckoutSessionRequest
+): Promise<CheckoutSessionResponse> {
+  console.log('[API] Creating checkout session:', request);
+  
+  return apiCall<CheckoutSessionResponse>('/api/stripe/create-checkout-session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+}
+
+/**
+ * Get payment details by payment ID
+ * @param paymentId - Payment ID
+ * @returns Promise with payment details
+ */
+export async function getPaymentDetails(
+  paymentId: string
+): Promise<PaymentDetails> {
+  console.log('[API] Getting payment details for:', paymentId);
+  
+  return apiCall<PaymentDetails>(`/api/payments/${paymentId}`);
+}
+
+/**
+ * Get all payments for a subscription
+ * @param subscriptionId - Subscription ID
+ * @returns Promise with array of payment details
+ */
+export async function getSubscriptionPayments(
+  subscriptionId: string
+): Promise<PaymentDetails[]> {
+  console.log('[API] Getting payments for subscription:', subscriptionId);
+  
+  return apiCall<PaymentDetails[]>(`/api/payments/subscription/${subscriptionId}`);
+}
+
+/**
+ * Format payment status for display
+ * @param status - Payment status
+ * @returns Formatted status object with color and text
+ */
+export function formatPaymentStatus(status: string): {
+  color: string;
+  textEn: string;
+  textAr: string;
+} {
+  const statusMap: Record<string, { color: string; textEn: string; textAr: string }> = {
+    pending: { color: '#F59E0B', textEn: 'Pending', textAr: 'قيد الانتظار' },
+    succeeded: { color: '#10B981', textEn: 'Succeeded', textAr: 'نجح' },
+    failed: { color: '#EF4444', textEn: 'Failed', textAr: 'فشل' },
+    canceled: { color: '#6B7280', textEn: 'Canceled', textAr: 'ملغي' },
+  };
+  
+  return statusMap[status] || { color: '#6B7280', textEn: status, textAr: status };
 }
 
 /**

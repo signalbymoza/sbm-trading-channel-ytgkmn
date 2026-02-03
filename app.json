@@ -57,6 +57,13 @@
         {
           "iCloudContainerEnvironment": "Production"
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.sbmtradingchannel",
+          "enableGooglePay": true
+        }
       ]
     ],
     "scheme": "SBM Trading Channel",
@@ -65,7 +72,8 @@
     },
     "extra": {
       "router": {},
-      "backendUrl": "https://hwynfzyvj4kkcgzps5adtetqrpeqfjnj.app.specular.dev"
+      "backendUrl": "https://hwynfzyvj4kkcgzps5adtetqrpeqfjnj.app.specular.dev",
+      "stripePublishableKey": "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
     }
   },
   "scheme": "SBM Trading Channel"

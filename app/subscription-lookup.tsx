@@ -17,6 +17,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import Constants from 'expo-constants';
 import Modal from '@/components/ui/Modal';
 import { downloadAndOpenFile } from '@/utils/fileDownload';
+import { getSubscriptionPayments, formatPaymentStatus } from '@/utils/api';
+import type { PaymentDetails } from '@/utils/stripe';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
@@ -68,6 +70,8 @@ export default function SubscriptionLookupScreen() {
     messageAr: '',
   });
   const [downloadingPlan, setDownloadingPlan] = useState(false);
+  const [payments, setPayments] = useState<PaymentDetails[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
 
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
@@ -165,6 +169,9 @@ export default function SubscriptionLookupScreen() {
       console.log('Formatted subscription data:', subscriptionData);
       setSubscription(subscriptionData);
 
+      // Load payment history for this subscription
+      loadPaymentHistory(data.id);
+
     } catch (error) {
       console.error('Error fetching subscription:', error);
       showModal(
@@ -218,6 +225,23 @@ export default function SubscriptionLookupScreen() {
     if (daysRemaining <= 0) return 'منتهي';
     if (daysRemaining === 1) return 'ينتهي اليوم';
     return `${daysRemaining} يوم متبقي`;
+  };
+
+  const loadPaymentHistory = async (subscriptionId: string) => {
+    console.log('Loading payment history for subscription:', subscriptionId);
+    setLoadingPayments(true);
+    
+    try {
+      const paymentData = await getSubscriptionPayments(subscriptionId);
+      console.log('Payment history loaded:', paymentData);
+      setPayments(paymentData);
+    } catch (error) {
+      console.error('Error loading payment history:', error);
+      // Don't show error modal for payment history - it's optional
+      setPayments([]);
+    } finally {
+      setLoadingPayments(false);
+    }
   };
 
   const handleDownloadProfitPlan = async () => {
@@ -481,6 +505,72 @@ export default function SubscriptionLookupScreen() {
       textAlign: 'center',
       fontStyle: 'italic',
     },
+    paymentHistorySection: {
+      marginTop: 16,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 12,
+    },
+    paymentHistoryTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'right',
+    },
+    paymentCard: {
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      padding: 16,
+      gap: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    paymentHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    paymentAmount: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    paymentStatusBadge: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 6,
+    },
+    paymentStatusText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    paymentRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 4,
+    },
+    paymentLabel: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    paymentValue: {
+      fontSize: 13,
+      color: colors.text,
+      fontWeight: '600',
+      textAlign: 'right',
+    },
+    noPaymentsText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontStyle: 'italic',
+      paddingVertical: 16,
+    },
   });
 
   return (
@@ -635,6 +725,63 @@ export default function SubscriptionLookupScreen() {
                 )}
               </View>
             )}
+
+            {/* Payment History Section */}
+            <View style={styles.paymentHistorySection}>
+              <Text style={styles.paymentHistoryTitle}>سجل الدفعات / Payment History</Text>
+              
+              {loadingPayments ? (
+                <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.noPaymentsText, { marginTop: 8 }]}>جاري التحميل...</Text>
+                </View>
+              ) : payments.length > 0 ? (
+                payments.map((payment, index) => {
+                  const statusInfo = formatPaymentStatus(payment.status);
+                  const amount = (payment.amount / 100).toFixed(2);
+                  const currency = payment.currency.toUpperCase();
+                  const date = new Date(payment.createdAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  });
+                  
+                  return (
+                    <View key={payment.id || index} style={styles.paymentCard}>
+                      <View style={styles.paymentHeader}>
+                        <Text style={styles.paymentAmount}>
+                          {currency === 'USD' ? '$' : currency} {amount}
+                        </Text>
+                        <View style={[styles.paymentStatusBadge, { backgroundColor: statusInfo.color }]}>
+                          <Text style={styles.paymentStatusText}>{statusInfo.textAr}</Text>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.paymentRow}>
+                        <Text style={styles.paymentLabel}>التاريخ:</Text>
+                        <Text style={styles.paymentValue}>{date}</Text>
+                      </View>
+                      
+                      {payment.paymentMethod && (
+                        <View style={styles.paymentRow}>
+                          <Text style={styles.paymentLabel}>طريقة الدفع:</Text>
+                          <Text style={styles.paymentValue}>{payment.paymentMethod}</Text>
+                        </View>
+                      )}
+                      
+                      <View style={styles.paymentRow}>
+                        <Text style={styles.paymentLabel}>الحالة:</Text>
+                        <Text style={[styles.paymentValue, { color: statusInfo.color }]}>
+                          {statusInfo.textAr}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })
+              ) : (
+                <Text style={styles.noPaymentsText}>لا توجد دفعات مسجلة</Text>
+              )}
+            </View>
           </View>
         )}
       </ScrollView>

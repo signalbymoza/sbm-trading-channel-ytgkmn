@@ -176,10 +176,12 @@ export default function DurationSelectionScreen() {
     console.log('User selected duration:', selectedDuration, 'currency:', selectedCurrency, 'for channel:', channel);
     
     const selectedOption = durationOptions.find(opt => opt.id === selectedDuration);
-    const price = selectedOption?.price || '';
+    const priceString = selectedOption?.price || '';
+    // Extract numeric value from price string (e.g., "$115" -> "115")
+    const priceValue = priceString.replace(/[^0-9.]/g, '');
     
     // Add program parameter for channel subscriptions
-    router.push(`/registration?channel=${channel}&duration=${selectedDuration}&currency=${selectedCurrency}&price=${price}&program=channel_subscription`);
+    router.push(`/registration?channel=${channel}&duration=${selectedDuration}&currency=${selectedCurrency}&price=${priceValue}&program=channel_subscription`);
   };
 
   const isDurationSelected = (id: string) => selectedDuration === id;

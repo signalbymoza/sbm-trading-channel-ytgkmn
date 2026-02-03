@@ -333,12 +333,15 @@ export default function RegistrationScreen() {
 
       console.log('Subscription created successfully:', data.id);
 
-      if (program === 'profit_plan') {
-        console.log('Profit plan registration - navigating to success screen with download option for plan amount:', planAmount);
-        router.push(`/profit-plan-success?plan_amount=${planAmount || '250'}`);
-      } else if (channelType) {
-        console.log('Channel subscription - navigating to channel success screen for channel:', channelType);
-        router.push(`/channel-success?channel=${channelType}`);
+      // Navigate to payment screen for channel subscriptions
+      if (channelType && duration) {
+        console.log('Channel subscription - navigating to payment screen');
+        const priceParam = params.price as string;
+        const currencyParam = params.currency as string || 'USD';
+        router.push(`/payment?amount=${priceParam}&currency=${currencyParam}&subscriptionId=${data.id}&channel=${channelType}&duration=${duration}`);
+      } else if (program === 'profit_plan') {
+        console.log('Profit plan registration - navigating to payment screen');
+        router.push(`/payment?amount=${planAmount}&currency=USD&subscriptionId=${data.id}&program=profit_plan&plan_amount=${planAmount}`);
       } else {
         showModal(
           'success',

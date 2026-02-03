@@ -19,6 +19,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import Constants from 'expo-constants';
 import Modal from '@/components/ui/Modal';
 import { downloadAndOpenFile, isImageUrl, isPdfUrl } from '@/utils/fileDownload';
+import { getSubscriptionPayments, formatPaymentStatus } from '@/utils/api';
+import type { PaymentDetails } from '@/utils/stripe';
 
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
 
@@ -87,6 +89,10 @@ export default function SubscriptionManagementScreen() {
   const [downloadingDocument, setDownloadingDocument] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
+  const [selectedSubscriberForPayments, setSelectedSubscriberForPayments] = useState<string | null>(null);
+  const [subscriberPayments, setSubscriberPayments] = useState<PaymentDetails[]>([]);
+  const [loadingSubscriberPayments, setLoadingSubscriberPayments] = useState(false);
+  const [paymentsModalVisible, setPaymentsModalVisible] = useState(false);
 
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
@@ -304,6 +310,31 @@ export default function SubscriptionManagementScreen() {
         'Failed to load document. Please try again.',
         'فشل تحميل المستند. يرجى المحاولة مرة أخرى.'
       );
+    }
+  };
+
+  const handleViewPaymentHistory = async (subscriberId: string, subscriberName: string) => {
+    console.log('User tapped view payment history for subscriber:', subscriberName);
+    setSelectedSubscriberForPayments(subscriberId);
+    setLoadingSubscriberPayments(true);
+    setPaymentsModalVisible(true);
+    
+    try {
+      const payments = await getSubscriptionPayments(subscriberId);
+      console.log('Loaded payments for subscriber:', payments);
+      setSubscriberPayments(payments);
+    } catch (error) {
+      console.error('Error loading payment history:', error);
+      setSubscriberPayments([]);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to load payment history.',
+        'فشل تحميل سجل الدفعات.'
+      );
+    } finally {
+      setLoadingSubscriberPayments(false);
     }
   };
 
@@ -852,6 +883,111 @@ export default function SubscriptionManagementScreen() {
       marginTop: 8,
       paddingHorizontal: 12,
     },
+    viewPaymentsButton: {
+      backgroundColor: colors.highlight,
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      marginTop: 8,
+    },
+    viewPaymentsButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    paymentsModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.9)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    paymentsModalContent: {
+      width: '90%',
+      maxHeight: '80%',
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 16,
+      gap: 16,
+    },
+    paymentsModalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    paymentsModalTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    paymentsModalCloseButton: {
+      padding: 8,
+    },
+    paymentsScrollView: {
+      maxHeight: 400,
+    },
+    paymentCard: {
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      gap: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    paymentHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    paymentAmount: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    paymentStatusBadge: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 6,
+    },
+    paymentStatusText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    paymentRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 4,
+    },
+    paymentLabel: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    paymentValue: {
+      fontSize: 13,
+      color: colors.text,
+      fontWeight: '600',
+      textAlign: 'right',
+    },
+    noPaymentsText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontStyle: 'italic',
+      paddingVertical: 20,
+    },
+    paymentsLoadingContainer: {
+      paddingVertical: 40,
+      alignItems: 'center',
+      gap: 12,
+    },
   });
 
   return (
@@ -1206,6 +1342,20 @@ export default function SubscriptionManagementScreen() {
                           )}
                         </TouchableOpacity>
                       )}
+
+                      <TouchableOpacity
+                        style={styles.viewPaymentsButton}
+                        onPress={() => handleViewPaymentHistory(subscriber.id, subscriber.name)}
+                        activeOpacity={0.7}
+                      >
+                        <IconSymbol
+                          ios_icon_name="creditcard.fill"
+                          android_material_icon_name="payment"
+                          size={20}
+                          color={colors.text}
+                        />
+                        <Text style={styles.viewPaymentsButtonText}>عرض سجل الدفعات</Text>
+                      </TouchableOpacity>
                     </View>
                   ))}
                 </View>
@@ -1334,6 +1484,98 @@ export default function SubscriptionManagementScreen() {
         message={modalConfig.message}
         messageAr={modalConfig.messageAr}
       />
+
+      <RNModal
+        visible={paymentsModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setPaymentsModalVisible(false);
+          setSelectedSubscriberForPayments(null);
+          setSubscriberPayments([]);
+        }}
+      >
+        <View style={styles.paymentsModalOverlay}>
+          <View style={styles.paymentsModalContent}>
+            <View style={styles.paymentsModalHeader}>
+              <Text style={styles.paymentsModalTitle}>سجل الدفعات</Text>
+              <TouchableOpacity
+                style={styles.paymentsModalCloseButton}
+                onPress={() => {
+                  console.log('User closed payments modal');
+                  setPaymentsModalVisible(false);
+                  setSelectedSubscriberForPayments(null);
+                  setSubscriberPayments([]);
+                }}
+                activeOpacity={0.7}
+              >
+                <IconSymbol
+                  ios_icon_name="xmark.circle.fill"
+                  android_material_icon_name="cancel"
+                  size={28}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {loadingSubscriberPayments ? (
+              <View style={styles.paymentsLoadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={styles.noPaymentsText}>جاري تحميل سجل الدفعات...</Text>
+              </View>
+            ) : (
+              <ScrollView style={styles.paymentsScrollView} showsVerticalScrollIndicator={false}>
+                {subscriberPayments.length > 0 ? (
+                  subscriberPayments.map((payment, index) => {
+                    const statusInfo = formatPaymentStatus(payment.status);
+                    const amount = (payment.amount / 100).toFixed(2);
+                    const currency = payment.currency.toUpperCase();
+                    const date = new Date(payment.createdAt).toLocaleDateString('ar-SA', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    });
+                    
+                    return (
+                      <View key={payment.id || index} style={styles.paymentCard}>
+                        <View style={styles.paymentHeader}>
+                          <Text style={styles.paymentAmount}>
+                            {currency === 'USD' ? '$' : currency} {amount}
+                          </Text>
+                          <View style={[styles.paymentStatusBadge, { backgroundColor: statusInfo.color }]}>
+                            <Text style={styles.paymentStatusText}>{statusInfo.textAr}</Text>
+                          </View>
+                        </View>
+                        
+                        <View style={styles.paymentRow}>
+                          <Text style={styles.paymentLabel}>التاريخ:</Text>
+                          <Text style={styles.paymentValue}>{date}</Text>
+                        </View>
+                        
+                        {payment.paymentMethod && (
+                          <View style={styles.paymentRow}>
+                            <Text style={styles.paymentLabel}>طريقة الدفع:</Text>
+                            <Text style={styles.paymentValue}>{payment.paymentMethod}</Text>
+                          </View>
+                        )}
+                        
+                        <View style={styles.paymentRow}>
+                          <Text style={styles.paymentLabel}>الحالة:</Text>
+                          <Text style={[styles.paymentValue, { color: statusInfo.color }]}>
+                            {statusInfo.textAr}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.noPaymentsText}>لا توجد دفعات مسجلة لهذا المشترك</Text>
+                )}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </RNModal>
 
       <RNModal
         visible={documentModalVisible}
