@@ -1,7 +1,8 @@
+
 {
   "expo": {
     "name": "SBM Trading Channel",
-    "slug": "SBM Trading Channel",
+    "slug": "sbm-trading-channel",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
@@ -14,12 +15,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Natively",
+      "bundleIdentifier": "com.sbmtradingchannel.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0643\u062a\u0628\u0629 \u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0644\u062a\u062d\u0645\u064a\u0644 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your photo library to upload your ID or passport photo.",
-        "NSPhotoLibraryAddUsageDescription": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0643\u062a\u0628\u0629 \u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0644\u062d\u0641\u0638 \u0627\u0644\u0645\u0633\u062a\u0646\u062f\u0627\u062a. We need access to your photo library to save documents.",
-        "NSCameraUsageDescription": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u0644\u0627\u0644\u062a\u0642\u0627\u0637 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your camera to take a photo of your ID or passport."
+        "NSPhotoLibraryUsageDescription": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لتحميل صورة الهوية أو جواز السفر. We need access to your photo library to upload your ID or passport photo.",
+        "NSPhotoLibraryAddUsageDescription": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لحفظ المستندات. We need access to your photo library to save documents.",
+        "NSCameraUsageDescription": "نحتاج إلى الوصول إلى الكاميرا لالتقاط صورة الهوية أو جواز السفر. We need access to your camera to take a photo of your ID or passport."
       }
     },
     "android": {
@@ -28,7 +29,7 @@
         "backgroundColor": "#1a1a2e"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Natively",
+      "package": "com.sbmtradingchannel.app",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
@@ -48,8 +49,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0643\u062a\u0628\u0629 \u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0644\u062a\u062d\u0645\u064a\u0644 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your photo library to upload your ID or passport photo.",
-          "cameraPermission": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u0644\u0627\u0644\u062a\u0642\u0627\u0637 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your camera to take a photo of your ID or passport."
+          "photosPermission": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لتحميل صورة الهوية أو جواز السفر. We need access to your photo library to upload your ID or passport photo.",
+          "cameraPermission": "نحتاج إلى الوصول إلى الكاميرا لالتقاط صورة الهوية أو جواز السفر. We need access to your camera to take a photo of your ID or passport."
         }
       ],
       [
@@ -66,7 +67,7 @@
         }
       ]
     ],
-    "scheme": "SBM Trading Channel",
+    "scheme": "sbmtradingchannel",
     "experiments": {
       "typedRoutes": true
     },
@@ -75,6 +76,5 @@
       "backendUrl": "https://hwynfzyvj4kkcgzps5adtetqrpeqfjnj.app.specular.dev",
       "stripePublishableKey": "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
     }
-  },
-  "scheme": "SBM Trading Channel"
+  }
 }
