@@ -5,11 +5,11 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StripeProvider, useStripe, CardField } from '@stripe/stripe-react-native';
 import Constants from 'expo-constants';
 import Modal from '@/components/ui/Modal';
 import { createPaymentIntent } from '@/utils/api';
 import { STRIPE_CONFIG, isStripeConfigured } from '@/utils/stripe';
+import { StripeProvider, useStripe, CardField } from '@stripe/stripe-react-native';
 
 const stripePublishableKey = STRIPE_CONFIG.publishableKey;
 
@@ -17,7 +17,7 @@ function PaymentContent() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const { confirmPayment, initPaymentSheet, presentPaymentSheet } = useStripe();
+  const stripe = useStripe();
 
   const amount = params.amount as string;
   const currency = params.currency as string || 'USD';
@@ -62,6 +62,17 @@ function PaymentContent() {
   const currencySymbol = currency === 'USD' ? '$' : currency;
 
   const handlePayWithCard = async () => {
+    if (!stripe || !stripe.confirmPayment) {
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Payment system not available',
+        'نظام الدفع غير متاح'
+      );
+      return;
+    }
+
     if (!cardComplete) {
       showModal(
         'warning',
@@ -90,7 +101,7 @@ function PaymentContent() {
       const clientSecret = data.clientSecret;
       console.log('Payment intent created:', data.paymentIntentId);
 
-      const result = await confirmPayment(clientSecret, {
+      const result = await stripe.confirmPayment(clientSecret, {
         paymentMethodType: 'Card',
       });
 
@@ -140,6 +151,17 @@ function PaymentContent() {
   };
 
   const handlePayWithApplePay = async () => {
+    if (!stripe || !stripe.initPaymentSheet || !stripe.presentPaymentSheet) {
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Payment system not available',
+        'نظام الدفع غير متاح'
+      );
+      return;
+    }
+
     if (Platform.OS !== 'ios') {
       showModal(
         'warning',
@@ -168,7 +190,7 @@ function PaymentContent() {
       const clientSecret = data.clientSecret;
       console.log('Payment intent created for Apple Pay:', data.paymentIntentId);
 
-      const initResult = await initPaymentSheet({
+      const initResult = await stripe.initPaymentSheet({
         merchantDisplayName: 'SBM Trading Channel',
         paymentIntentClientSecret: clientSecret,
         applePay: {
@@ -182,7 +204,7 @@ function PaymentContent() {
         throw new Error(initResult.error.message);
       }
 
-      const presentResult = await presentPaymentSheet();
+      const presentResult = await stripe.presentPaymentSheet();
 
       if (presentResult.error) {
         console.error('Payment sheet dismissed:', presentResult.error);
@@ -230,6 +252,17 @@ function PaymentContent() {
   };
 
   const handlePayWithGooglePay = async () => {
+    if (!stripe || !stripe.initPaymentSheet || !stripe.presentPaymentSheet) {
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Payment system not available',
+        'نظام الدفع غير متاح'
+      );
+      return;
+    }
+
     if (Platform.OS !== 'android') {
       showModal(
         'warning',
@@ -258,7 +291,7 @@ function PaymentContent() {
       const clientSecret = data.clientSecret;
       console.log('Payment intent created for Google Pay:', data.paymentIntentId);
 
-      const initResult = await initPaymentSheet({
+      const initResult = await stripe.initPaymentSheet({
         merchantDisplayName: 'SBM Trading Channel',
         paymentIntentClientSecret: clientSecret,
         googlePay: {
@@ -273,7 +306,7 @@ function PaymentContent() {
         throw new Error(initResult.error.message);
       }
 
-      const presentResult = await presentPaymentSheet();
+      const presentResult = await stripe.presentPaymentSheet();
 
       if (presentResult.error) {
         console.error('Payment sheet dismissed:', presentResult.error);
@@ -510,7 +543,6 @@ function PaymentContent() {
   );
 }
 
-// Main component - ALWAYS exported as default
 export default function PaymentScreen() {
   if (!isStripeConfigured()) {
     return (
