@@ -6,6 +6,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import Modal from "@/components/ui/Modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Constants from 'expo-constants';
 
 export default function ProfitPlanSuccessScreen() {
   const router = useRouter();
@@ -42,24 +43,26 @@ export default function ProfitPlanSuccessScreen() {
   };
 
   const handleDownloadFile = async () => {
-    console.log('User tapped download file button - opening Google Drive link');
+    console.log('User tapped download file button - fetching profit plan file from backend');
+    console.log('Plan amount:', planAmount);
     setIsDownloading(true);
 
     try {
-      // Google Drive link for the profit plan file
-      const googleDriveUrl = 'https://drive.google.com/file/d/1eCQ007FTirGiNHIo5GERDNUejlh1DlsM/view?usp=share_link';
+      // Use the backend API endpoint to get the profit plan file
+      const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'http://localhost:3000';
+      const downloadUrl = `${backendUrl}/api/profit-plans/download-file?plan_amount=${planAmount}`;
       
-      console.log('Opening Google Drive link:', googleDriveUrl);
-      const canOpen = await Linking.canOpenURL(googleDriveUrl);
+      console.log('Opening profit plan file URL:', downloadUrl);
+      const canOpen = await Linking.canOpenURL(downloadUrl);
       
       if (canOpen) {
-        await Linking.openURL(googleDriveUrl);
+        await Linking.openURL(downloadUrl);
         showModal(
           'success',
           'Opening File',
           'فتح الملف',
-          'The file will open in your browser or Google Drive app.',
-          'سيتم فتح الملف في المتصفح أو تطبيق Google Drive.'
+          'The profit plan file will open in your browser.',
+          'سيتم فتح ملف خطة الربح في المتصفح.'
         );
       } else {
         showModal(
@@ -71,7 +74,7 @@ export default function ProfitPlanSuccessScreen() {
         );
       }
     } catch (error) {
-      console.error('Error opening Google Drive link:', error);
+      console.error('Error opening profit plan file:', error);
       showModal(
         'error',
         'Error',

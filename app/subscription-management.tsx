@@ -41,6 +41,7 @@ interface Subscriber {
   daysRemaining: number;
   idDocumentUrl?: string;
   createdAt: string;
+  planAmount?: string | null;
 }
 
 interface BrokerSubscriber {
@@ -146,7 +147,8 @@ export default function SubscriptionManagementScreen() {
       
       const formattedSubscribers = subscribersData.map((sub: any) => {
         const idDocUrl = sub.id_document_url;
-        console.log('Subscriber:', sub.name, 'ID Document URL:', idDocUrl);
+        const planAmount = sub.plan_amount;
+        console.log('Subscriber:', sub.name, 'ID Document URL:', idDocUrl, 'Plan Amount:', planAmount);
         
         return {
           id: sub.id,
@@ -160,6 +162,7 @@ export default function SubscriptionManagementScreen() {
           daysRemaining: calculateDaysRemaining(sub.subscription_end_date),
           idDocumentUrl: idDocUrl,
           createdAt: sub.created_at,
+          planAmount: planAmount,
         };
       });
       
@@ -1134,6 +1137,15 @@ export default function SubscriptionManagementScreen() {
                           {getChannelNameArabic(subscriber.channelType)}
                         </Text>
                       </View>
+
+                      {subscriber.planAmount && (
+                        <View style={styles.subscriberRow}>
+                          <Text style={styles.subscriberLabel}>خطة الربح التراكمي:</Text>
+                          <Text style={[styles.subscriberValue, { color: colors.primary, fontWeight: '700' }]}>
+                            {subscriber.planAmount}
+                          </Text>
+                        </View>
+                      )}
 
                       <View style={styles.subscriberRow}>
                         <Text style={styles.subscriberLabel}>تاريخ الاشتراك:</Text>
