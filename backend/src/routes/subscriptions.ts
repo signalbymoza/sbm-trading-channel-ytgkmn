@@ -18,6 +18,7 @@ function formatSubscriptionResponse(subscription: any) {
     totalMonths: subscription.total_months,
     status: subscription.status,
     createdAt: subscription.created_at?.toISOString(),
+    planAmount: subscription.plan_amount,
   };
 }
 
@@ -283,6 +284,115 @@ export function register(app: App, fastify: FastifyInstance) {
     } catch (error) {
       app.logger.error({ err: error, body }, 'Failed to create subscription');
       return reply.status(500).send({ error: 'Failed to create subscription' });
+    }
+  });
+
+  // GET /api/subscriptions/lookup - Look up subscription by email (query parameter)
+  fastify.get('/api/subscriptions/lookup', {
+    schema: {
+      description: 'Look up subscription by email (case-insensitive)',
+      tags: ['subscriptions'],
+      querystring: {
+        type: 'object',
+        required: ['email'],
+        properties: {
+          email: { type: 'string' },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            email: { type: 'string' },
+            telegramUsername: { type: 'string' },
+            channelType: { type: 'string' },
+            subscriptionDuration: { type: 'string' },
+            subscriptionStartDate: { type: 'string' },
+            subscriptionEndDate: { type: 'string' },
+            totalMonths: { type: 'number' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' },
+            profitPlan: {
+              type: 'object',
+              properties: {
+                hasPlan: { type: 'boolean' },
+                planAmount: { type: 'string' },
+                fileUrl: { type: 'string' },
+                fileName: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { email } = request.query as { email: string };
+
+    if (!email || !email.trim()) {
+      app.logger.warn({}, 'Lookup request with empty email');
+      return reply.status(400).send({ error: 'Email parameter is required' });
+    }
+
+    app.logger.info({ email }, 'Looking up subscription by email');
+
+    try {
+      // Search by email (case-insensitive), ordered by created_at DESC to get the most recent
+      const results = await app.db.select()
+        .from(schema.subscriptions)
+        .where(ilike(schema.subscriptions.email, email.trim()))
+        .orderBy(desc(schema.subscriptions.created_at))
+        .limit(1);
+
+      const subscription = results.length > 0 ? results[0] : undefined;
+
+      if (!subscription) {
+        app.logger.info({ email }, 'Subscription not found for email');
+        return reply.status(404).send({ error: 'Subscription not found' });
+      }
+
+      const formatted = formatSubscriptionResponse(subscription);
+
+      // Query profit plan information if subscription has a plan_amount
+      let profitPlan = {
+        hasPlan: false,
+        planAmount: null as string | null,
+        fileUrl: null as string | null,
+        fileName: null as string | null,
+      };
+
+      if (subscription.plan_amount) {
+        profitPlan.hasPlan = true;
+        profitPlan.planAmount = subscription.plan_amount;
+
+        // Look up the profit plan file
+        try {
+          const planFile = await app.db.query.profit_plan_files.findFirst({
+            where: eq(schema.profit_plan_files.plan_amount, subscription.plan_amount),
+          });
+
+          if (planFile) {
+            profitPlan.fileUrl = planFile.file_url;
+            profitPlan.fileName = planFile.file_name;
+            app.logger.debug({ planAmount: subscription.plan_amount, fileId: planFile.id }, 'Profit plan file found');
+          } else {
+            app.logger.debug({ planAmount: subscription.plan_amount }, 'Profit plan file not found for plan amount');
+          }
+        } catch (planError) {
+          app.logger.warn({ err: planError, planAmount: subscription.plan_amount }, 'Error querying profit plan file');
+        }
+      }
+
+      app.logger.info({ subscriptionId: subscription.id, email, hasPlan: profitPlan.hasPlan }, 'Subscription lookup successful');
+
+      return {
+        ...formatted,
+        profitPlan,
+      };
+    } catch (error) {
+      app.logger.error({ err: error, email }, 'Failed to lookup subscription');
+      return reply.status(500).send({ error: 'Failed to lookup subscription' });
     }
   });
 
@@ -669,6 +779,7 @@ export function register(app: App, fastify: FastifyInstance) {
               terms_accepted: { type: 'boolean' },
               created_at: { type: 'string' },
               status: { type: 'string' },
+              plan_amount: { type: 'string' },
             },
           },
         },
