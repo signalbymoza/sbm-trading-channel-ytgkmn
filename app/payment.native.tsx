@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Alert } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
@@ -8,12 +8,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StripeProvider, useStripe, CardField } from '@stripe/stripe-react-native';
 import Constants from 'expo-constants';
 import Modal from '@/components/ui/Modal';
-import * as Linking from 'expo-linking';
 import { createPaymentIntent } from '@/utils/api';
 import { STRIPE_CONFIG, isStripeConfigured } from '@/utils/stripe';
 
 const stripePublishableKey = STRIPE_CONFIG.publishableKey;
-const backendUrl = Constants.expoConfig?.extra?.backendUrl || '';
 
 function PaymentContent() {
   const router = useRouter();
@@ -512,6 +510,7 @@ function PaymentContent() {
   );
 }
 
+// Main component - ALWAYS exported as default
 export default function PaymentScreen() {
   if (!isStripeConfigured()) {
     return (
