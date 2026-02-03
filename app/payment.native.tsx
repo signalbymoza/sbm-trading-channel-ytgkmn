@@ -45,7 +45,7 @@ function PaymentContent() {
     messageAr: '',
   });
 
-  console.log('PaymentScreen: Amount:', amount, 'Currency:', currency, 'SubscriptionId:', subscriptionId);
+  console.log('PaymentScreen (Native): Amount:', amount, 'Currency:', currency, 'SubscriptionId:', subscriptionId);
 
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
