@@ -36,6 +36,13 @@
       "when": 1769458610390,
       "tag": "20260126201650_nervous_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770110644205,
+      "tag": "20260203092404_light_punisher",
+      "breakpoints": true
     }
   ]
 }

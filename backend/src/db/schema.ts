@@ -35,3 +35,16 @@ export const profit_plan_files = pgTable('profit_plan_files', {
   description: text('description'),
   created_at: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const payments = pgTable('payments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  subscription_id: uuid('subscription_id').references(() => subscriptions.id),
+  stripe_payment_intent_id: text('stripe_payment_intent_id').unique(),
+  stripe_checkout_session_id: text('stripe_checkout_session_id').unique(),
+  amount: integer('amount').notNull(),
+  currency: text('currency').notNull().default('usd'),
+  status: text('status').notNull().default('pending'),
+  payment_method: text('payment_method'),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
