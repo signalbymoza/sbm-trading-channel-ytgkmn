@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SBM Trading Channel",
-    "slug": "sbm-trading-channel",
+    "slug": "sbmtradingchannel",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
@@ -73,7 +73,7 @@
     "extra": {
       "router": {},
       "backendUrl": "https://hwynfzyvj4kkcgzps5adtetqrpeqfjnj.app.specular.dev",
-      "stripePublishableKey": "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
+      "stripePublishableKey": "pk_live_51NRZBQCENezCC59pJcXbXScLRN1Lz04M2c8LqhtH0Hsqxwn1zDFhMDd8SKIkM9xLuQkcyQP3S0fRiyiQI3MkRA9Y00o0vqRPdB"
     }
   }
 }
