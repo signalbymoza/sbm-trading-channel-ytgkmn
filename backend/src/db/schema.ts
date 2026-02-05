@@ -48,3 +48,13 @@ export const payments = pgTable('payments', {
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const reviews = pgTable('reviews', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  rating: integer('rating').notNull(),
+  comment: text('comment').notNull(),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  approved: boolean('approved').notNull().default(false),
+  channel_type: text('channel_type'),
+});
