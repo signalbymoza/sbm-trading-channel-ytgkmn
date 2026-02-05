@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType, TextInput, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,6 +15,13 @@ function resolveImageSource(source: string | number | ImageSourcePropType | unde
   return source as ImageSourcePropType;
 }
 
+interface ApprovedOpinion {
+  id: string;
+  name: string;
+  opinion: string;
+  createdAt: string;
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -24,6 +31,8 @@ export default function HomeScreen() {
   const [opinionEmail, setOpinionEmail] = useState('');
   const [opinionText, setOpinionText] = useState('');
   const [submittingOpinion, setSubmittingOpinion] = useState(false);
+  const [approvedOpinions, setApprovedOpinions] = useState<ApprovedOpinion[]>([]);
+  const [loadingOpinions, setLoadingOpinions] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
@@ -40,6 +49,25 @@ export default function HomeScreen() {
   });
 
   console.log('HomeScreen: Rendering SBM Trading Channels home screen');
+
+  useEffect(() => {
+    loadApprovedOpinions();
+  }, []);
+
+  const loadApprovedOpinions = async () => {
+    console.log('Loading approved opinions from backend');
+    setLoadingOpinions(true);
+    try {
+      const data = await apiCall<ApprovedOpinion[]>('/api/opinions/approved');
+      console.log('Approved opinions loaded successfully:', data.length, 'opinions');
+      setApprovedOpinions(data);
+    } catch (error) {
+      console.error('Error loading approved opinions:', error);
+      setApprovedOpinions([]);
+    } finally {
+      setLoadingOpinions(false);
+    }
+  };
   
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
@@ -172,6 +200,14 @@ export default function HomeScreen() {
     } finally {
       setSubmittingOpinion(false);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const monthEn = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${monthEn} ${day}, ${year}`;
   };
 
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
@@ -585,6 +621,76 @@ export default function HomeScreen() {
       color: '#FFFFFF',
       marginTop: 2,
     },
+    approvedOpinionsSection: {
+      paddingHorizontal: 24,
+      paddingTop: 32,
+      paddingBottom: 16,
+    },
+    approvedOpinionsSectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    approvedOpinionsSectionTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    approvedOpinionsSectionDescription: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    approvedOpinionCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    approvedOpinionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    approvedOpinionName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    approvedOpinionDate: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    approvedOpinionText: {
+      fontSize: 15,
+      color: colors.text,
+      lineHeight: 22,
+      textAlign: 'right',
+    },
+    loadingOpinionsContainer: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    loadingOpinionsText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 12,
+    },
+    noOpinionsText: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontStyle: 'italic',
+      paddingVertical: 40,
+    },
     footer: {
       paddingHorizontal: 24,
       paddingTop: 40,
@@ -884,6 +990,38 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Approved Opinions Display Section */}
+        {approvedOpinions.length > 0 && (
+          <View style={styles.approvedOpinionsSection}>
+            <Text style={styles.approvedOpinionsSectionTitle}>Client Opinions</Text>
+            <Text style={styles.approvedOpinionsSectionTitleAr}>آراء العملاء</Text>
+            <Text style={styles.approvedOpinionsSectionDescription}>
+              See what our clients have to say about their experience
+            </Text>
+            
+            {loadingOpinions ? (
+              <View style={styles.loadingOpinionsContainer}>
+                <ActivityIndicator size="large" color={colors.highlight} />
+                <Text style={styles.loadingOpinionsText}>Loading opinions...</Text>
+              </View>
+            ) : (
+              approvedOpinions.map((opinion) => {
+                const dateDisplay = formatDate(opinion.createdAt);
+                
+                return (
+                  <View key={opinion.id} style={styles.approvedOpinionCard}>
+                    <View style={styles.approvedOpinionHeader}>
+                      <Text style={styles.approvedOpinionName}>{opinion.name}</Text>
+                      <Text style={styles.approvedOpinionDate}>{dateDisplay}</Text>
+                    </View>
+                    <Text style={styles.approvedOpinionText}>{opinion.opinion}</Text>
+                  </View>
+                );
+              })
+            )}
+          </View>
+        )}
+
         {/* Opinion Submission Section */}
         <View style={styles.opinionSection}>
           <Text style={styles.opinionSectionTitle}>Share Your Opinion</Text>
@@ -949,10 +1087,10 @@ export default function HomeScreen() {
               {submittingOpinion ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <>
+                <React.Fragment>
                   <Text style={styles.submitOpinionButtonText}>Submit Opinion</Text>
                   <Text style={styles.submitOpinionButtonTextAr}>إرسال الرأي</Text>
-                </>
+                </React.Fragment>
               )}
             </TouchableOpacity>
           </View>

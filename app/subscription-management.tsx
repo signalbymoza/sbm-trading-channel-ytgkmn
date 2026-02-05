@@ -61,7 +61,16 @@ interface Opinion {
   email: string;
   opinion: string;
   approved: boolean;
-  created_at: string;
+  createdAt: string;
+}
+
+interface Review {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  channelType?: string;
+  createdAt: string;
 }
 
 type SortOrder = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
@@ -76,6 +85,7 @@ export default function SubscriptionManagementScreen() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [brokerSubscribers, setBrokerSubscribers] = useState<BrokerSubscriber[]>([]);
   const [pendingOpinions, setPendingOpinions] = useState<Opinion[]>([]);
+  const [pendingReviews, setPendingReviews] = useState<Review[]>([]);
   const [selectedBroker, setSelectedBroker] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'stats' | 'subscribers' | 'brokers' | 'opinions'>('stats');
   const [exporting, setExporting] = useState(false);
@@ -103,6 +113,8 @@ export default function SubscriptionManagementScreen() {
   const [subscriberPayments, setSubscriberPayments] = useState<PaymentDetails[]>([]);
   const [loadingSubscriberPayments, setLoadingSubscriberPayments] = useState(false);
   const [paymentsModalVisible, setPaymentsModalVisible] = useState(false);
+
+  console.log('SubscriptionManagementScreen: Rendering subscription management page');
 
   const showModal = (
     type: 'success' | 'error' | 'warning' | 'info',
@@ -159,12 +171,10 @@ export default function SubscriptionManagementScreen() {
       
       const subscribersData = await subscribersResponse.json();
       console.log('Subscribers loaded successfully:', subscribersData.length);
-      console.log('Sample subscriber data:', subscribersData[0]);
       
       const formattedSubscribers = subscribersData.map((sub: any) => {
         const idDocUrl = sub.id_document_url;
         const planAmount = sub.plan_amount;
-        console.log('Subscriber:', sub.name, 'ID Document URL:', idDocUrl, 'Plan Amount:', planAmount);
         
         return {
           id: sub.id,
@@ -182,7 +192,6 @@ export default function SubscriptionManagementScreen() {
         };
       });
       
-      console.log('Formatted subscribers with document URLs:', formattedSubscribers.filter((s: Subscriber) => s.idDocumentUrl).length);
       setSubscribers(formattedSubscribers);
 
       const brokersResponse = await fetch(`${backendUrl}/api/broker-subscribers`);
@@ -210,6 +219,19 @@ export default function SubscriptionManagementScreen() {
       const opinionsData = await opinionsResponse.json();
       console.log('Pending opinions loaded successfully:', opinionsData.length);
       setPendingOpinions(opinionsData);
+
+      const reviewsResponse = await fetch(`${backendUrl}/api/reviews/pending`);
+      console.log('Pending reviews response status:', reviewsResponse.status);
+      
+      if (!reviewsResponse.ok) {
+        const errorText = await reviewsResponse.text();
+        console.error('Pending reviews error response:', errorText);
+        throw new Error(`فشل تحميل التقييمات المعلقة (${reviewsResponse.status})`);
+      }
+      
+      const reviewsData = await reviewsResponse.json();
+      console.log('Pending reviews loaded successfully:', reviewsData.length);
+      setPendingReviews(reviewsData);
 
     } catch (error) {
       console.error('Error loading data:', error);
@@ -353,6 +375,84 @@ export default function SubscriptionManagementScreen() {
     }
   };
 
+  const handleApproveReview = async (reviewId: string) => {
+    console.log('User tapped approve review button for review ID:', reviewId);
+    
+    try {
+      const response = await fetch(`${backendUrl}/api/reviews/${reviewId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Approve review error response:', errorText);
+        throw new Error(`فشل الموافقة على التقييم (${response.status})`);
+      }
+      
+      console.log('Review approved successfully');
+      
+      setPendingReviews(prev => prev.filter(rev => rev.id !== reviewId));
+      
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Review approved successfully.',
+        'تمت الموافقة على التقييم بنجاح.'
+      );
+    } catch (error) {
+      console.error('Error approving review:', error);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to approve review. Please try again.',
+        'فشل الموافقة على التقييم. يرجى المحاولة مرة أخرى.'
+      );
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    console.log('User tapped delete review button for review ID:', reviewId);
+    
+    try {
+      const response = await fetch(`${backendUrl}/api/reviews/${reviewId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete review error response:', errorText);
+        throw new Error(`فشل حذف التقييم (${response.status})`);
+      }
+      
+      console.log('Review deleted successfully');
+      
+      setPendingReviews(prev => prev.filter(rev => rev.id !== reviewId));
+      
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Review deleted successfully.',
+        'تم حذف التقييم بنجاح.'
+      );
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to delete review. Please try again.',
+        'فشل حذف التقييم. يرجى المحاولة مرة أخرى.'
+      );
+    }
+  };
+
   const handleViewDocument = async (subscriberId: string, documentUrl: string) => {
     console.log('User tapped view document button for subscriber ID:', subscriberId);
     console.log('Original document URL:', documentUrl);
@@ -386,7 +486,6 @@ export default function SubscriptionManagementScreen() {
       const freshUrl = data.url;
       
       console.log('Received fresh signed URL from backend');
-      console.log('Fresh URL:', freshUrl);
       
       setSelectedDocumentUrl(freshUrl);
       
@@ -538,6 +637,22 @@ export default function SubscriptionManagementScreen() {
     return sorted;
   };
 
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <IconSymbol
+          key={i}
+          ios_icon_name={i <= rating ? "star.fill" : "star"}
+          android_material_icon_name={i <= rating ? "star" : "star-border"}
+          size={16}
+          color={i <= rating ? "#FFD700" : colors.border}
+        />
+      );
+    }
+    return stars;
+  };
+
   const filteredBrokerSubscribers = selectedBroker === 'all'
     ? brokerSubscribers
     : brokerSubscribers.filter(sub => sub.brokerName === selectedBroker);
@@ -551,6 +666,8 @@ export default function SubscriptionManagementScreen() {
   const topPaddingTop = insets.top;
 
   const sortedSubscribers = getSortedSubscribers();
+
+  const totalPendingCount = pendingOpinions.length + pendingReviews.length;
 
   const styles = StyleSheet.create({
     container: {
@@ -591,6 +708,7 @@ export default function SubscriptionManagementScreen() {
       paddingVertical: 16,
       alignItems: 'center',
       justifyContent: 'center',
+      position: 'relative',
     },
     tabActive: {
       borderBottomWidth: 2,
@@ -603,6 +721,23 @@ export default function SubscriptionManagementScreen() {
     },
     tabTextActive: {
       color: colors.primary,
+    },
+    tabBadge: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      backgroundColor: '#EF4444',
+      borderRadius: 10,
+      minWidth: 20,
+      height: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 6,
+    },
+    tabBadgeText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: '#FFFFFF',
     },
     loadingContainer: {
       flex: 1,
@@ -1191,6 +1326,66 @@ export default function SubscriptionManagementScreen() {
       fontWeight: '600',
       color: '#FFFFFF',
     },
+    reviewCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 12,
+    },
+    reviewHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    reviewName: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.text,
+      flex: 1,
+      textAlign: 'right',
+    },
+    reviewBadge: {
+      backgroundColor: '#3B82F6',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 6,
+    },
+    reviewBadgeText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    reviewStarsContainer: {
+      flexDirection: 'row',
+      gap: 4,
+      marginBottom: 8,
+    },
+    reviewTextContainer: {
+      gap: 8,
+      marginTop: 8,
+    },
+    reviewText: {
+      fontSize: 14,
+      color: colors.text,
+      lineHeight: 20,
+      textAlign: 'right',
+      backgroundColor: colors.background,
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    sectionSubtitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginTop: 24,
+      marginBottom: 12,
+      textAlign: 'right',
+    },
   });
 
   return (
@@ -1249,8 +1444,13 @@ export default function SubscriptionManagementScreen() {
           activeOpacity={0.7}
         >
           <Text style={[styles.tabText, activeTab === 'opinions' && styles.tabTextActive]}>
-            الآراء
+            الآراء والتقييمات
           </Text>
+          {totalPendingCount > 0 && (
+            <View style={styles.tabBadge}>
+              <Text style={styles.tabBadgeText}>{totalPendingCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -1532,8 +1732,6 @@ export default function SubscriptionManagementScreen() {
                           style={styles.viewDocumentButton}
                           onPress={() => {
                             console.log('View document button pressed for subscriber:', subscriber.name);
-                            console.log('Subscriber ID:', subscriber.id);
-                            console.log('Document URL:', subscriber.idDocumentUrl);
                             handleViewDocument(subscriber.id, subscriber.idDocumentUrl!);
                           }}
                           disabled={downloadingDocument || documentLoading}
@@ -1687,9 +1885,147 @@ export default function SubscriptionManagementScreen() {
 
           {activeTab === 'opinions' && (
             <View>
-              <Text style={styles.sectionTitle}>إدارة الآراء</Text>
+              <Text style={styles.sectionTitle}>إدارة الآراء والتقييمات</Text>
               
-              {pendingOpinions.length === 0 ? (
+              {pendingOpinions.length > 0 && (
+                <React.Fragment>
+                  <Text style={styles.sectionSubtitle}>الآراء المعلقة ({pendingOpinions.length})</Text>
+                  <View style={styles.tableContainer}>
+                    {pendingOpinions.map((opinion, index) => (
+                      <View key={index} style={styles.opinionCard}>
+                        <View style={styles.opinionHeader}>
+                          <Text style={styles.opinionName}>{opinion.name}</Text>
+                          <View style={styles.opinionBadge}>
+                            <Text style={styles.opinionBadgeText}>رأي</Text>
+                          </View>
+                        </View>
+
+                        <View style={styles.opinionRow}>
+                          <Text style={styles.opinionLabel}>البريد الإلكتروني:</Text>
+                          <Text style={styles.opinionValue}>{opinion.email}</Text>
+                        </View>
+
+                        <View style={styles.opinionRow}>
+                          <Text style={styles.opinionLabel}>التاريخ:</Text>
+                          <Text style={styles.opinionValue}>
+                            {formatDateGregorian(opinion.createdAt)}
+                          </Text>
+                        </View>
+
+                        <View style={styles.opinionTextContainer}>
+                          <Text style={styles.opinionLabel}>الرأي:</Text>
+                          <Text style={styles.opinionText}>{opinion.opinion}</Text>
+                        </View>
+
+                        <View style={styles.opinionActions}>
+                          <TouchableOpacity
+                            style={styles.approveButton}
+                            onPress={() => handleApproveOpinion(opinion.id)}
+                            activeOpacity={0.7}
+                          >
+                            <IconSymbol
+                              ios_icon_name="checkmark.circle.fill"
+                              android_material_icon_name="check-circle"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.approveButtonText}>موافقة</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={styles.deleteButton}
+                            onPress={() => handleDeleteOpinion(opinion.id)}
+                            activeOpacity={0.7}
+                          >
+                            <IconSymbol
+                              ios_icon_name="trash.fill"
+                              android_material_icon_name="delete"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.deleteButtonText}>حذف</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </React.Fragment>
+              )}
+
+              {pendingReviews.length > 0 && (
+                <React.Fragment>
+                  <Text style={styles.sectionSubtitle}>التقييمات المعلقة ({pendingReviews.length})</Text>
+                  <View style={styles.tableContainer}>
+                    {pendingReviews.map((review, index) => (
+                      <View key={index} style={styles.reviewCard}>
+                        <View style={styles.reviewHeader}>
+                          <Text style={styles.reviewName}>{review.name}</Text>
+                          <View style={styles.reviewBadge}>
+                            <Text style={styles.reviewBadgeText}>تقييم</Text>
+                          </View>
+                        </View>
+
+                        <View style={styles.reviewStarsContainer}>
+                          {renderStars(review.rating)}
+                        </View>
+
+                        <View style={styles.opinionRow}>
+                          <Text style={styles.opinionLabel}>التاريخ:</Text>
+                          <Text style={styles.opinionValue}>
+                            {formatDateGregorian(review.createdAt)}
+                          </Text>
+                        </View>
+
+                        {review.channelType && (
+                          <View style={styles.opinionRow}>
+                            <Text style={styles.opinionLabel}>القناة:</Text>
+                            <Text style={styles.opinionValue}>
+                              {getChannelNameArabic(review.channelType)}
+                            </Text>
+                          </View>
+                        )}
+
+                        <View style={styles.reviewTextContainer}>
+                          <Text style={styles.opinionLabel}>التعليق:</Text>
+                          <Text style={styles.reviewText}>{review.comment}</Text>
+                        </View>
+
+                        <View style={styles.opinionActions}>
+                          <TouchableOpacity
+                            style={styles.approveButton}
+                            onPress={() => handleApproveReview(review.id)}
+                            activeOpacity={0.7}
+                          >
+                            <IconSymbol
+                              ios_icon_name="checkmark.circle.fill"
+                              android_material_icon_name="check-circle"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.approveButtonText}>موافقة</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={styles.deleteButton}
+                            onPress={() => handleDeleteReview(review.id)}
+                            activeOpacity={0.7}
+                          >
+                            <IconSymbol
+                              ios_icon_name="trash.fill"
+                              android_material_icon_name="delete"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.deleteButtonText}>حذف</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </React.Fragment>
+              )}
+
+              {pendingOpinions.length === 0 && pendingReviews.length === 0 && (
                 <View style={styles.emptyCard}>
                   <IconSymbol
                     ios_icon_name="text.bubble"
@@ -1697,67 +2033,7 @@ export default function SubscriptionManagementScreen() {
                     size={48}
                     color={colors.textSecondary}
                   />
-                  <Text style={styles.emptyText}>لا توجد آراء معلقة</Text>
-                </View>
-              ) : (
-                <View style={styles.tableContainer}>
-                  {pendingOpinions.map((opinion, index) => (
-                    <View key={index} style={styles.opinionCard}>
-                      <View style={styles.opinionHeader}>
-                        <Text style={styles.opinionName}>{opinion.name}</Text>
-                        <View style={styles.opinionBadge}>
-                          <Text style={styles.opinionBadgeText}>معلق</Text>
-                        </View>
-                      </View>
-
-                      <View style={styles.opinionRow}>
-                        <Text style={styles.opinionLabel}>البريد الإلكتروني:</Text>
-                        <Text style={styles.opinionValue}>{opinion.email}</Text>
-                      </View>
-
-                      <View style={styles.opinionRow}>
-                        <Text style={styles.opinionLabel}>التاريخ:</Text>
-                        <Text style={styles.opinionValue}>
-                          {formatDateGregorian(opinion.created_at)}
-                        </Text>
-                      </View>
-
-                      <View style={styles.opinionTextContainer}>
-                        <Text style={styles.opinionLabel}>الرأي:</Text>
-                        <Text style={styles.opinionText}>{opinion.opinion}</Text>
-                      </View>
-
-                      <View style={styles.opinionActions}>
-                        <TouchableOpacity
-                          style={styles.approveButton}
-                          onPress={() => handleApproveOpinion(opinion.id)}
-                          activeOpacity={0.7}
-                        >
-                          <IconSymbol
-                            ios_icon_name="checkmark.circle.fill"
-                            android_material_icon_name="check-circle"
-                            size={20}
-                            color="#FFFFFF"
-                          />
-                          <Text style={styles.approveButtonText}>موافقة</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={styles.deleteButton}
-                          onPress={() => handleDeleteOpinion(opinion.id)}
-                          activeOpacity={0.7}
-                        >
-                          <IconSymbol
-                            ios_icon_name="trash.fill"
-                            android_material_icon_name="delete"
-                            size={20}
-                            color="#FFFFFF"
-                          />
-                          <Text style={styles.deleteButtonText}>حذف</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ))}
+                  <Text style={styles.emptyText}>لا توجد آراء أو تقييمات معلقة</Text>
                 </View>
               )}
             </View>
@@ -1903,7 +2179,7 @@ export default function SubscriptionManagementScreen() {
                   source={{ uri: selectedDocumentUrl }}
                   style={styles.documentImage}
                   onLoadStart={() => {
-                    console.log('Document image loading started for URL:', selectedDocumentUrl);
+                    console.log('Document image loading started');
                     setDocumentLoading(true);
                     setImageLoadError(false);
                   }}
@@ -1913,7 +2189,6 @@ export default function SubscriptionManagementScreen() {
                   }}
                   onError={(error) => {
                     console.error('Document image loading error:', error.nativeEvent);
-                    console.error('Failed URL:', selectedDocumentUrl);
                     setDocumentLoading(false);
                     setImageLoadError(true);
                   }}
@@ -1939,9 +2214,6 @@ export default function SubscriptionManagementScreen() {
                   <Text style={styles.documentErrorMessage}>
                     لا يمكن عرض الصورة. يرجى تنزيل الملف للعرض.
                   </Text>
-                  <Text style={styles.documentErrorUrl} numberOfLines={2}>
-                    {selectedDocumentUrl}
-                  </Text>
                 </View>
               )}
             </View>
@@ -1952,7 +2224,6 @@ export default function SubscriptionManagementScreen() {
                   style={styles.downloadDocumentButton}
                   onPress={async () => {
                     console.log('Download button pressed in modal');
-                    console.log('Current URL:', selectedDocumentUrl);
                     await handleDownloadDocument(selectedDocumentUrl);
                   }}
                   disabled={downloadingDocument}
