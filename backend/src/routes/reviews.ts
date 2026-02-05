@@ -54,6 +54,54 @@ export function register(app: App, fastify: FastifyInstance) {
     }
   });
 
+  // GET /api/reviews/pending - Get all pending (not approved) reviews
+  fastify.get('/api/reviews/pending', {
+    schema: {
+      description: 'Get all pending (not approved) reviews',
+      tags: ['reviews'],
+      response: {
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              rating: { type: 'number' },
+              comment: { type: 'string' },
+              channelType: { type: 'string' },
+              createdAt: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+  }, async () => {
+    app.logger.info({}, 'Fetching pending reviews');
+
+    try {
+      const reviews = await app.db.select()
+        .from(schema.reviews)
+        .where(eq(schema.reviews.approved, false))
+        .orderBy(desc(schema.reviews.created_at));
+
+      const result = reviews.map(review => ({
+        id: review.id,
+        name: review.name,
+        rating: review.rating,
+        comment: review.comment,
+        channelType: review.channel_type,
+        createdAt: review.created_at.toISOString(),
+      }));
+
+      app.logger.info({ count: result.length }, 'Pending reviews fetched successfully');
+      return result;
+    } catch (error) {
+      app.logger.error({ err: error }, 'Failed to fetch pending reviews');
+      throw error;
+    }
+  });
+
   // POST /api/reviews - Create a new review
   fastify.post('/api/reviews', {
     schema: {
