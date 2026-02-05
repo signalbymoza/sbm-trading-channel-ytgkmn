@@ -1,7 +1,6 @@
 
 import React, { useState, useRef } from "react";
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Platform, ActivityIndicator } from "react-native";
-import { colors } from "@/styles/commonStyles";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import * as ImagePicker from 'expo-image-picker';
@@ -9,11 +8,13 @@ import * as DocumentPicker from 'expo-document-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function RegistrationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const channelType = params.channel as string;
   const duration = params.duration as string;
   const program = params.program as string;
@@ -472,8 +473,8 @@ export default function RegistrationScreen() {
   const headerPaddingTop = insets.top;
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.headerBar, { paddingTop: headerPaddingTop }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.headerBar, { paddingTop: headerPaddingTop, backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => {
@@ -490,8 +491,8 @@ export default function RegistrationScreen() {
           />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Registration</Text>
-          <Text style={styles.headerTitleAr}>التسجيل</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Registration</Text>
+          <Text style={[styles.headerTitleAr, { color: colors.textSecondary }]}>التسجيل</Text>
         </View>
         <View style={styles.headerSpacer} />
       </View>
@@ -502,17 +503,17 @@ export default function RegistrationScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Complete Your Registration</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Complete Your Registration</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Fill in your details to complete the subscription process
           </Text>
         </View>
 
         <View style={styles.formSection}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="Enter your full name"
               placeholderTextColor={colors.textSecondary}
               value={name}
@@ -522,9 +523,9 @@ export default function RegistrationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="your.email@example.com"
               placeholderTextColor={colors.textSecondary}
               value={email}
@@ -535,9 +536,9 @@ export default function RegistrationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Telegram Username</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Telegram Username</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
               placeholder="@username"
               placeholderTextColor={colors.textSecondary}
               value={telegramUsername}
@@ -548,8 +549,8 @@ export default function RegistrationScreen() {
 
           {showTrainerSelection && (
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>{selectTrainerLabelEn}</Text>
-              <Text style={styles.labelAr}>{selectTrainerLabelAr}</Text>
+              <Text style={[styles.label, { color: colors.text }]}>{selectTrainerLabelEn}</Text>
+              <Text style={[styles.labelAr, { color: colors.textSecondary }]}>{selectTrainerLabelAr}</Text>
               <View style={styles.trainerSelectionContainer}>
                 {trainerOptions.map((trainer) => {
                   const isSelected = selectedTrainer === trainer.id;
@@ -558,7 +559,8 @@ export default function RegistrationScreen() {
                       key={trainer.id}
                       style={[
                         styles.trainerOption,
-                        isSelected && styles.trainerOptionSelected,
+                        { backgroundColor: colors.card, borderColor: colors.border },
+                        isSelected && { borderColor: colors.highlight, backgroundColor: colors.accent },
                       ]}
                       onPress={() => {
                         console.log('User selected trainer:', trainer.id);
@@ -566,16 +568,16 @@ export default function RegistrationScreen() {
                       }}
                       activeOpacity={0.7}
                     >
-                      <View style={[styles.trainerRadio, isSelected && styles.trainerRadioSelected]}>
+                      <View style={[styles.trainerRadio, { borderColor: colors.border }, isSelected && { borderColor: colors.highlight }]}>
                         {isSelected && (
-                          <View style={styles.trainerRadioInner} />
+                          <View style={[styles.trainerRadioInner, { backgroundColor: colors.highlight }]} />
                         )}
                       </View>
                       <View style={styles.trainerTextContainer}>
-                        <Text style={[styles.trainerName, isSelected && styles.trainerNameSelected]}>
+                        <Text style={[styles.trainerName, { color: colors.text }]}>
                           {trainer.nameEn}
                         </Text>
-                        <Text style={[styles.trainerNameAr, isSelected && styles.trainerNameArSelected]}>
+                        <Text style={[styles.trainerNameAr, { color: colors.textSecondary }]}>
                           {trainer.nameAr}
                         </Text>
                       </View>
@@ -587,12 +589,16 @@ export default function RegistrationScreen() {
           )}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>ID or Passport Document</Text>
-            <Text style={styles.labelAr}>وثيقة الهوية أو جواز السفر</Text>
+            <Text style={[styles.label, { color: colors.text }]}>ID or Passport Document</Text>
+            <Text style={[styles.labelAr, { color: colors.textSecondary }]}>وثيقة الهوية أو جواز السفر</Text>
             
             <View style={styles.uploadButtonsContainer}>
               <TouchableOpacity
-                style={[styles.uploadButton, documentUploaded && styles.uploadButtonSuccess]}
+                style={[
+                  styles.uploadButton,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  documentUploaded && { borderColor: colors.success, backgroundColor: colors.accent }
+                ]}
                 onPress={handleUploadFromAlbum}
                 disabled={isUploading}
                 activeOpacity={0.7}
@@ -607,7 +613,7 @@ export default function RegistrationScreen() {
                       size={20} 
                       color={documentUploaded ? colors.success : colors.text} 
                     />
-                    <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
+                    <Text style={[styles.uploadButtonText, { color: colors.text }, documentUploaded && { color: colors.success }]}>
                       {documentUploaded ? 'Uploaded' : 'From Album'}
                     </Text>
                   </>
@@ -615,7 +621,11 @@ export default function RegistrationScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.uploadButton, documentUploaded && styles.uploadButtonSuccess]}
+                style={[
+                  styles.uploadButton,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  documentUploaded && { borderColor: colors.success, backgroundColor: colors.accent }
+                ]}
                 onPress={handleUploadFromFiles}
                 disabled={isUploading}
                 activeOpacity={0.7}
@@ -630,7 +640,7 @@ export default function RegistrationScreen() {
                       size={20} 
                       color={documentUploaded ? colors.success : colors.text} 
                     />
-                    <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
+                    <Text style={[styles.uploadButtonText, { color: colors.text }, documentUploaded && { color: colors.success }]}>
                       {documentUploaded ? 'Uploaded' : 'From Files'}
                     </Text>
                   </>
@@ -639,23 +649,23 @@ export default function RegistrationScreen() {
             </View>
 
             {documentFileName && (
-              <View style={styles.fileNameContainer}>
+              <View style={[styles.fileNameContainer, { backgroundColor: colors.accent, borderColor: colors.success }]}>
                 <IconSymbol 
                   ios_icon_name="doc.fill" 
                   android_material_icon_name="description" 
                   size={16} 
                   color={colors.success} 
                 />
-                <Text style={styles.fileNameText} numberOfLines={1}>
+                <Text style={[styles.fileNameText, { color: colors.success }]} numberOfLines={1}>
                   {documentFileName}
                 </Text>
               </View>
             )}
 
-            <Text style={styles.helperText}>
+            <Text style={[styles.helperText, { color: colors.textSecondary }]}>
               Upload from photo album or select a file (JPG, PNG, or PDF, max 10MB)
             </Text>
-            <Text style={styles.helperTextAr}>
+            <Text style={[styles.helperTextAr, { color: colors.textSecondary }]}>
               رفع من ألبوم الصور أو اختيار ملف (JPG أو PNG أو PDF، حد أقصى 10 ميجابايت)
             </Text>
           </View>
@@ -668,7 +678,7 @@ export default function RegistrationScreen() {
             }}
             activeOpacity={0.7}
           >
-            <View style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>
+            <View style={[styles.checkbox, { borderColor: colors.border }, termsAccepted && { backgroundColor: colors.primary, borderColor: colors.primary }]}>
               {termsAccepted && (
                 <IconSymbol 
                   ios_icon_name="checkmark" 
@@ -678,45 +688,45 @@ export default function RegistrationScreen() {
                 />
               )}
             </View>
-            <Text style={styles.checkboxLabel}>
+            <Text style={[styles.checkboxLabel, { color: colors.text }]}>
               I agree to the terms and conditions
             </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.summarySection}>
-          <Text style={styles.summaryTitle}>Registration Summary</Text>
-          <Text style={styles.summaryTitleAr}>ملخص التسجيل</Text>
+        <View style={[styles.summarySection, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>Registration Summary</Text>
+          <Text style={[styles.summaryTitleAr, { color: colors.text }]}>ملخص التسجيل</Text>
           {program && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Program:</Text>
-              <Text style={styles.summaryValue}>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Program:</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {program === 'profit_plan' ? 'Profit Plan / خطة الربح' : program.replace(/_/g, ' ')}
               </Text>
             </View>
           )}
           {planAmount && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Plan Amount:</Text>
-              <Text style={styles.summaryValue}>${planAmount}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Plan Amount:</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>${planAmount}</Text>
             </View>
           )}
           {channelType && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Channel:</Text>
-              <Text style={styles.summaryValue}>{channelType}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Channel:</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{channelType}</Text>
             </View>
           )}
           {duration && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Duration:</Text>
-              <Text style={styles.summaryValue}>{duration}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Duration:</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{duration}</Text>
             </View>
           )}
           {selectedTrainer && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Trainer:</Text>
-              <Text style={styles.summaryValue}>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Trainer:</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {trainerOptions.find(t => t.id === selectedTrainer)?.nameEn || selectedTrainer}
               </Text>
             </View>
@@ -724,10 +734,11 @@ export default function RegistrationScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <TouchableOpacity
           style={[
             styles.submitButton,
+            { backgroundColor: colors.primary },
             isSubmitting && styles.submitButtonDisabled,
           ]}
           onPress={handleSubmit}
@@ -767,14 +778,11 @@ export default function RegistrationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   headerBar: {
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -788,11 +796,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
   },
   headerTitleAr: {
     fontSize: 16,
-    color: colors.textSecondary,
     marginTop: 2,
   },
   headerSpacer: {
@@ -812,12 +818,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.text,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 15,
-    color: colors.textSecondary,
     lineHeight: 22,
   },
   formSection: {
@@ -829,23 +833,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 2,
   },
   labelAr: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.textSecondary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: colors.text,
   },
   trainerSelectionContainer: {
     gap: 12,
@@ -853,34 +852,23 @@ const styles = StyleSheet.create({
   trainerOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
     borderWidth: 2,
-    borderColor: colors.border,
     borderRadius: 12,
     padding: 16,
-  },
-  trainerOptionSelected: {
-    borderColor: colors.highlight,
-    backgroundColor: colors.accent,
   },
   trainerRadio: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-  },
-  trainerRadioSelected: {
-    borderColor: colors.highlight,
   },
   trainerRadioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: colors.highlight,
   },
   trainerTextContainer: {
     flex: 1,
@@ -888,18 +876,10 @@ const styles = StyleSheet.create({
   trainerName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 2,
-  },
-  trainerNameSelected: {
-    color: colors.text,
   },
   trainerNameAr: {
     fontSize: 14,
-    color: colors.textSecondary,
-  },
-  trainerNameArSelected: {
-    color: colors.text,
   },
   uploadButtonsContainer: {
     flexDirection: 'row',
@@ -907,9 +887,7 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     flex: 1,
-    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -917,17 +895,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  uploadButtonSuccess: {
-    borderColor: colors.success,
-    backgroundColor: colors.accent,
-  },
   uploadButtonText: {
     fontSize: 15,
-    color: colors.text,
     fontWeight: '600',
-  },
-  uploadButtonTextSuccess: {
-    color: colors.success,
   },
   fileNameContainer: {
     flexDirection: 'row',
@@ -935,25 +905,20 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 12,
     padding: 12,
-    backgroundColor: colors.accent,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.success,
   },
   fileNameText: {
     flex: 1,
     fontSize: 13,
-    color: colors.success,
     fontWeight: '500',
   },
   helperText: {
     fontSize: 13,
-    color: colors.textSecondary,
     marginTop: 8,
   },
   helperTextAr: {
     fontSize: 12,
-    color: colors.textSecondary,
     marginTop: 2,
   },
   checkboxContainer: {
@@ -966,39 +931,29 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
   checkboxLabel: {
     fontSize: 15,
-    color: colors.text,
     flex: 1,
   },
   summarySection: {
     marginHorizontal: 24,
     marginTop: 16,
     padding: 20,
-    backgroundColor: colors.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   summaryTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
     marginBottom: 4,
   },
   summaryTitleAr: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
     marginBottom: 16,
   },
   summaryRow: {
@@ -1008,12 +963,10 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 15,
-    color: colors.textSecondary,
   },
   summaryValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.text,
     textTransform: 'capitalize',
   },
   buttonContainer: {
@@ -1022,12 +975,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 24,
-    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   submitButton: {
-    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
