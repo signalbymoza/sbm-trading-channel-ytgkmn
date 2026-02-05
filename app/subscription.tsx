@@ -87,7 +87,7 @@ export default function SubscriptionScreen() {
       paddingTop: topPaddingTop,
       paddingHorizontal: 16,
       paddingBottom: 16,
-      backgroundColor: colors.background,
+      backgroundColor: colors.card,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       flexDirection: 'row',

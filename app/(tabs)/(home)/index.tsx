@@ -45,9 +45,13 @@ export default function HomeScreen() {
     router.push('/subscription?channel=gold');
   };
 
+  const handleReviewsPress = () => {
+    console.log('User tapped View Reviews button');
+    router.push('/reviews');
+  };
+
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
-  // Fixed: Add padding to move buttons below status bar/notch
   const topNavPaddingTop = Platform.OS === 'android' ? insets.top + 16 : insets.top + 8;
 
   const styles = StyleSheet.create({
@@ -243,6 +247,46 @@ export default function HomeScreen() {
       fontSize: 16,
       fontWeight: 'bold',
       color: '#FFFFFF',
+    },
+    reviewsSection: {
+      paddingHorizontal: 24,
+      paddingTop: 32,
+      paddingBottom: 16,
+    },
+    reviewsSectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    reviewsSectionTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    reviewsSectionDescription: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    reviewsButton: {
+      backgroundColor: colors.highlight,
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    reviewsButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+      marginRight: 8,
     },
     paymentSection: {
       paddingHorizontal: 24,
@@ -603,6 +647,28 @@ export default function HomeScreen() {
               <Text style={styles.serviceButtonText}>حمل الخطط</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* User Reviews Section */}
+        <View style={styles.reviewsSection}>
+          <Text style={styles.reviewsSectionTitle}>What Our Clients Say</Text>
+          <Text style={styles.reviewsSectionTitleAr}>ماذا يقول عملاؤنا</Text>
+          <Text style={styles.reviewsSectionDescription}>
+            Read reviews from our satisfied clients and share your own experience
+          </Text>
+          <TouchableOpacity 
+            style={styles.reviewsButton}
+            onPress={handleReviewsPress}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.reviewsButtonText}>View All Reviews</Text>
+            <IconSymbol 
+              ios_icon_name="star.fill" 
+              android_material_icon_name="star" 
+              size={20} 
+              color="#FFFFFF" 
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Payment Methods Section */}
