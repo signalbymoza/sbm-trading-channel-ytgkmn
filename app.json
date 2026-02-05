@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "SBM Trading Channel",
-    "slug": "sbmtradingchannel",
+    "slug": "SBM Trading Channel",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
+    "icon": "./assets/images/0868ecae9_logo.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
+      "image": "./assets/images/0868ecae9_logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#1a1a2e"
     },
@@ -24,7 +24,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/ba099754-f9b3-4eb4-9850-83abfa3d2dea.png",
+        "foregroundImage": "./assets/images/0868ecae9_logo.png",
         "backgroundColor": "#1a1a2e"
       },
       "edgeToEdgeEnabled": true,
@@ -66,7 +66,7 @@
         }
       ]
     ],
-    "scheme": "sbmtradingchannel",
+    "scheme": "SBM Trading Channel",
     "experiments": {
       "typedRoutes": true
     },
