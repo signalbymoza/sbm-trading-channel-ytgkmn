@@ -58,3 +58,12 @@ export const reviews = pgTable('reviews', {
   approved: boolean('approved').notNull().default(false),
   channel_type: text('channel_type'),
 });
+
+export const opinions = pgTable('opinions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  opinion: text('opinion').notNull(),
+  approved: boolean('approved').notNull().default(false),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});

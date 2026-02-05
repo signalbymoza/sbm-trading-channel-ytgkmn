@@ -5,6 +5,7 @@ import * as brokerRoutes from './routes/broker.js';
 import * as profitPlansRoutes from './routes/profit-plans.js';
 import * as stripeRoutes from './routes/stripe.js';
 import * as reviewsRoutes from './routes/reviews.js';
+import * as opinionsRoutes from './routes/opinions.js';
 
 // Create application with schema for full database type support
 export const app = await createApplication(schema);
@@ -49,6 +50,7 @@ brokerRoutes.register(app, app.fastify);
 profitPlansRoutes.register(app, app.fastify);
 stripeRoutes.register(app, app.fastify);
 reviewsRoutes.register(app, app.fastify);
+opinionsRoutes.register(app, app.fastify);
 
 await app.run();
 app.logger.info('Application running');
