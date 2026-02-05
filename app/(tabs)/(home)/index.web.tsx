@@ -1,10 +1,12 @@
 
-import React from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Image, ImageSourcePropType, TextInput, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
+import Modal from "@/components/ui/Modal";
+import { apiCall } from "@/utils/api";
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -17,7 +19,37 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
+  const [opinionName, setOpinionName] = useState('');
+  const [opinionEmail, setOpinionEmail] = useState('');
+  const [opinionText, setOpinionText] = useState('');
+  const [submittingOpinion, setSubmittingOpinion] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+  }>({
+    type: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+  });
+
   console.log('HomeScreen (Web): Rendering SBM Trading Channels home screen');
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    titleAr: string,
+    message: string,
+    messageAr: string
+  ) => {
+    setModalConfig({ type, title, titleAr, message, messageAr });
+    setModalVisible(true);
+  };
 
   const handleProfitPlansPress = () => {
     console.log('User tapped Profit Plans button');
@@ -44,9 +76,105 @@ export default function HomeScreen() {
     router.push('/subscription?channel=gold');
   };
 
+  const handleReviewsPress = () => {
+    console.log('User tapped View Reviews button');
+    router.push('/reviews');
+  };
+
+  const handleSubmitOpinion = async () => {
+    console.log('User tapped Submit Opinion button');
+    console.log('Opinion data:', { name: opinionName, email: opinionEmail, opinion: opinionText });
+    
+    if (!opinionName.trim()) {
+      showModal(
+        'warning',
+        'Name Required',
+        'الاسم مطلوب',
+        'Please enter your name.',
+        'يرجى إدخال اسمك.'
+      );
+      return;
+    }
+    
+    if (!opinionEmail.trim()) {
+      showModal(
+        'warning',
+        'Email Required',
+        'البريد الإلكتروني مطلوب',
+        'Please enter your email address.',
+        'يرجى إدخال بريدك الإلكتروني.'
+      );
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(opinionEmail)) {
+      showModal(
+        'warning',
+        'Invalid Email',
+        'بريد إلكتروني غير صالح',
+        'Please enter a valid email address.',
+        'يرجى إدخال بريد إلكتروني صالح.'
+      );
+      return;
+    }
+    
+    if (!opinionText.trim()) {
+      showModal(
+        'warning',
+        'Opinion Required',
+        'الرأي مطلوب',
+        'Please enter your opinion.',
+        'يرجى إدخال رأيك.'
+      );
+      return;
+    }
+    
+    setSubmittingOpinion(true);
+    
+    try {
+      console.log('Submitting opinion to backend...');
+      const response = await apiCall('/api/opinions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: opinionName.trim(),
+          email: opinionEmail.trim(),
+          opinion: opinionText.trim(),
+        }),
+      });
+      
+      console.log('Opinion submitted successfully:', response);
+      
+      setOpinionName('');
+      setOpinionEmail('');
+      setOpinionText('');
+      
+      showModal(
+        'success',
+        'Opinion Submitted',
+        'تم إرسال الرأي',
+        'Thank you for your opinion! It will be reviewed and approved shortly.',
+        'شكراً لك على رأيك! سيتم مراجعته والموافقة عليه قريباً.'
+      );
+    } catch (error) {
+      console.error('Error submitting opinion:', error);
+      showModal(
+        'error',
+        'Submission Failed',
+        'فشل الإرسال',
+        'Failed to submit your opinion. Please try again.',
+        'فشل إرسال رأيك. يرجى المحاولة مرة أخرى.'
+      );
+    } finally {
+      setSubmittingOpinion(false);
+    }
+  };
+
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
 
-  // For web, minimal top padding
   const topNavPaddingTop = 16;
 
   const styles = StyleSheet.create({
@@ -242,6 +370,135 @@ export default function HomeScreen() {
       fontSize: 16,
       fontWeight: 'bold',
       color: '#FFFFFF',
+    },
+    reviewsSection: {
+      paddingHorizontal: 24,
+      paddingTop: 32,
+      paddingBottom: 16,
+    },
+    reviewsSectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    reviewsSectionTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    reviewsSectionDescription: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    reviewsButton: {
+      backgroundColor: colors.highlight,
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    reviewsButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+      marginRight: 8,
+    },
+    opinionSection: {
+      paddingHorizontal: 24,
+      paddingTop: 32,
+      paddingBottom: 16,
+    },
+    opinionSectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    opinionSectionTitleAr: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    opinionSectionDescription: {
+      fontSize: 15,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    opinionSectionDescriptionAr: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    opinionForm: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 16,
+    },
+    inputContainer: {
+      gap: 4,
+    },
+    inputLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    inputLabelAr: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginBottom: 4,
+    },
+    input: {
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      fontSize: 15,
+      color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    textArea: {
+      minHeight: 100,
+      paddingTop: 12,
+    },
+    submitOpinionButton: {
+      backgroundColor: colors.highlight,
+      borderRadius: 12,
+      paddingVertical: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 8,
+    },
+    submitOpinionButtonDisabled: {
+      opacity: 0.6,
+    },
+    submitOpinionButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+    },
+    submitOpinionButtonTextAr: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#FFFFFF',
+      marginTop: 2,
     },
     paymentSection: {
       paddingHorizontal: 24,
@@ -604,6 +861,102 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* User Reviews Section */}
+        <View style={styles.reviewsSection}>
+          <Text style={styles.reviewsSectionTitle}>What Our Clients Say</Text>
+          <Text style={styles.reviewsSectionTitleAr}>ماذا يقول عملاؤنا</Text>
+          <Text style={styles.reviewsSectionDescription}>
+            Read reviews from our satisfied clients and share your own experience
+          </Text>
+          <TouchableOpacity 
+            style={styles.reviewsButton}
+            onPress={handleReviewsPress}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.reviewsButtonText}>View All Reviews</Text>
+            <IconSymbol 
+              ios_icon_name="star.fill" 
+              android_material_icon_name="star" 
+              size={20} 
+              color="#FFFFFF" 
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Opinion Submission Section */}
+        <View style={styles.opinionSection}>
+          <Text style={styles.opinionSectionTitle}>Share Your Opinion</Text>
+          <Text style={styles.opinionSectionTitleAr}>شارك رأيك</Text>
+          <Text style={styles.opinionSectionDescription}>
+            We value your feedback. Share your thoughts with us!
+          </Text>
+          <Text style={styles.opinionSectionDescriptionAr}>
+            نحن نقدر ملاحظاتك. شاركنا أفكارك!
+          </Text>
+          
+          <View style={styles.opinionForm}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Name</Text>
+              <Text style={styles.inputLabelAr}>الاسم</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your name"
+                placeholderTextColor={colors.textSecondary}
+                value={opinionName}
+                onChangeText={setOpinionName}
+                editable={!submittingOpinion}
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <Text style={styles.inputLabelAr}>البريد الإلكتروني</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                placeholderTextColor={colors.textSecondary}
+                value={opinionEmail}
+                onChangeText={setOpinionEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={!submittingOpinion}
+              />
+            </View>
+            
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Your Opinion</Text>
+              <Text style={styles.inputLabelAr}>رأيك</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Share your thoughts..."
+                placeholderTextColor={colors.textSecondary}
+                value={opinionText}
+                onChangeText={setOpinionText}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                editable={!submittingOpinion}
+              />
+            </View>
+            
+            <TouchableOpacity
+              style={[styles.submitOpinionButton, submittingOpinion && styles.submitOpinionButtonDisabled]}
+              onPress={handleSubmitOpinion}
+              disabled={submittingOpinion}
+              activeOpacity={0.8}
+            >
+              {submittingOpinion ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text style={styles.submitOpinionButtonText}>Submit Opinion</Text>
+                  <Text style={styles.submitOpinionButtonTextAr}>إرسال الرأي</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Payment Methods Section */}
         <View style={styles.paymentSection}>
           <Text style={styles.paymentSectionTitle}>Payment Methods</Text>
@@ -680,6 +1033,16 @@ export default function HomeScreen() {
           <Text style={styles.footerTextAr}>© 2024 SBM للتداول. جميع الحقوق محفوظة.</Text>
         </View>
       </ScrollView>
+      
+      <Modal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        titleAr={modalConfig.titleAr}
+        message={modalConfig.message}
+        messageAr={modalConfig.messageAr}
+      />
     </View>
   );
 }
