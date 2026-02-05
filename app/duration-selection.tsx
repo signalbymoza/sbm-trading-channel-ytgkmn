@@ -45,7 +45,7 @@ export default function DurationSelectionScreen() {
       nameAr: 'قناة التحليل',
       icon: 'bar-chart',
       iosIcon: 'chart.bar.fill',
-      image: require('@/assets/images/5b6830c9-bbf6-4851-a29d-a850f00e7461.jpeg'),
+      image: require('@/assets/images/e5c43145-66a8-49c3-8e3a-139638b2789a.jpeg'),
     },
   };
 

@@ -337,12 +337,36 @@ export default function ForexGuideRegistrationScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header with Back Button */}
+      <View style={[styles.headerBar, { paddingTop: headerPaddingTop }]}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => {
+            console.log('User tapped back button on forex guide registration page');
+            router.back();
+          }}
+          activeOpacity={0.7}
+        >
+          <IconSymbol 
+            ios_icon_name="chevron.left" 
+            android_material_icon_name="arrow-back" 
+            size={24} 
+            color={colors.text} 
+          />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Registration</Text>
+          <Text style={styles.headerTitleAr}>التسجيل</Text>
+        </View>
+        <View style={styles.headerSpacer} />
+      </View>
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
+        <View style={styles.header}>
           <Text style={styles.title}>{titleEn}</Text>
           <Text style={styles.titleAr}>{titleAr}</Text>
           <Text style={styles.subtitle}>{subtitleEn}</Text>
@@ -530,6 +554,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  headerBar: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    backgroundColor: colors.card,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  headerTitleAr: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  headerSpacer: {
+    width: 40,
+  },
   scrollView: {
     flex: 1,
   },
@@ -538,6 +591,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
+    paddingTop: 16,
     paddingBottom: 16,
   },
   title: {
