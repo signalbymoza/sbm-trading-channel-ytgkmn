@@ -55,6 +55,15 @@ interface BrokerSubscriber {
   createdAt: string;
 }
 
+interface Opinion {
+  id: string;
+  name: string;
+  email: string;
+  opinion: string;
+  approved: boolean;
+  created_at: string;
+}
+
 type SortOrder = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
 export default function SubscriptionManagementScreen() {
@@ -66,8 +75,9 @@ export default function SubscriptionManagementScreen() {
   const [stats, setStats] = useState<SubscriptionStats | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [brokerSubscribers, setBrokerSubscribers] = useState<BrokerSubscriber[]>([]);
+  const [pendingOpinions, setPendingOpinions] = useState<Opinion[]>([]);
   const [selectedBroker, setSelectedBroker] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'stats' | 'subscribers' | 'brokers'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'subscribers' | 'brokers' | 'opinions'>('stats');
   const [exporting, setExporting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
@@ -188,6 +198,19 @@ export default function SubscriptionManagementScreen() {
       console.log('Broker subscribers loaded successfully:', brokersData.length);
       setBrokerSubscribers(brokersData);
 
+      const opinionsResponse = await fetch(`${backendUrl}/api/opinions/pending`);
+      console.log('Pending opinions response status:', opinionsResponse.status);
+      
+      if (!opinionsResponse.ok) {
+        const errorText = await opinionsResponse.text();
+        console.error('Pending opinions error response:', errorText);
+        throw new Error(`فشل تحميل الآراء المعلقة (${opinionsResponse.status})`);
+      }
+      
+      const opinionsData = await opinionsResponse.json();
+      console.log('Pending opinions loaded successfully:', opinionsData.length);
+      setPendingOpinions(opinionsData);
+
     } catch (error) {
       console.error('Error loading data:', error);
       const errorMessage = error instanceof Error ? error.message : 'فشل تحميل البيانات';
@@ -249,6 +272,84 @@ export default function SubscriptionManagementScreen() {
       );
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleApproveOpinion = async (opinionId: string) => {
+    console.log('User tapped approve opinion button for opinion ID:', opinionId);
+    
+    try {
+      const response = await fetch(`${backendUrl}/api/opinions/${opinionId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Approve opinion error response:', errorText);
+        throw new Error(`فشل الموافقة على الرأي (${response.status})`);
+      }
+      
+      console.log('Opinion approved successfully');
+      
+      setPendingOpinions(prev => prev.filter(op => op.id !== opinionId));
+      
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Opinion approved successfully.',
+        'تمت الموافقة على الرأي بنجاح.'
+      );
+    } catch (error) {
+      console.error('Error approving opinion:', error);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to approve opinion. Please try again.',
+        'فشل الموافقة على الرأي. يرجى المحاولة مرة أخرى.'
+      );
+    }
+  };
+
+  const handleDeleteOpinion = async (opinionId: string) => {
+    console.log('User tapped delete opinion button for opinion ID:', opinionId);
+    
+    try {
+      const response = await fetch(`${backendUrl}/api/opinions/${opinionId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete opinion error response:', errorText);
+        throw new Error(`فشل حذف الرأي (${response.status})`);
+      }
+      
+      console.log('Opinion deleted successfully');
+      
+      setPendingOpinions(prev => prev.filter(op => op.id !== opinionId));
+      
+      showModal(
+        'success',
+        'Success',
+        'نجح',
+        'Opinion deleted successfully.',
+        'تم حذف الرأي بنجاح.'
+      );
+    } catch (error) {
+      console.error('Error deleting opinion:', error);
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to delete opinion. Please try again.',
+        'فشل حذف الرأي. يرجى المحاولة مرة أخرى.'
+      );
     }
   };
 
@@ -988,6 +1089,108 @@ export default function SubscriptionManagementScreen() {
       alignItems: 'center',
       gap: 12,
     },
+    opinionCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 12,
+    },
+    opinionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    opinionName: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.text,
+      flex: 1,
+      textAlign: 'right',
+    },
+    opinionBadge: {
+      backgroundColor: '#F59E0B',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 6,
+    },
+    opinionBadgeText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    opinionRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    opinionLabel: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    opinionValue: {
+      fontSize: 13,
+      color: colors.text,
+      fontWeight: '600',
+      textAlign: 'right',
+      flex: 1,
+      marginLeft: 12,
+    },
+    opinionTextContainer: {
+      gap: 8,
+      marginTop: 8,
+    },
+    opinionText: {
+      fontSize: 14,
+      color: colors.text,
+      lineHeight: 20,
+      textAlign: 'right',
+      backgroundColor: colors.background,
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    opinionActions: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 8,
+    },
+    approveButton: {
+      flex: 1,
+      backgroundColor: '#10B981',
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+    },
+    approveButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    deleteButton: {
+      flex: 1,
+      backgroundColor: '#EF4444',
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+    },
+    deleteButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
   });
 
   return (
@@ -1038,6 +1241,15 @@ export default function SubscriptionManagementScreen() {
         >
           <Text style={[styles.tabText, activeTab === 'brokers' && styles.tabTextActive]}>
             البروكر
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}
+          onPress={() => setActiveTab('opinions')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabText, activeTab === 'opinions' && styles.tabTextActive]}>
+            الآراء
           </Text>
         </TouchableOpacity>
       </View>
@@ -1465,6 +1677,84 @@ export default function SubscriptionManagementScreen() {
                         <Text style={styles.brokerCardValue}>
                           {formatDateGregorian(subscriber.createdAt)}
                         </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+
+          {activeTab === 'opinions' && (
+            <View>
+              <Text style={styles.sectionTitle}>إدارة الآراء</Text>
+              
+              {pendingOpinions.length === 0 ? (
+                <View style={styles.emptyCard}>
+                  <IconSymbol
+                    ios_icon_name="text.bubble"
+                    android_material_icon_name="comment"
+                    size={48}
+                    color={colors.textSecondary}
+                  />
+                  <Text style={styles.emptyText}>لا توجد آراء معلقة</Text>
+                </View>
+              ) : (
+                <View style={styles.tableContainer}>
+                  {pendingOpinions.map((opinion, index) => (
+                    <View key={index} style={styles.opinionCard}>
+                      <View style={styles.opinionHeader}>
+                        <Text style={styles.opinionName}>{opinion.name}</Text>
+                        <View style={styles.opinionBadge}>
+                          <Text style={styles.opinionBadgeText}>معلق</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.opinionRow}>
+                        <Text style={styles.opinionLabel}>البريد الإلكتروني:</Text>
+                        <Text style={styles.opinionValue}>{opinion.email}</Text>
+                      </View>
+
+                      <View style={styles.opinionRow}>
+                        <Text style={styles.opinionLabel}>التاريخ:</Text>
+                        <Text style={styles.opinionValue}>
+                          {formatDateGregorian(opinion.created_at)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.opinionTextContainer}>
+                        <Text style={styles.opinionLabel}>الرأي:</Text>
+                        <Text style={styles.opinionText}>{opinion.opinion}</Text>
+                      </View>
+
+                      <View style={styles.opinionActions}>
+                        <TouchableOpacity
+                          style={styles.approveButton}
+                          onPress={() => handleApproveOpinion(opinion.id)}
+                          activeOpacity={0.7}
+                        >
+                          <IconSymbol
+                            ios_icon_name="checkmark.circle.fill"
+                            android_material_icon_name="check-circle"
+                            size={20}
+                            color="#FFFFFF"
+                          />
+                          <Text style={styles.approveButtonText}>موافقة</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.deleteButton}
+                          onPress={() => handleDeleteOpinion(opinion.id)}
+                          activeOpacity={0.7}
+                        >
+                          <IconSymbol
+                            ios_icon_name="trash.fill"
+                            android_material_icon_name="delete"
+                            size={20}
+                            color="#FFFFFF"
+                          />
+                          <Text style={styles.deleteButtonText}>حذف</Text>
+                        </TouchableOpacity>
                       </View>
                     </View>
                   ))}
