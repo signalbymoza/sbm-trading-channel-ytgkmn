@@ -5,6 +5,7 @@ import { colors } from "@/styles/commonStyles";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { uploadFile, apiCall } from "@/utils/api";
 import Modal from "@/components/ui/Modal";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,13 +54,13 @@ export default function ForexGuideRegistrationScreen() {
     setModalVisible(true);
   };
 
-  const handleUploadPress = async () => {
+  const handleUploadFromAlbum = async () => {
     if (isPickingRef.current) {
       console.log('Already picking a file, ignoring duplicate request');
       return;
     }
 
-    console.log('User tapped upload ID document button - opening photo library');
+    console.log('User tapped upload from photo album button');
     isPickingRef.current = true;
     
     try {
@@ -85,10 +86,10 @@ export default function ForexGuideRegistrationScreen() {
       
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: true, // Allow user to crop/edit the image
-        quality: 0.5, // Reduced quality to compress file size (was 0.8)
+        allowsEditing: true,
+        quality: 0.5,
         exif: false,
-        aspect: [4, 3], // Suggested aspect ratio for ID documents
+        aspect: [4, 3],
       });
 
       console.log('Image picker result:', JSON.stringify(result, null, 2));
@@ -101,7 +102,7 @@ export default function ForexGuideRegistrationScreen() {
 
       if (result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
-        console.log('User selected image:', asset.uri);
+        console.log('User selected image from album:', asset.uri);
         console.log('Image file name:', asset.fileName);
         
         const fileName = asset.fileName || `id_document_${Date.now()}.jpg`;
@@ -111,7 +112,7 @@ export default function ForexGuideRegistrationScreen() {
         console.log('No assets in result');
       }
     } catch (error) {
-      console.error('Error picking image:', error);
+      console.error('Error picking image from album:', error);
       if (error instanceof Error) {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
@@ -122,6 +123,81 @@ export default function ForexGuideRegistrationScreen() {
         'خطأ',
         'Failed to pick image. Please try again.',
         'فشل اختيار الصورة. يرجى المحاولة مرة أخرى.'
+      );
+    } finally {
+      isPickingRef.current = false;
+    }
+  };
+
+  const handleUploadFromFiles = async () => {
+    if (isPickingRef.current) {
+      console.log('Already picking a file, ignoring duplicate request');
+      return;
+    }
+
+    console.log('User tapped upload from files button');
+    isPickingRef.current = true;
+    
+    try {
+      console.log('Opening document picker...');
+      
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['image/*', 'application/pdf'],
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+
+      console.log('Document picker result:', JSON.stringify(result, null, 2));
+
+      if (result.canceled) {
+        console.log('User cancelled document picker');
+        isPickingRef.current = false;
+        return;
+      }
+
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log('User selected file:', asset.uri);
+        console.log('File name:', asset.name);
+        console.log('File size:', asset.size);
+        console.log('File type:', asset.mimeType);
+        
+        const fileSizeInMB = asset.size ? asset.size / (1024 * 1024) : 0;
+        console.log('File size in MB:', fileSizeInMB.toFixed(2));
+        
+        if (asset.size && asset.size > 10 * 1024 * 1024) {
+          console.log('File size exceeds 10MB limit');
+          showModal(
+            'warning',
+            'File Too Large',
+            'الملف كبير جداً',
+            'The file size exceeds the 10MB limit. Please select a smaller file.',
+            'حجم الملف يتجاوز حد 10 ميجابايت. يرجى اختيار ملف أصغر.'
+          );
+          isPickingRef.current = false;
+          return;
+        }
+        
+        const fileName = asset.name || `id_document_${Date.now()}.pdf`;
+        const mimeType = asset.mimeType || 'application/pdf';
+        
+        setDocumentFileName(fileName);
+        await uploadDocument(asset.uri, fileName, mimeType);
+      } else {
+        console.log('No assets in result');
+      }
+    } catch (error) {
+      console.error('Error picking document from files:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      showModal(
+        'error',
+        'Error',
+        'خطأ',
+        'Failed to pick file. Please try again.',
+        'فشل اختيار الملف. يرجى المحاولة مرة أخرى.'
       );
     } finally {
       isPickingRef.current = false;
@@ -145,22 +221,21 @@ export default function ForexGuideRegistrationScreen() {
         'success',
         'Success',
         'نجح',
-        'Image uploaded successfully!',
-        'تم تحميل الصورة بنجاح!'
+        'File uploaded successfully!',
+        'تم تحميل الملف بنجاح!'
       );
     } catch (error) {
       console.error('Error uploading document:', error);
       if (error instanceof Error) {
         console.error('Error message:', error.message);
         
-        // Check if it's a file size error (413 Payload Too Large)
         if (error.message.includes('413')) {
           showModal(
             'error',
             'File Too Large',
             'الملف كبير جداً',
-            'The image file is too large. Please try selecting a different photo or use the crop tool to reduce the file size.',
-            'حجم الصورة كبير جداً. يرجى اختيار صورة أخرى أو استخدام أداة الاقتصاص لتقليل حجم الملف.'
+            'The file is too large. Please select a smaller file.',
+            'حجم الملف كبير جداً. يرجى اختيار ملف أصغر.'
           );
           return;
         }
@@ -169,8 +244,8 @@ export default function ForexGuideRegistrationScreen() {
         'error',
         'Error',
         'خطأ',
-        'Failed to upload image. Please try again.',
-        'فشل تحميل الصورة. يرجى المحاولة مرة أخرى.'
+        'Failed to upload file. Please try again.',
+        'فشل تحميل الملف. يرجى المحاولة مرة أخرى.'
       );
     } finally {
       setIsUploading(false);
@@ -309,14 +384,16 @@ export default function ForexGuideRegistrationScreen() {
   const emailAr = 'البريد الإلكتروني';
   const telegramEn = 'Telegram Username';
   const telegramAr = 'اسم المستخدم في تيليجرام';
-  const idPassportEn = 'ID or Passport Photo';
-  const idPassportAr = 'صورة الهوية أو جواز السفر';
-  const uploadButtonEn = 'Upload Photo from Album';
-  const uploadButtonAr = 'رفع صورة من الألبوم';
-  const imageUploadedEn = 'Image Uploaded';
-  const imageUploadedAr = 'تم رفع الصورة';
-  const helperTextEn = 'Please upload a clear photo of your ID or passport from your photo album';
-  const helperTextAr = 'يرجى رفع صورة واضحة للهوية أو جواز السفر من ألبوم الصور';
+  const idPassportEn = 'ID or Passport Document';
+  const idPassportAr = 'وثيقة الهوية أو جواز السفر';
+  const fromAlbumEn = 'From Album';
+  const fromAlbumAr = 'من الألبوم';
+  const fromFilesEn = 'From Files';
+  const fromFilesAr = 'من الملفات';
+  const uploadedEn = 'Uploaded';
+  const uploadedAr = 'تم الرفع';
+  const helperTextEn = 'Upload from photo album or select a file (JPG, PNG, or PDF, max 10MB)';
+  const helperTextAr = 'رفع من ألبوم الصور أو اختيار ملف (JPG أو PNG أو PDF، حد أقصى 10 ميجابايت)';
   const agreeTermsEn = 'I agree to the terms and conditions';
   const agreeTermsAr = 'أوافق على الشروط والأحكام';
   const summaryTitleEn = 'Purchase Summary';
@@ -332,12 +409,10 @@ export default function ForexGuideRegistrationScreen() {
   const submitButtonEn = 'Submit Purchase';
   const submitButtonAr = 'إتمام الشراء';
 
-  // iPhone 17 Pro Max compatible padding - use safe area insets directly
   const headerPaddingTop = insets.top;
 
   return (
     <View style={styles.container}>
-      {/* Header with Back Button */}
       <View style={[styles.headerBar, { paddingTop: headerPaddingTop }]}>
         <TouchableOpacity 
           style={styles.backButton}
@@ -417,38 +492,79 @@ export default function ForexGuideRegistrationScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>{idPassportEn}</Text>
             <Text style={styles.labelAr}>{idPassportAr}</Text>
-            <TouchableOpacity
-              style={[styles.uploadButton, documentUploaded && styles.uploadButtonSuccess]}
-              onPress={handleUploadPress}
-              disabled={isUploading}
-              activeOpacity={0.7}
-            >
-              {isUploading ? (
-                <ActivityIndicator color={colors.text} />
-              ) : (
-                <>
-                  <IconSymbol 
-                    ios_icon_name={documentUploaded ? "checkmark.circle.fill" : "photo.fill"} 
-                    android_material_icon_name={documentUploaded ? "check-circle" : "photo"} 
-                    size={24} 
-                    color={documentUploaded ? colors.success : colors.text} 
-                  />
-                  <View style={styles.uploadTextContainer}>
-                    <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
-                      {documentUploaded ? imageUploadedEn : uploadButtonEn}
-                    </Text>
-                    <Text style={[styles.uploadButtonTextAr, documentUploaded && styles.uploadButtonTextSuccess]}>
-                      {documentUploaded ? imageUploadedAr : uploadButtonAr}
-                    </Text>
-                    {documentFileName && (
-                      <Text style={styles.fileNameText} numberOfLines={1}>
-                        {documentFileName}
+            
+            <View style={styles.uploadButtonsContainer}>
+              <TouchableOpacity
+                style={[styles.uploadButton, documentUploaded && styles.uploadButtonSuccess]}
+                onPress={handleUploadFromAlbum}
+                disabled={isUploading}
+                activeOpacity={0.7}
+              >
+                {isUploading ? (
+                  <ActivityIndicator color={colors.text} size="small" />
+                ) : (
+                  <>
+                    <IconSymbol 
+                      ios_icon_name={documentUploaded ? "checkmark.circle.fill" : "photo.fill"} 
+                      android_material_icon_name={documentUploaded ? "check-circle" : "photo"} 
+                      size={20} 
+                      color={documentUploaded ? colors.success : colors.text} 
+                    />
+                    <View style={styles.uploadTextContainer}>
+                      <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
+                        {documentUploaded ? uploadedEn : fromAlbumEn}
                       </Text>
-                    )}
-                  </View>
-                </>
-              )}
-            </TouchableOpacity>
+                      <Text style={[styles.uploadButtonTextAr, documentUploaded && styles.uploadButtonTextSuccess]}>
+                        {documentUploaded ? uploadedAr : fromAlbumAr}
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.uploadButton, documentUploaded && styles.uploadButtonSuccess]}
+                onPress={handleUploadFromFiles}
+                disabled={isUploading}
+                activeOpacity={0.7}
+              >
+                {isUploading ? (
+                  <ActivityIndicator color={colors.text} size="small" />
+                ) : (
+                  <>
+                    <IconSymbol 
+                      ios_icon_name={documentUploaded ? "checkmark.circle.fill" : "folder.fill"} 
+                      android_material_icon_name={documentUploaded ? "check-circle" : "folder"} 
+                      size={20} 
+                      color={documentUploaded ? colors.success : colors.text} 
+                    />
+                    <View style={styles.uploadTextContainer}>
+                      <Text style={[styles.uploadButtonText, documentUploaded && styles.uploadButtonTextSuccess]}>
+                        {documentUploaded ? uploadedEn : fromFilesEn}
+                      </Text>
+                      <Text style={[styles.uploadButtonTextAr, documentUploaded && styles.uploadButtonTextSuccess]}>
+                        {documentUploaded ? uploadedAr : fromFilesAr}
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {documentFileName && (
+              <View style={styles.fileNameContainer}>
+                <IconSymbol 
+                  ios_icon_name="doc.fill" 
+                  android_material_icon_name="description" 
+                  size={16} 
+                  color={colors.success} 
+                />
+                <Text style={styles.fileNameText} numberOfLines={1}>
+                  {documentFileName}
+                </Text>
+              </View>
+            )}
+
             <Text style={styles.helperText}>{helperTextEn}</Text>
             <Text style={styles.helperTextAr}>{helperTextAr}</Text>
           </View>
@@ -644,7 +760,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
   },
+  uploadButtonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   uploadButton: {
+    flex: 1,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
@@ -653,38 +774,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
   },
   uploadButtonSuccess: {
     borderColor: colors.success,
     backgroundColor: colors.accent,
   },
   uploadTextContainer: {
-    marginLeft: 12,
-    flex: 1,
+    alignItems: 'center',
   },
   uploadButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.text,
     fontWeight: '600',
     marginBottom: 2,
   },
   uploadButtonTextAr: {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.textSecondary,
     fontWeight: '600',
   },
   uploadButtonTextSuccess: {
     color: colors.success,
   },
+  fileNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: colors.accent,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.success,
+  },
   fileNameText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
+    flex: 1,
+    fontSize: 13,
+    color: colors.success,
+    fontWeight: '500',
   },
   helperText: {
     fontSize: 13,
     color: colors.textSecondary,
-    marginTop: 6,
+    marginTop: 8,
   },
   helperTextAr: {
     fontSize: 12,
