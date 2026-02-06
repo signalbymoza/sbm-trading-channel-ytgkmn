@@ -1,10 +1,17 @@
 
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Modal } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, Modal, ImageBackground, ImageSourcePropType } from "react-native";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// Helper to resolve image sources (handles both local require() and remote URLs)
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function EducationScreen() {
   const router = useRouter();
@@ -156,6 +163,9 @@ export default function EducationScreen() {
   const cardTextColor = theme === 'light' ? '#0F172A' : '#FFFFFF';
   const cardTextSecondaryColor = theme === 'light' ? '#475569' : '#CBD5E1';
 
+  // Background image for the hero section
+  const heroBackgroundImage = require('@/assets/images/ea240e0b-72bf-4a79-ba48-1fec34beb9eb.jpeg');
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -199,6 +209,22 @@ export default function EducationScreen() {
     scrollContent: {
       paddingBottom: 120,
     },
+    heroBackgroundImage: {
+      width: '100%',
+      minHeight: 280,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    heroImageStyle: {
+      resizeMode: 'cover',
+    },
+    heroOverlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      width: '100%',
+      paddingVertical: 32,
+      paddingHorizontal: 24,
+      alignItems: 'center',
+    },
     headerSection: {
       alignItems: 'center',
       padding: 24,
@@ -215,33 +241,39 @@ export default function EducationScreen() {
     currencyButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.card,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
       paddingHorizontal: 16,
       paddingVertical: 10,
       borderRadius: 12,
       borderWidth: 2,
-      borderColor: colors.border,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     currencyButtonText: {
       fontSize: 15,
       fontWeight: '700',
-      color: colors.text,
+      color: '#FFFFFF',
       marginHorizontal: 6,
     },
     title: {
       fontSize: 28,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginTop: 12,
       marginBottom: 4,
       textAlign: 'center',
+      textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 4,
     },
     titleAr: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#FFFFFF',
       marginBottom: 12,
       textAlign: 'center',
+      textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 4,
     },
     subtitle: {
       fontSize: 15,
@@ -623,40 +655,51 @@ export default function EducationScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerSection}>
-          <View style={styles.headerTop}>
-            <IconSymbol 
-              ios_icon_name="book.fill" 
-              android_material_icon_name="menu-book" 
-              size={48} 
-              color={colors.highlight} 
-            />
-            <TouchableOpacity 
-              style={styles.currencyButton}
-              onPress={() => {
-                console.log('User tapped currency selector on education page');
-                setShowCurrencyModal(true);
-              }}
-              activeOpacity={0.7}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
+        {/* Hero Section with Background Image */}
+        <ImageBackground
+          source={resolveImageSource(heroBackgroundImage)}
+          style={styles.heroBackgroundImage}
+          imageStyle={styles.heroImageStyle}
+        >
+          <View style={styles.heroOverlay}>
+            <View style={styles.headerTop}>
               <IconSymbol 
-                ios_icon_name="dollarsign.circle.fill" 
-                android_material_icon_name="attach-money" 
-                size={20} 
-                color={colors.text} 
+                ios_icon_name="book.fill" 
+                android_material_icon_name="menu-book" 
+                size={48} 
+                color="#FFFFFF" 
               />
-              <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
-              <IconSymbol 
-                ios_icon_name="chevron.down" 
-                android_material_icon_name="arrow-drop-down" 
-                size={20} 
-                color={colors.text} 
-              />
-            </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.currencyButton}
+                onPress={() => {
+                  console.log('User tapped currency selector on education page');
+                  setShowCurrencyModal(true);
+                }}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <IconSymbol 
+                  ios_icon_name="dollarsign.circle.fill" 
+                  android_material_icon_name="attach-money" 
+                  size={20} 
+                  color="#FFFFFF" 
+                />
+                <Text style={styles.currencyButtonText}>{currencyDisplayText}</Text>
+                <IconSymbol 
+                  ios_icon_name="chevron.down" 
+                  android_material_icon_name="arrow-drop-down" 
+                  size={20} 
+                  color="#FFFFFF" 
+                />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.title}>Trade with confidence and professionalism</Text>
+            <Text style={styles.titleAr}>تداول بثقة واحترافية</Text>
           </View>
-          <Text style={styles.title}>Education Programs</Text>
-          <Text style={styles.titleAr}>برامج التعليم</Text>
+        </ImageBackground>
+
+        {/* Additional Info Section */}
+        <View style={styles.headerSection}>
           <Text style={styles.subtitle}>
             Master trading with our comprehensive education programs
           </Text>
