@@ -11,8 +11,8 @@ import { colors } from '@/styles/commonStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Modal from '@/components/ui/Modal';
 
-export default function PaymentScreenWeb() {
-  console.log('PaymentScreen: Loading web version (payment.tsx)');
+export default function PaymentScreen() {
+  console.log('PaymentScreen: Loading web/base version (payment.tsx)');
   console.log('PaymentScreen: Platform:', Platform.OS);
   
   const router = useRouter();

@@ -543,7 +543,7 @@ function PaymentContent() {
   );
 }
 
-export default function PaymentScreen() {
+function PaymentScreen() {
   console.log('PaymentScreen (Native): Component mounted');
   
   if (!isStripeConfigured()) {
@@ -578,6 +578,8 @@ export default function PaymentScreen() {
     </StripeProvider>
   );
 }
+
+export default PaymentScreen;
 
 const styles = StyleSheet.create({
   container: {
