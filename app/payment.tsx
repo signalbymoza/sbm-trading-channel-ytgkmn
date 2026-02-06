@@ -1,11 +1,10 @@
 
-// Base payment screen for web fallback
-// Platform-specific versions:
-// - payment.native.tsx for iOS/Android (uses Stripe native SDK)
-// - payment.web.tsx for web (web-compatible payment UI)
+// Base payment screen for web
+// This file is used by web platform
+// Native platforms (iOS/Android) use payment.native.tsx
 
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
@@ -13,6 +12,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Modal from '@/components/ui/Modal';
 
 export default function PaymentScreenWeb() {
+  console.log('PaymentScreen: Loading web version (payment.tsx)');
+  console.log('PaymentScreen: Platform:', Platform.OS);
+  
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
@@ -36,7 +38,7 @@ export default function PaymentScreenWeb() {
     messageAr: '',
   });
 
-  const displayAmount = parseFloat(amount).toFixed(2);
+  const displayAmount = amount ? parseFloat(amount).toFixed(2) : '0.00';
   const currencySymbol = currency === 'USD' ? '$' : currency;
 
   const showModal = (
@@ -51,6 +53,7 @@ export default function PaymentScreenWeb() {
   };
 
   const handleContactForPayment = () => {
+    console.log('User tapped Contact Us to Pay button');
     showModal(
       'info',
       'Payment Instructions',
