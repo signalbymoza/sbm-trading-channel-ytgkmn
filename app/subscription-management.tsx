@@ -569,15 +569,31 @@ export default function SubscriptionManagementScreen() {
   };
 
   const formatDateGregorian = (dateString: string) => {
-    if (!dateString) return 'غير متوفر';
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const dayStr = day.toString().padStart(2, '0');
-    const monthStr = month.toString().padStart(2, '0');
-    const yearStr = year.toString();
-    return `${dayStr}/${monthStr}/${yearStr}`;
+    if (!dateString) {
+      console.warn('formatDateGregorian: Empty or null date string provided');
+      return 'غير متوفر';
+    }
+    
+    try {
+      const date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('formatDateGregorian: Invalid date string:', dateString);
+        return 'تاريخ غير صالح';
+      }
+      
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      const dayStr = day.toString().padStart(2, '0');
+      const monthStr = month.toString().padStart(2, '0');
+      const yearStr = year.toString();
+      return `${dayStr}/${monthStr}/${yearStr}`;
+    } catch (error) {
+      console.error('formatDateGregorian: Error parsing date:', dateString, error);
+      return 'تاريخ غير صالح';
+    }
   };
 
   const getChannelNameArabic = (channelType: string) => {

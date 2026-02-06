@@ -203,11 +203,28 @@ export default function HomeScreen() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const monthEn = date.toLocaleDateString('en-US', { month: 'short' });
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${monthEn} ${day}, ${year}`;
+    if (!dateString) {
+      console.warn('formatDate: Empty or null date string provided');
+      return 'Date not available';
+    }
+    
+    try {
+      const date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('formatDate: Invalid date string:', dateString);
+        return 'Invalid date';
+      }
+      
+      const monthEn = date.toLocaleDateString('en-US', { month: 'short' });
+      const day = date.getDate();
+      const year = date.getFullYear();
+      return `${monthEn} ${day}, ${year}`;
+    } catch (error) {
+      console.error('formatDate: Error parsing date:', dateString, error);
+      return 'Invalid date';
+    }
   };
 
   const mozaImage = require('@/assets/images/e3bdb5d2-af0c-4e7d-8cdf-b359833dae8e.jpeg');
