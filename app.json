@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "SBM Trading Channel",
@@ -17,9 +18,9 @@
       "bundleIdentifier": "com.sbmtradingchannel.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0643\u062a\u0628\u0629 \u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0644\u062a\u062d\u0645\u064a\u0644 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your photo library to upload your ID or passport photo.",
-        "NSPhotoLibraryAddUsageDescription": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0643\u062a\u0628\u0629 \u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0644\u062d\u0641\u0638 \u0627\u0644\u0645\u0633\u062a\u0646\u062f\u0627\u062a. We need access to your photo library to save documents.",
-        "NSCameraUsageDescription": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u0644\u0627\u0644\u062a\u0642\u0627\u0637 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your camera to take a photo of your ID or passport."
+        "NSPhotoLibraryUsageDescription": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لتحميل صورة الهوية أو جواز السفر. We need access to your photo library to upload your ID or passport photo.",
+        "NSPhotoLibraryAddUsageDescription": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لحفظ المستندات. We need access to your photo library to save documents.",
+        "NSCameraUsageDescription": "نحتاج إلى الوصول إلى الكاميرا لالتقاط صورة الهوية أو جواز السفر. We need access to your camera to take a photo of your ID or passport."
       }
     },
     "android": {
@@ -48,21 +49,14 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0645\u0643\u062a\u0628\u0629 \u0627\u0644\u0635\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0644\u062a\u062d\u0645\u064a\u0644 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your photo library to upload your ID or passport photo.",
-          "cameraPermission": "\u0646\u062d\u062a\u0627\u062c \u0625\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u0644\u0627\u0644\u062a\u0642\u0627\u0637 \u0635\u0648\u0631\u0629 \u0627\u0644\u0647\u0648\u064a\u0629 \u0623\u0648 \u062c\u0648\u0627\u0632 \u0627\u0644\u0633\u0641\u0631. We need access to your camera to take a photo of your ID or passport."
+          "photosPermission": "نحتاج إلى الوصول إلى مكتبة الصور الخاصة بك لتحميل صورة الهوية أو جواز السفر. We need access to your photo library to upload your ID or passport photo.",
+          "cameraPermission": "نحتاج إلى الوصول إلى الكاميرا لالتقاط صورة الهوية أو جواز السفر. We need access to your camera to take a photo of your ID or passport."
         }
       ],
       [
         "expo-document-picker",
         {
           "iCloudContainerEnvironment": "Production"
-        }
-      ],
-      [
-        "@stripe/stripe-react-native",
-        {
-          "merchantIdentifier": "merchant.com.sbmtradingchannel",
-          "enableGooglePay": true
         }
       ]
     ],
