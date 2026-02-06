@@ -420,6 +420,7 @@ export default function RegistrationScreen() {
         console.log('Channel subscription - navigating to payment screen');
         const priceParam = params.price as string;
         const currencyParam = params.currency as string || 'USD';
+        // FIXED: Changed 'price' to 'amount' to match what payment screen expects
         router.push(`/payment?amount=${priceParam}&currency=${currencyParam}&subscriptionId=${data.id}&channel=${channelType}&duration=${duration}`);
       } else if (program === 'profit_plan') {
         console.log('Profit plan registration - navigating to payment screen');
