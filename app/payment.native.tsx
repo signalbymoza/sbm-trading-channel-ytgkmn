@@ -543,7 +543,7 @@ function PaymentContent() {
   );
 }
 
-function PaymentScreen() {
+export default function PaymentScreen() {
   if (!isStripeConfigured()) {
     return (
       <View style={styles.container}>
@@ -810,5 +810,3 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
-
-export default PaymentScreen;
