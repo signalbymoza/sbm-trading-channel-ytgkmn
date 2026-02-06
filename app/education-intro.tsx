@@ -1,11 +1,17 @@
 
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Platform, ImageBackground, ImageSourcePropType } from "react-native";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
-import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// Helper to resolve image sources (handles both local require() and remote URLs)
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function EducationIntroScreen() {
   const router = useRouter();
@@ -73,8 +79,11 @@ export default function EducationIntroScreen() {
     },
   ];
 
+  // Background image for the hero section
+  const heroBackgroundImage = require('@/assets/images/ea240e0b-72bf-4a79-ba48-1fec34beb9eb.jpeg');
+
   // Dynamic text colors based on theme
-  const heroTextColor = theme === 'light' ? '#FFFFFF' : colors.text;
+  const heroTextColor = '#FFFFFF';
 
   // iPhone 17 Pro Max compatible padding - use safe area insets directly
   const topPaddingTop = insets.top;
@@ -104,18 +113,34 @@ export default function EducationIntroScreen() {
     scrollContent: {
       paddingBottom: 40,
     },
-    heroSection: {
-      padding: 32,
+    heroBackgroundImage: {
+      width: '100%',
+      minHeight: 320,
+      justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: 24,
+    },
+    heroImageStyle: {
+      resizeMode: 'cover',
+    },
+    heroOverlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      width: '100%',
+      paddingVertical: 32,
+      paddingHorizontal: 24,
+      alignItems: 'center',
+    },
+    heroIcon: {
+      marginBottom: 16,
     },
     heroTitle: {
       fontSize: 28,
       fontWeight: 'bold',
       color: heroTextColor,
       textAlign: 'center',
-      marginTop: 16,
       marginBottom: 4,
+      textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 4,
     },
     heroTitleAr: {
       fontSize: 26,
@@ -123,6 +148,9 @@ export default function EducationIntroScreen() {
       color: heroTextColor,
       textAlign: 'center',
       marginBottom: 16,
+      textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 4,
     },
     heroSubtitle: {
       fontSize: 16,
@@ -130,7 +158,10 @@ export default function EducationIntroScreen() {
       textAlign: 'center',
       lineHeight: 24,
       marginBottom: 4,
-      opacity: 0.9,
+      opacity: 0.95,
+      textShadowColor: 'rgba(0, 0, 0, 0.5)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
     },
     heroSubtitleAr: {
       fontSize: 15,
@@ -138,10 +169,13 @@ export default function EducationIntroScreen() {
       textAlign: 'center',
       lineHeight: 24,
       marginBottom: 24,
-      opacity: 0.85,
+      opacity: 0.9,
+      textShadowColor: 'rgba(0, 0, 0, 0.5)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
     },
     heroButton: {
-      backgroundColor: theme === 'light' ? '#FFFFFF' : colors.card,
+      backgroundColor: '#FFFFFF',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
@@ -153,13 +187,13 @@ export default function EducationIntroScreen() {
     heroButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: theme === 'light' ? colors.primary : colors.text,
+      color: colors.primary,
       marginRight: 4,
     },
     heroButtonTextAr: {
       fontSize: 15,
       fontWeight: 'bold',
-      color: theme === 'light' ? colors.primary : colors.text,
+      color: colors.primary,
       marginRight: 8,
     },
     featuresSection: {
@@ -386,42 +420,45 @@ export default function EducationIntroScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero Section */}
-        <LinearGradient
-          colors={[colors.primary, colors.highlight]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroSection}
+        {/* Hero Section with Background Image */}
+        <ImageBackground
+          source={resolveImageSource(heroBackgroundImage)}
+          style={styles.heroBackgroundImage}
+          imageStyle={styles.heroImageStyle}
         >
-          <IconSymbol 
-            ios_icon_name="chart.line.uptrend.xyaxis" 
-            android_material_icon_name="show-chart" 
-            size={64} 
-            color={heroTextColor} 
-          />
-          <Text style={styles.heroTitle}>Trade with Confidence and Professionalism</Text>
-          <Text style={styles.heroTitleAr}>تداول بثقة واحترافية</Text>
-          <Text style={styles.heroSubtitle}>
-            Get personalized guidance to help you make informed trading decisions and achieve sustainable profits.
-          </Text>
-          <Text style={styles.heroSubtitleAr}>
-            احصل على إرشاد فردي يساعدك في اتخاذ قرارات تداول مدروسة وتحقيق أرباح مستدامة.
-          </Text>
-          <TouchableOpacity
-            style={styles.heroButton}
-            onPress={handleLearnMore}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.heroButtonText}>Learn About Our Services</Text>
-            <Text style={styles.heroButtonTextAr}>تعرف على خدماتنا</Text>
-            <IconSymbol 
-              ios_icon_name="arrow.right" 
-              android_material_icon_name="arrow-forward" 
-              size={20} 
-              color={theme === 'light' ? colors.primary : colors.text} 
-            />
-          </TouchableOpacity>
-        </LinearGradient>
+          <View style={styles.heroOverlay}>
+            <View style={styles.heroIcon}>
+              <IconSymbol 
+                ios_icon_name="chart.line.uptrend.xyaxis" 
+                android_material_icon_name="show-chart" 
+                size={64} 
+                color={heroTextColor} 
+              />
+            </View>
+            <Text style={styles.heroTitle}>Trade with Confidence and Professionalism</Text>
+            <Text style={styles.heroTitleAr}>تداول بثقة واحترافية</Text>
+            <Text style={styles.heroSubtitle}>
+              Get personalized guidance to help you make informed trading decisions and achieve sustainable profits.
+            </Text>
+            <Text style={styles.heroSubtitleAr}>
+              احصل على إرشاد فردي يساعدك في اتخاذ قرارات تداول مدروسة وتحقيق أرباح مستدامة.
+            </Text>
+            <TouchableOpacity
+              style={styles.heroButton}
+              onPress={handleLearnMore}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.heroButtonText}>Learn About Our Services</Text>
+              <Text style={styles.heroButtonTextAr}>تعرف على خدماتنا</Text>
+              <IconSymbol 
+                ios_icon_name="arrow.right" 
+                android_material_icon_name="arrow-forward" 
+                size={20} 
+                color={colors.primary} 
+              />
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
 
         {/* Features Section */}
         <View style={styles.featuresSection}>
