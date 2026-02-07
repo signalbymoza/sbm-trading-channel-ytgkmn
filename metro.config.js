@@ -1,4 +1,3 @@
-
 const { getDefaultConfig } = require('expo/metro-config');
 const { FileStore } = require('metro-cache');
 const path = require('path');
@@ -7,45 +6,6 @@ const fs = require('fs');
 const config = getDefaultConfig(__dirname);
 
 config.resolver.unstable_enablePackageExports = true;
-
-// Platform-specific resolution to prevent native modules from being bundled on web
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  // Prevent Stripe native modules from being bundled on web
-  if (platform === 'web') {
-    // Block Stripe React Native entirely on web
-    if (moduleName === '@stripe/stripe-react-native' || 
-        moduleName.startsWith('@stripe/stripe-react-native/')) {
-      console.log(`[METRO] Blocking Stripe native module on web: ${moduleName}`);
-      return {
-        type: 'empty',
-      };
-    }
-    
-    // Block native-only React Native modules on web
-    if (moduleName.includes('react-native/Libraries/Utilities/codegenNativeComponent') ||
-        moduleName.includes('react-native/Libraries/Utilities/codegenNativeCommands') ||
-        moduleName.includes('codegenNativeComponent')) {
-      console.log(`[METRO] Blocking native component on web: ${moduleName}`);
-      return {
-        type: 'empty',
-      };
-    }
-
-    // Block payment.native.tsx from being loaded on web
-    if (moduleName.includes('payment.native')) {
-      console.log(`[METRO] Blocking payment.native.tsx on web`);
-      return {
-        type: 'empty',
-      };
-    }
-  }
-
-  // Use default resolver
-  return context.resolveRequest(context, moduleName, platform);
-};
-
-// Ensure platform-specific files are resolved correctly
-config.resolver.sourceExts = [...config.resolver.sourceExts, 'tsx', 'ts', 'jsx', 'js'];
 
 // Use turborepo to restore the cache when possible
 config.cacheStores = [

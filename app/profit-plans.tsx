@@ -24,6 +24,28 @@ export default function ProfitPlansScreen() {
     { code: 'OMR', symbol: 'ر.ع', nameEn: 'Omani Rial', nameAr: 'ريال عماني', rate: 0.385, flag: '🇴🇲' },
   ];
 
+  const profitPlans = [
+    { amount: '150', link: 'https://drive.google.com/file/d/1z7yLpiJ1UFtEWaaaFhVuYGygOQg8MSVN/view?usp=sharing' },
+    { amount: '250', link: 'https://drive.google.com/file/d/1Ttmyi1vLTZCTeQY9lYVDDvpLEA7Fx_9o/view?usp=sharing' },
+    { amount: '400', link: 'https://drive.google.com/file/d/1tWkv-hI6FpNxrL5yuGUU-jdwzs2QCs-a/view?usp=sharing' },
+    { amount: '500', link: 'https://drive.google.com/file/d/1SguLSLbQhzxfTQ5yWTRc0g19xyyURihy/view?usp=sharing' },
+    { amount: '800', link: 'https://drive.google.com/file/d/1r1rCdK4_1BGWVCO2msQC6Bd7hzEdiwsV/view?usp=sharing' },
+    { amount: '1000', link: 'https://drive.google.com/file/d/1mPe32kqBA_8Bq8Mic7vgXNMYH4laBL_r/view?usp=sharing' },
+    { amount: '1300', link: 'https://drive.google.com/file/d/1JGBzoFBQdtVATccbSQGgIUUWeTXQQsLN/view?usp=sharing' },
+    { amount: '1500', link: 'https://drive.google.com/file/d/1N6jRVT2i_3UN-XGmjYVfs3fb-1IGoIgD/view?usp=sharing' },
+    { amount: '2000', link: 'https://drive.google.com/file/d/1sXbu95VGOaJrpbpd5isgmyLiQhNUf_Bb/view?usp=sharing' },
+    { amount: '2600', link: 'https://drive.google.com/file/d/18MPMPV-9NffK_qjBwQqxaIjLMbXdvpR1/view?usp=sharing' },
+    { amount: '3000', link: 'https://drive.google.com/file/d/186M5jx7ne08HPKT-40wpgnC8FSbJXkDw/view?usp=sharing' },
+    { amount: '4000', link: 'https://drive.google.com/file/d/18xltHFlsOvGPWIuutvow8bTs0okRnFY0/view?usp=sharing' },
+    { amount: '5000', link: 'https://drive.google.com/file/d/1HncwzgmQPSjlVaWBRDqHbbQ8AlbKV_tZ/view?usp=sharing' },
+    { amount: '7000', link: 'https://drive.google.com/file/d/1AcyHycqxTebpOzY6GBS-BKTz951BAGuc/view?usp=sharing' },
+    { amount: '8000', link: 'https://drive.google.com/file/d/1yJldDTXUVm6XPTk855UAUM1azDesyOhn/view?usp=sharing' },
+    { amount: '10000', link: 'https://drive.google.com/file/d/1pk2ZatbN0mVuReoyIWcx6gehXr-K6N6v/view?usp=sharing' },
+    { amount: '15000', link: 'https://drive.google.com/file/d/1jOMvrVA0y2fUpaSizl9oJhHh_kg-HEu6/view?usp=sharing' },
+    { amount: '24000', link: 'https://drive.google.com/file/d/1XClJFJIUuhaQGMCe-vRaM5zpD8TNN3YS/view?usp=sharing' },
+    { amount: '25000', link: 'https://drive.google.com/file/d/14VmaGXfHKx9lmvB3a1H5o8E403q9zxEm/view?usp=sharing' },
+  ];
+
   const handlePlanPress = (planAmount: string) => {
     console.log(`User tapped on $${planAmount} profit plan card - navigating to registration`);
     router.push(`/registration?program=profit_plan&plan_amount=${planAmount}`);
@@ -35,10 +57,20 @@ export default function ProfitPlansScreen() {
 
   const titleEn = 'Accumulated Profit Plans';
   const titleAr = 'خطط الربح التراكمي';
-  const priceText = '0$';
+  const planPrice = 20;
   const tapToDownloadText = 'اضغط للتنزيل';
+  const riskPercentage = 10;
 
   const topPaddingTop = Platform.OS === 'android' ? Math.max(insets.top, 48) : insets.top;
+
+  const convertPrice = (usdPrice: number) => {
+    const currency = currencies.find(c => c.code === selectedCurrency);
+    const convertedAmount = usdPrice * (currency?.rate || 1);
+    const symbol = currency?.symbol || '$';
+    return `${symbol}${convertedAmount.toFixed(2)}`;
+  };
+
+  const priceDisplay = convertPrice(planPrice);
 
   const styles = StyleSheet.create({
     container: {
@@ -405,121 +437,71 @@ export default function ProfitPlansScreen() {
           <Text style={styles.titleAr}>{titleAr}</Text>
         </View>
 
-        {/* Plan Card 1 - $250 Plan */}
-        <TouchableOpacity 
-          style={styles.planCard}
-          onPress={() => handlePlanPress('250')}
-          activeOpacity={0.8}
-        >
-          <View style={styles.planHeader}>
-            <IconSymbol 
-              ios_icon_name="chart.line.uptrend.xyaxis" 
-              android_material_icon_name="show-chart" 
-              size={32} 
-              color={colors.highlight} 
-            />
-          </View>
+        {/* Render all 19 profit plans */}
+        {profitPlans.map((plan, index) => {
+          const planAmountText = `خطة ${plan.amount} دولار لمدة سنة`;
+          const riskText = `نسبة المخاطرة ${riskPercentage}%`;
+          
+          return (
+            <TouchableOpacity 
+              key={index}
+              style={styles.planCard}
+              onPress={() => handlePlanPress(plan.amount)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.planHeader}>
+                <IconSymbol 
+                  ios_icon_name="chart.line.uptrend.xyaxis" 
+                  android_material_icon_name="show-chart" 
+                  size={32} 
+                  color={colors.highlight} 
+                />
+              </View>
 
-          <View style={styles.planContent}>
-            <Text style={styles.planDuration}>خطة 250 دولار لمدة سنة</Text>
-            <Text style={styles.riskPercentage}>نسبة المخاطرة 25%</Text>
-          </View>
+              <View style={styles.planContent}>
+                <Text style={styles.planDuration}>{planAmountText}</Text>
+                <Text style={styles.riskPercentage}>{riskText}</Text>
+              </View>
 
-          <View style={styles.planDetails}>
-            <View style={styles.detailRow}>
-              <IconSymbol 
-                ios_icon_name="calendar" 
-                android_material_icon_name="calendar-today" 
-                size={20} 
-                color={colors.textSecondary} 
-              />
-              <Text style={styles.detailText}>مدة سنة واحدة</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <IconSymbol 
-                ios_icon_name="exclamationmark.triangle" 
-                android_material_icon_name="warning" 
-                size={20} 
-                color="#FFA500" 
-              />
-              <Text style={styles.detailText}>مخاطرة متوسطة - 25%</Text>
-            </View>
-          </View>
+              <View style={styles.planDetails}>
+                <View style={styles.detailRow}>
+                  <IconSymbol 
+                    ios_icon_name="calendar" 
+                    android_material_icon_name="calendar-today" 
+                    size={20} 
+                    color={colors.textSecondary} 
+                  />
+                  <Text style={styles.detailText}>مدة سنة واحدة</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <IconSymbol 
+                    ios_icon_name="exclamationmark.triangle" 
+                    android_material_icon_name="warning" 
+                    size={20} 
+                    color="#FFA500" 
+                  />
+                  <Text style={styles.detailText}>مخاطرة منخفضة - {riskPercentage}%</Text>
+                </View>
+              </View>
 
-          {/* Price inside the card */}
-          <View style={styles.priceSection}>
-            <Text style={styles.priceText}>{priceText}</Text>
-          </View>
+              {/* Price inside the card */}
+              <View style={styles.priceSection}>
+                <Text style={styles.priceText}>{priceDisplay}</Text>
+              </View>
 
-          {/* Tap to download indicator */}
-          <View style={styles.tapIndicator}>
-            <Text style={styles.tapIndicatorText}>{tapToDownloadText}</Text>
-            <IconSymbol 
-              ios_icon_name="arrow.right" 
-              android_material_icon_name="arrow-forward" 
-              size={18} 
-              color={colors.highlight} 
-            />
-          </View>
-        </TouchableOpacity>
-
-        {/* Plan Card 2 - $400 Plan (NEW) */}
-        <TouchableOpacity 
-          style={styles.planCard}
-          onPress={() => handlePlanPress('400')}
-          activeOpacity={0.8}
-        >
-          <View style={styles.planHeader}>
-            <IconSymbol 
-              ios_icon_name="chart.line.uptrend.xyaxis" 
-              android_material_icon_name="show-chart" 
-              size={32} 
-              color={colors.highlight} 
-            />
-          </View>
-
-          <View style={styles.planContent}>
-            <Text style={styles.planDuration}>خطة 400 دولار لمدة سنة</Text>
-            <Text style={styles.riskPercentage}>نسبة المخاطرة 25%</Text>
-          </View>
-
-          <View style={styles.planDetails}>
-            <View style={styles.detailRow}>
-              <IconSymbol 
-                ios_icon_name="calendar" 
-                android_material_icon_name="calendar-today" 
-                size={20} 
-                color={colors.textSecondary} 
-              />
-              <Text style={styles.detailText}>مدة سنة واحدة</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <IconSymbol 
-                ios_icon_name="exclamationmark.triangle" 
-                android_material_icon_name="warning" 
-                size={20} 
-                color="#FFA500" 
-              />
-              <Text style={styles.detailText}>مخاطرة متوسطة - 25%</Text>
-            </View>
-          </View>
-
-          {/* Price inside the card */}
-          <View style={styles.priceSection}>
-            <Text style={styles.priceText}>{priceText}</Text>
-          </View>
-
-          {/* Tap to download indicator */}
-          <View style={styles.tapIndicator}>
-            <Text style={styles.tapIndicatorText}>{tapToDownloadText}</Text>
-            <IconSymbol 
-              ios_icon_name="arrow.right" 
-              android_material_icon_name="arrow-forward" 
-              size={18} 
-              color={colors.highlight} 
-            />
-          </View>
-        </TouchableOpacity>
+              {/* Tap to download indicator */}
+              <View style={styles.tapIndicator}>
+                <Text style={styles.tapIndicatorText}>{tapToDownloadText}</Text>
+                <IconSymbol 
+                  ios_icon_name="arrow.right" 
+                  android_material_icon_name="arrow-forward" 
+                  size={18} 
+                  color={colors.highlight} 
+                />
+              </View>
+            </TouchableOpacity>
+          );
+        })}
 
         {/* Performance Disclaimer */}
         <View style={styles.disclaimerSection}>
